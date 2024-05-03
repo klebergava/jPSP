@@ -1,9 +1,5 @@
 package br.com.jpsp.gui;
 
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -52,6 +48,9 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import com.sun.jna.Callback;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.User32;
@@ -77,11 +76,6 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 	private static final long serialVersionUID = 5345992610620020749L;
 
 	private final static Logger log = LogManager.getLogger(jPSP.class);
-	
-	static {
-		log.atLevel(Level.DEBUG);
-//		log.atLevel(Level.ERROR);
-	}
 	
 	private static final Dimension BUTTON_DIMENSION = new Dimension(120, 50);
 	private static final Dimension SQUARE_BUTTON_DIMENSION = new Dimension(50, 50);

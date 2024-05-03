@@ -1,2 +1,5 @@
 output/
 data/
+.gitignore
+.classpath
+jar/

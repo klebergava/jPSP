@@ -4,13 +4,23 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class FilesUtils {
+	
+	private final static Logger log = LogManager.getLogger(FilesUtils.class);
+	
 	public static final String DATA_DIR = "data";
 	
 	public static final String FILE_SEPARATOR = System.getProperty("file.separator");
@@ -159,10 +169,37 @@ public class FilesUtils {
 						f.delete();
 					}
 				} catch (Exception exception) {
+					log.info("Não foi possível apagar " + name);
 				}
 			}
 			b++;
 		}
 
+	}
+	
+	public static List<String> readAppJARS() {
+		
+		List<String> jars = new ArrayList<String>();
+		
+		String zipFilePath = "./jPSP.jar";
+
+		try (ZipFile zipFile = new ZipFile(zipFilePath)) {
+		    Enumeration<? extends ZipEntry> entries = zipFile.entries();
+		    while (entries.hasMoreElements()) {
+		        ZipEntry entry = entries.nextElement();
+		        // Check if entry is a directory
+		        if (!entry.isDirectory()) {
+		        	String name = entry.getName();
+		        	if (name.endsWith(".jar")) {
+		        		jars.add(name);
+		        	}
+		        }
+		    }
+		} catch (IOException e) {
+			log.error(e.getMessage());
+			e.printStackTrace();
+		}
+		
+		return jars;
 	}
 }

@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -38,7 +39,6 @@ public class About extends JFrame {
 		getContentPane().setLayout(new BorderLayout());
 		getContentPane().add(mount(), "Center");
 
-//		setUndecorated(true);
 		setSize(800, 600);
 		pack();
 
@@ -73,6 +73,7 @@ public class About extends JFrame {
 		content.append("\t- projeto agora usa o maven\n");
 		content.append("\t- implementada ordenação nos relatórios\n");
 		content.append("\t- código do POI (Excel) refatorado\n");
+		content.append("\t- inclusão do log4j\n");
 		
 		content.append("\nNotas da versão 1.0RC4:\n");
 		content.append("\t- correções de bugs\n");
@@ -114,25 +115,12 @@ public class About extends JFrame {
 
 		content.append("\nVersão do Java: " + System.getProperty("java.version") + "\n");
 		
-		content.append("\nVersão dos jars:\n");
-		content.append("\t- Apache commons-io 2.16.1          (commons-io.2.16.1.jar) \n");
-		content.append("\t- Apache commons-codec 1.16.0       (commons-codec-1.16.0.jar) \n");
-		content.append("\t- Apache commons-collections4 4.4   (commons-collections4-4.4.jar) \n");
-		content.append("\t- Apache commons-math3 3.6.1        (commons-math3-3.6.1.jar) \n");
-		content.append("\t- Apache POI 5.2.5                  (poi-5.2.5.jar)\n");
+		content.append("\nJars utilizados na aplicação:\n");
 		
-		content.append("\t- JFreeChart 1.5.4                  (jfreechart-1.5.4.jar;jcommon-1.0.24.jar)\n");
-		
-		content.append("\t- JNA 5.14.0                        (jna-5.14.0.jar)\n");
-		content.append("\t- JNA Platform 5.14.0               (jna-platform-5.14.0.jar)\n");
-		
-		content.append("\t- SQLite 3.45.3.0                   (sqlite-jdbc-3.45.3.0.jar)\n");
-		
-		content.append("\t- SLF4J Api 1.7.36                  (slf4j-api-1.7.36.jar)\n");
-		content.append("\t- LOG4J Api 2.21.1                  (log4j-api-2.21.1.jar)\n");
-		
-		content.append("\t- SparseBitSet 1.3                  (SparseBitSet-1.3.jar)\n");
-
+		List<String> jars = FilesUtils.readAppJARS();
+		for (String jar : jars) {
+			content.append("\t- " + jar + " \n");	
+		}
 		content.append("\n --------------------------- 8< ---------------------------\n");
 
 		/*
