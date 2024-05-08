@@ -72,6 +72,9 @@ import br.com.jpsp.services.TaskSetServices;
 import br.com.jpsp.utils.Gui;
 import br.com.jpsp.utils.Utils;
 
+/**
+ * 
+ */
 public class jPSP extends JFrame implements WindowListener, Refreshable, MouseListener, WinUser.WindowProc {
 	private static final long serialVersionUID = 5345992610620020749L;
 
@@ -123,9 +126,7 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 	private JTable table = new JTable();
 
 	private boolean autoPause = true;
-
 	private boolean autoStart = false;
-
 	private boolean clockWasRunning = false;
 
 	private Alert alert;
@@ -136,7 +137,8 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 	private JButton generateReportButton;
 
 	public jPSP() {
-		super(Strings.jPSP.TITLE + " (" + Utils.date2String(new Date(), "dd/MM/yyyy") + ")");
+		super(Strings.jPSP.TITLE + " (" + Utils.date2String(new Date(), Utils.DD_MM_YYYY) + ")");
+		log.trace("Starting jPSP app");
 		Gui.setLookAndFeel();
 		this.orderType = TaskSetServices.Order.ASC;
 
@@ -173,6 +175,8 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 		startUpdateDateThread();
 		
 		this.services.migrateDB(this);
+		
+		log.trace("jPSP app started");
 	}
 
 	private void setMaximized() {
@@ -799,7 +803,6 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 		textFilterOptions.setBorder(Gui.getTitledBorder(Strings.jPSP.BY_TASK, null, null));
 		textFilterOptions.add(this.activity);
 		textFilterOptions.add(this.activityFilterButton);
-//		Gui.makeCompactGrid(textFilterOptions, 1, 2, 1, 1, 5, 5);
 		filtersPanel.add(textFilterOptions);
 
 		Gui.makeCompactGrid(filtersPanel, 1, 2, 1, 1, 5, 5);
@@ -1053,7 +1056,7 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 			
 			if (this.taskActivity.getSelectedItem() != null) {
 				this.begin.setText(Strings.jPSP.NO_TASK_IN_PROGRESS + " (" + Strings.jPSP.LAST_TASK + ": "
-						+ Utils.date2String(this.taskEnd, "dd/MM/yyyy HH:mm:ss") + " - "
+						+ Utils.date2String(this.taskEnd, Utils.DD_MM_YYYY_HH_mm_ss) + " - "
 						+ this.taskActivity.getSelectedItem().toString() + ")");
 				this.begin.setForeground(Color.RED);
 			}
@@ -1063,7 +1066,7 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 		} else {
 
 			String message = Strings.jPSP.TASK_STARTED_AT.replaceAll("&1",
-					Utils.date2String(this.task.getBegin(), "dd/MM/yyyy HH:mm:ss"));
+					Utils.date2String(this.task.getBegin(), Utils.DD_MM_YYYY_HH_mm_ss));
 			message = message.replaceAll("&2", this.taskActivity.getSelectedItem().toString());
 
 			this.begin.setText(message);
@@ -1089,6 +1092,7 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 					try {
 						Thread.sleep(1000L);
 					} catch (InterruptedException interruptedException) {
+						log.info("startCounterClock() " + interruptedException.getMessage());
 					}
 
 					delta = System.currentTimeMillis() - initClockMillis;
@@ -1112,6 +1116,7 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 			try {
 				this.clockThread.interrupt();
 			} catch (Exception exception) {
+				log.info("resetCounterClock() " + exception.getMessage());
 			}
 			this.clockThread = null;
 			this.chronometer.setText("   00:00:00   ");
@@ -1480,6 +1485,7 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 	}
 
 	private void startUpdateDateThread() {
+		log.trace("Starting update date thread");
 		this.thread = new Thread() {
 			public void run() {
 
@@ -1487,6 +1493,7 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 					try {
 						Thread.sleep(1800000L); // 30 minutos
 					} catch (InterruptedException interruptedException) {
+						log.info("startUpdateDateThread() " + interruptedException.getMessage());
 					}
 
 					final Date now = new Date();
@@ -1500,4 +1507,21 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 		this.updateDateThreadRunning = true;
 		this.thread.start();
 	}
+
+	public boolean isClockWasRunning() {
+		return clockWasRunning;
+	}
+
+	public void setClockWasRunning(boolean clockWasRunning) {
+		this.clockWasRunning = clockWasRunning;
+	}
+
+	public boolean isAutoPause() {
+		return autoPause;
+	}
+
+	public void setAutoPause(boolean autoPause) {
+		this.autoPause = autoPause;
+	}
+	
 }

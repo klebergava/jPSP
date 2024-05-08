@@ -1,9 +1,13 @@
 package br.com.jpsp.utils;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -22,6 +26,8 @@ public class FilesUtils {
 	private final static Logger log = LogManager.getLogger(FilesUtils.class);
 	
 	public static final String DATA_DIR = "data";
+	
+	public static final String JAR_FILE_NAME = "jPSP_v1.jar";
 	
 	public static final String FILE_SEPARATOR = System.getProperty("file.separator");
 	public static final String USER_NAME = System.getProperty("user.name");
@@ -45,6 +51,9 @@ public class FilesUtils {
 
 	public static final String BACKUP_EXT = ".dbkp";
 
+	public static final String GPL3_LICENCE_FILE = "LICENSE";
+	public static final String README_FILE = "README.md";
+	
 	public static boolean fileExists(String filePath) {
 		boolean exists = false;
 		File file = new File(filePath);
@@ -59,6 +68,7 @@ public class FilesUtils {
 			dataFolderOK = true;
 		} else {
 			dataFolderOK = dataFolder.mkdir();
+			log.trace(dataFolder.getAbsolutePath() + " created = " + dataFolderOK);
 		}
 
 		boolean outputFolderOK = false;
@@ -67,6 +77,7 @@ public class FilesUtils {
 			outputFolderOK = true;
 		} else {
 			outputFolderOK = outputFolder.mkdir();
+			log.trace(outputFolder.getAbsolutePath() + " created = " + outputFolderOK);
 		}
 
 		return (dataFolderOK && outputFolderOK);
@@ -82,15 +93,15 @@ public class FilesUtils {
 			bw = new BufferedWriter(fw);
 			bw.write(content);
 			ok = true;
-		} catch (Exception exception)
-
-		{
+		} catch (Exception exception) {
+			log.error("writeTxtFile() " + exception.getMessage());
 			try {
 				if (bw != null)
 					bw.close();
 				if (fw != null)
 					fw.close();
 			} catch (IOException ex) {
+				log.error("writeTxtFile() " + ex.getMessage());
 				ex.printStackTrace();
 			}
 		} finally {
@@ -100,6 +111,7 @@ public class FilesUtils {
 				if (fw != null)
 					fw.close();
 			} catch (IOException ex) {
+				log.error("writeTxtFile() " + ex.getMessage());
 				ex.printStackTrace();
 			}
 		}
@@ -122,6 +134,7 @@ public class FilesUtils {
 				FileUtils.copyFile(db, destFile);
 				ok = true;
 			} catch (IOException e) {
+				log.error("backupDataBase() " + e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -169,7 +182,7 @@ public class FilesUtils {
 						f.delete();
 					}
 				} catch (Exception exception) {
-					log.info("Não foi possível apagar " + name);
+					log.info("Could not dlete " + name);
 				}
 			}
 			b++;
@@ -181,7 +194,7 @@ public class FilesUtils {
 		
 		List<String> jars = new ArrayList<String>();
 		
-		String zipFilePath = "./jPSP.jar";
+		String zipFilePath = "." + FILE_SEPARATOR + JAR_FILE_NAME;
 
 		try (ZipFile zipFile = new ZipFile(zipFilePath)) {
 		    Enumeration<? extends ZipEntry> entries = zipFile.entries();
@@ -196,10 +209,48 @@ public class FilesUtils {
 		        }
 		    }
 		} catch (IOException e) {
-			log.error(e.getMessage());
+			log.error("readAppJARS() "+ e.getMessage());
 			e.printStackTrace();
 		}
 		
 		return jars;
+	}
+	
+	public static List<String> readTxtFile(File toRead) {
+		List<String> lines = new ArrayList<String>();
+        try (BufferedReader br = new BufferedReader(new FileReader(toRead))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                lines.add(line + "\n");
+            }
+        } catch (IOException e) {
+        	log.error("readTxtFile(File toRead) "+ e.getMessage());
+            e.printStackTrace();
+        }
+        
+        return lines;
+	}
+	
+	/**
+	 * 
+	 * @param inputStream
+	 * @return
+	 */
+	public static List<String> readTxtFile(InputStream inputStream) {
+		List<String> lines = new ArrayList<String>();
+        // Verificando se o arquivo foi encontrado
+        if (inputStream != null) {
+            try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
+            	String line = "";
+                while ((line = br.readLine()) != null) {
+                	lines.add(line);
+                }
+            } catch (IOException e) {
+            	log.error("readTxtFile(InputStream inputStream) "+ e.getMessage());
+                e.printStackTrace();
+            }
+        }
+        
+        return lines;
 	}
 }

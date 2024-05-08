@@ -27,6 +27,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import br.com.jpsp.gui.GuiSingleton;
 import br.com.jpsp.gui.Refreshable;
 import br.com.jpsp.gui.resources.Images;
@@ -37,6 +40,7 @@ import br.com.jpsp.utils.Gui;
 import br.com.jpsp.utils.Utils;
 
 public class CRUDWindow<T extends CRUDServices<CRUD>> extends JFrame {
+	private final static Logger log = LogManager.getLogger(CRUDWindow.class);
 	private static final long serialVersionUID = -4084846662008987183L;
 	private Refreshable refreshable;
 
@@ -192,8 +196,10 @@ public class CRUDWindow<T extends CRUDServices<CRUD>> extends JFrame {
 			CRUD toEdit = m.getElementAt(CRUDWindow.this.list.getSelectedIndex());
 			CRUDWindow<T>.MiniEdit edit = new CRUDWindow.MiniEdit(toEdit);
 			edit.createAndShow();
-		} else 
+		} else {
 			Gui.showErrorMessage(this, Strings.Form.ERROR_SELECT_ITEM);
+			log.trace(Strings.Form.ERROR_SELECT_ITEM);
+		}
 	}
 	
 	/**
@@ -211,12 +217,16 @@ public class CRUDWindow<T extends CRUDServices<CRUD>> extends JFrame {
 					this.services.remove(toRemove);
 					m.removeElement(this.list.getSelectedIndex());
 				} catch (Exception e) {
+					log.error("deleteTxt() " + e.getMessage());
 					Gui.showErrorMessage(CRUDWindow.this, e.getMessage());
+					e.printStackTrace();
 				}
 				
 			}
-		} else 
+		} else {
+			log.trace(Strings.Form.ERROR_SELECT_ITEM);
 			Gui.showErrorMessage(this, Strings.Form.ERROR_SELECT_ITEM);
+		}
 	}
 
 	private void refreshlList(boolean include, CRUD newItem, CRUD oldItem) {
@@ -239,7 +249,9 @@ public class CRUDWindow<T extends CRUDServices<CRUD>> extends JFrame {
 				this.list.setModel(new MyListModel(this.data));
 				this.list.revalidate();
 			} catch (Exception e) {
-				Gui.showErrorMessage(CRUDWindow.this, e.getMessage());	
+				log.error("refreshlList() " + e.getMessage());
+				Gui.showErrorMessage(CRUDWindow.this, e.getMessage());
+				e.printStackTrace();
 			}
 
 		}
@@ -331,7 +343,6 @@ public class CRUDWindow<T extends CRUDServices<CRUD>> extends JFrame {
 	    	if (crud.isBlocked()) {
 	    		this.setText(crud.toString() + " (" + Strings.jPSP.BLOCKED + ")");
 	    		c.setForeground(Color.RED);
-
 	    	}
 	    	return c;
 	    }

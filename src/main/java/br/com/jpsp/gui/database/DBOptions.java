@@ -14,6 +14,9 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import br.com.jpsp.gui.GuiSingleton;
 import br.com.jpsp.gui.resources.Images;
 import br.com.jpsp.services.Strings;
@@ -23,6 +26,7 @@ import br.com.jpsp.utils.Gui;
 public class DBOptions extends JFrame implements WindowListener {
 	private static final long serialVersionUID = 7811181541648032335L;
 	private JButton cancel;
+	private final static Logger log = LogManager.getLogger(DBOptions.class);
 
 	public DBOptions() {
 		super(Strings.DBOptions.TITLE);
@@ -30,10 +34,8 @@ public class DBOptions extends JFrame implements WindowListener {
 	}
 
 	public void createAndShow() {
-		setDefaultCloseOperation(2);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-//		setUndecorated(true);
-		
 		this.setIconImage(Images.DATABASE_IMG);
 
 		getContentPane().setLayout(new BorderLayout());
@@ -137,10 +139,12 @@ public class DBOptions extends JFrame implements WindowListener {
 				String message = Strings.DBOptions.SUCCESS_BACKUP.replaceAll("&1", path);
 				Gui.showMessage(this, message);
 			} catch (IOException e) {
+				log.error("doBackup() " + e.getMessage());
 				e.printStackTrace();
 			}
 		} else {
 			Gui.showErrorMessage(this, Strings.DBOptions.ERROR_BACKUP);
+			log.info("doBackup() " + Strings.DBOptions.ERROR_BACKUP);
 		}
 	}
 }

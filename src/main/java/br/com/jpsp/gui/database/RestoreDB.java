@@ -1,17 +1,12 @@
 package br.com.jpsp.gui.database;
 
-import br.com.jpsp.gui.GuiSingleton;
-import br.com.jpsp.gui.resources.Images;
-import br.com.jpsp.services.Strings;
-import br.com.jpsp.services.TaskSetServices;
-import br.com.jpsp.utils.FilesUtils;
-import br.com.jpsp.utils.Gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -21,6 +16,19 @@ import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import br.com.jpsp.gui.GuiSingleton;
+import br.com.jpsp.gui.resources.Images;
+import br.com.jpsp.services.Strings;
+import br.com.jpsp.services.TaskSetServices;
+import br.com.jpsp.utils.FilesUtils;
+import br.com.jpsp.utils.Gui;
+
+/**
+ * 
+ */
 public class RestoreDB extends JFrame {
 	private static final long serialVersionUID = -3218307819517596211L;
 	private final TaskSetServices services = TaskSetServices.instance;
@@ -29,7 +37,9 @@ public class RestoreDB extends JFrame {
 	private final JFileChooser fc = new JFileChooser();
 	private JButton cancel;
 	private JButton restore;
-
+	
+	private final static Logger log = LogManager.getLogger(RestoreDB.class);
+	
 	public RestoreDB() {
 		super(Strings.RestoreDB.TITLE);
 		Gui.setConfiguredLookAndFeel(this);
@@ -41,8 +51,6 @@ public class RestoreDB extends JFrame {
 	public void createAndShow() {
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-//		setUndecorated(true);
-		
 		setIconImage(Images.DATABASE_IMG);
 
 		getContentPane().setLayout(new BorderLayout());
@@ -130,6 +138,7 @@ public class RestoreDB extends JFrame {
 	protected void checkFileAndRestore() {
 		if (this.fileToRestore == null) {
 			Gui.showErrorMessage(this, Strings.RestoreDB.NO_FILE_SELECTED);
+			log.info("checkFileAndRestore() " + Strings.RestoreDB.NO_FILE_SELECTED);
 		} else 
 			RestoreDB.this.restoreDB();
 	}
@@ -147,6 +156,7 @@ public class RestoreDB extends JFrame {
 				closeWindow();
 			} else {
 				Gui.showErrorMessage(this, Strings.RestoreDB.ERROR);
+				log.info("restoreDB() " + Strings.RestoreDB.ERROR);
 			}
 		}
 	}

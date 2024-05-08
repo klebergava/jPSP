@@ -4,11 +4,14 @@ import java.sql.SQLException;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import br.com.jpsp.model.Activity;
 import br.com.jpsp.utils.Utils;
 
 public class ActivityDAO extends TaskSetDBDAOv1 {
-
+	private final static Logger log = LogManager.getLogger(ActivityDAO.class);
 	public static final ActivityDAO instance = new ActivityDAO();
 	
 	private ActivityDAO() {
@@ -24,6 +27,7 @@ public class ActivityDAO extends TaskSetDBDAOv1 {
 				try {
 					execute("INSERT INTO '" + ACTIVITY_TABLE + "' (atividade, bloqueada) values ('" + activity.getDescription() + "', " + activity.getBlocked() + ");");
 				} catch (Exception e) {
+					log.error("addActivity() " + e.getMessage());
 					e.printStackTrace();
 				}
 			}
@@ -39,6 +43,7 @@ public class ActivityDAO extends TaskSetDBDAOv1 {
 				try {
 					execute("UPDATE '" + ACTIVITY_TABLE + "' set atividade = '" + activity.getDescription() +"', bloqueada = " + activity.getBlocked() + " WHERE atividade = '" + activity.getDescription() + "';");
 				} catch (Exception e) {
+					log.error("updateActivity() " + e.getMessage());
 					e.printStackTrace();
 				}
 			}
@@ -58,13 +63,16 @@ public class ActivityDAO extends TaskSetDBDAOv1 {
 			}
 			r.close();
 		} catch (SQLException ex) {
+			log.error("existsActivity() " + ex.getMessage());
 			ex.printStackTrace();
 		} catch (ClassNotFoundException e) {
+			log.error("existsActivity() " + e.getMessage());
 			e.printStackTrace();
 		} finally {
 			try {
 				closeConnection(false);
 			} catch (SQLException e) {
+				log.error("existsActivity() " + e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -76,6 +84,7 @@ public class ActivityDAO extends TaskSetDBDAOv1 {
 		try {
 			execute("DELETE FROM " + ACTIVITY_TABLE + " WHERE atividade = '" + activity.getDescription() + "';");
 		} catch (Exception e) {
+			log.error("removeActivity() " + e.getMessage());
 			e.printStackTrace();
 		}
 	}
@@ -92,13 +101,16 @@ public class ActivityDAO extends TaskSetDBDAOv1 {
 			}
 			r.close();
 		} catch (SQLException ex) {
+			log.error("getAllActivities() " + ex.getMessage());
 			ex.printStackTrace();
 		} catch (ClassNotFoundException e) {
+			log.error("getAllActivities() " + e.getMessage());
 			e.printStackTrace();
 		} finally {
 			try {
 				closeConnection(false);
 			} catch (SQLException e) {
+				log.error("getAllActivities() " + e.getMessage());
 				e.printStackTrace();
 			}
 		}

@@ -9,10 +9,15 @@ import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import br.com.jpsp.model.Configuration;
 import br.com.jpsp.utils.FilesUtils;
 
 public class ConfigServices {
+	private final static Logger log = LogManager.getLogger(ConfigServices.class);
+	
 	private static final String KEY = "CONFIGURATION_INSTANCE";
 	private static final Map<String, Configuration> BUFFER = new HashMap<String, Configuration>();
 	public static final ConfigServices instance = new ConfigServices();
@@ -32,7 +37,10 @@ public class ConfigServices {
 			if (oldDatFile.exists()) {
 				oldDatFile.delete();
 			}
-		} catch (Exception ex) {}
+		} catch (Exception ex) {
+			log.error("checkFile() " + ex.getMessage());
+			ex.printStackTrace();
+		}
 	}
 
 	private void createEmptyFile() {
@@ -47,6 +55,7 @@ public class ConfigServices {
 		try {
 			defaultConfig.setOutputFolder(outputFolder.getCanonicalPath());
 		} catch (IOException e) {
+			log.error("createEmptyFile() " + e.getMessage());
 			e.printStackTrace();
 		}
 		this.updateConfiguration(defaultConfig);
@@ -65,11 +74,12 @@ public class ConfigServices {
 	            instance = (Configuration) in.readObject();
 	            in.close();
 	            fileIn.close();
-	        } catch (IOException i) {
-	            i.printStackTrace();
-	        } catch (ClassNotFoundException c) {
-	            System.out.println("Employee class not found");
-	            c.printStackTrace();
+	        } catch (IOException e) {
+	        	log.error("getConfiguration() " + e.getMessage());
+	            e.printStackTrace();
+	        } catch (ClassNotFoundException e) {
+	        	log.error("getConfiguration() " + e.getMessage());
+	            e.printStackTrace();
 	        }
 			
 			BUFFER.put(KEY, instance);
@@ -98,9 +108,9 @@ public class ConfigServices {
             
             updated = true;
         } catch (IOException i) {
+        	log.error("updateConfiguration() " + i.getMessage());
             i.printStackTrace();
         }
-		
 		
 		return updated;
 	}

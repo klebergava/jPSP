@@ -12,9 +12,18 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 
-import br.com.jpsp.model.Task;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import br.com.jpsp.model.Task;
+import br.com.jpsp.services.Strings;
+
+/**
+ * 
+ */
 public class Utils {
+	private final static Logger log = LogManager.getLogger(Utils.class);
+	
 	public static final String DD_MM_YYYY = "dd/MM/yyyy";
 	public static final String DD_MM_YYYY_HH_mm_ss = "dd/MM/yyyy HH:mm:ss";
 	public static final String HH_mm_ss = "HH:mm:ss";
@@ -37,7 +46,6 @@ public class Utils {
 	public static int SCREEN_HEIGHT = 0;
 
 	static {
-
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		SCREEN_WIDTH = (int) screenSize.getWidth();
 		SCREEN_HEIGHT = (int) screenSize.getHeight();
@@ -60,6 +68,7 @@ public class Utils {
 		try {
 			isNumero = true;
 		} catch (NumberFormatException numberFormatException) {
+			log.trace("isNumber() " + numberFormatException.getMessage());
 		}
 
 		return isNumero;
@@ -75,7 +84,6 @@ public class Utils {
 		if (dateStr != null) {
 			SimpleDateFormat formatador = new SimpleDateFormat(format);
 			formatador.setLenient(false);
-
 			date = formatador.parse(dateStr, new ParsePosition(0));
 		}
 		return date;
@@ -323,25 +331,25 @@ public class Utils {
 		cal.setTime(today);
 		switch (cal.get(7)) {
 		case 2:
-			day = "Segunda-feira";
+			day = Strings.MONDAY;
 			break;
 		case 3:
-			day = "Ter�a-feira";
+			day = Strings.TUESDAY;
 			break;
 		case 4:
-			day = "Quarta-feira";
+			day = Strings.WEDNESDAY;
 			break;
 		case 5:
-			day = "Quinta-feira";
+			day = Strings.THURSDAY;
 			break;
 		case 6:
-			day = "Sexta-feira";
+			day = Strings.FRIDAY;
 			break;
 		case 7:
-			day = "S�bado";
+			day = Strings.SATURDAY;
 			break;
 		case 1:
-			day = "Domingo";
+			day = Strings.SUNDAY;
 			break;
 		}
 		return day;

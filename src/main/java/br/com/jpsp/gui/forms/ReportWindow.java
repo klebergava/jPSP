@@ -77,8 +77,6 @@ public class ReportWindow extends JFrame {
 
 		getContentPane().add(mountMain(), "Center");
 
-//		setUndecorated(true);
-		
 		setIconImage(Images.REPORT_MINI_IMG);
 		pack();
 		setLocationRelativeTo(this);

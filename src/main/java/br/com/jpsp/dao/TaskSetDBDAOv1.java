@@ -52,6 +52,7 @@ public class TaskSetDBDAOv1 extends DAO {
 	public static final TaskSetDBDAOv1 instance = new TaskSetDBDAOv1();
 	
 	protected TaskSetDBDAOv1() {
+		log.trace("Starting TaskSetDBDAOv1");
 		checkDBFile();
 		loadDatabase();
 		
@@ -120,10 +121,13 @@ public class TaskSetDBDAOv1 extends DAO {
 						connection = DriverManager.getConnection(url);
 						this.stmt = connection.createStatement();
 				} catch (ClassNotFoundException e) {
+					log.trace("loadDatabase() " + e.getMessage());
 					e.printStackTrace();
 				} catch (SQLException e) {
+					log.trace("loadDatabase() " + e.getMessage());
 					e.printStackTrace();
 				} catch (IOException e) {
+					log.trace("loadDatabase() " + e.getMessage());
 					e.printStackTrace();
 				}
 			}
@@ -157,6 +161,7 @@ public class TaskSetDBDAOv1 extends DAO {
 			insertDefaultData();
 			
 		} catch (Exception ex) {
+			log.trace("onCreate() " + ex.getMessage());
 			ex.printStackTrace();
 		}
 	}
@@ -174,8 +179,10 @@ public class TaskSetDBDAOv1 extends DAO {
 		execute("INSERT INTO '" + SYSTEM_TABLE + "' (id, nome) values (3, '" + Strings.OTHER_SYS + "');");
 	}
 
-
-
+	/**
+	 * 
+	 * @param newTask
+	 */
 	public void addTask(Task newTask) {
 		if (newTask != null) {
 			
@@ -185,6 +192,7 @@ public class TaskSetDBDAOv1 extends DAO {
 					execute("INSERT INTO '" + TASK_TABLE
 							+ "' (id,data_inicio,data_fim,class,atividade,sistema,descricao,delta) values (" + maxId + ", " + newTask.toValuesString() + ");");
 				} catch (Exception e) {
+					log.error("addTask() " + e.getMessage());
 					e.printStackTrace();
 				}
 			 } else {
@@ -201,6 +209,7 @@ public class TaskSetDBDAOv1 extends DAO {
 					execute("INSERT INTO '" + TASK_TABLE
 							+ "' (id,data_inicio,data_fim,class,atividade,sistema,descricao,delta) values (" + maxId + ", " + newTask.toValuesString() + ");");
 				} catch (Exception e) {
+					log.error("insertNewTask() " + e.getMessage());
 					e.printStackTrace();
 				}
 		}
@@ -234,13 +243,16 @@ public class TaskSetDBDAOv1 extends DAO {
 			}
 			r.close();
 		} catch (SQLException ex) {
+			log.error("getTaskList() " + ex.getMessage());
 			ex.printStackTrace();
 		} catch (ClassNotFoundException e) {
+			log.error("getTaskList() " + e.getMessage());
 			e.printStackTrace();
 		} finally {
 			try {
 				closeConnection(false);
 			} catch (SQLException e) {
+				log.error("getTaskList() " + e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -260,13 +272,16 @@ public class TaskSetDBDAOv1 extends DAO {
 			}
 			r.close();
 		} catch (SQLException ex) {
+			log.error("getMaxTaskId() " + ex.getMessage());
 			ex.printStackTrace();
 		} catch (ClassNotFoundException e) {
+			log.error("getMaxTaskId() " + e.getMessage());
 			e.printStackTrace();
 		} finally {
 			try {
 				closeConnection(false);
 			} catch (SQLException e) {
+				log.error("getMaxTaskId() " + e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -287,13 +302,16 @@ public class TaskSetDBDAOv1 extends DAO {
 					+ ", delta = " + updatedTask.getDelta()
 					+ " WHERE ID = " + updatedTask.getId() + ";");
 		} catch (SQLException ex) {
+			log.error("updateTask() " + ex.getMessage());
 			ex.printStackTrace();
 		} catch (ClassNotFoundException e) {
+			log.error("updateTask() " + e.getMessage());
 			e.printStackTrace();
 		} finally {
 			try {
 				closeConnection(false);
 			} catch (SQLException e) {
+				log.error("updateTask() " + e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -303,6 +321,7 @@ public class TaskSetDBDAOv1 extends DAO {
 		try {
 			execute("DELETE FROM " + TASK_TABLE + " WHERE ID = " + toRemove.getId() + ";");
 		} catch (Exception e) {
+			log.error("removeTask() " + e.getMessage());
 			e.printStackTrace();
 		}
 	}
@@ -336,13 +355,16 @@ public class TaskSetDBDAOv1 extends DAO {
 			}
 			r.close();
 		} catch (SQLException ex) {
+			log.error("filterTasksByDesc() " + ex.getMessage());
 			ex.printStackTrace();
 		} catch (ClassNotFoundException e) {
+			log.error("filterTasksByDesc() " + e.getMessage());
 			e.printStackTrace();
 		} finally {
 			try {
 				closeConnection(false);
 			} catch (SQLException e) {
+				log.error("filterTasksByDesc() " + e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -363,13 +385,16 @@ public class TaskSetDBDAOv1 extends DAO {
 			}
 			r.close();
 		} catch (SQLException ex) {
+			log.error("getAllDescriptions() " + ex.getMessage());
 			ex.printStackTrace();
 		} catch (ClassNotFoundException e) {
+			log.error("getAllDescriptions() " + e.getMessage());
 			e.printStackTrace();
 		} finally {
 			try {
 				closeConnection(false);
 			} catch (SQLException e) {
+				log.error("getAllDescriptions() " + e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -393,13 +418,16 @@ public class TaskSetDBDAOv1 extends DAO {
 
 			r.close();
 		} catch (SQLException ex) {
+			log.error("filterTasksByActivity() " + ex.getMessage());
 			ex.printStackTrace();
 		} catch (ClassNotFoundException e) {
+			log.error("filterTasksByActivity() " + e.getMessage());
 			e.printStackTrace();
 		} finally {
 			try {
 				closeConnection(false);
 			} catch (SQLException e) {
+				log.error("filterTasksByActivity() " + e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -436,13 +464,16 @@ public class TaskSetDBDAOv1 extends DAO {
 
 			r.close();
 		} catch (SQLException ex) {
+			log.error("countTasksByActivity() " + ex.getMessage());
 			ex.printStackTrace();
 		} catch (ClassNotFoundException e) {
+			log.error("countTasksByActivity() " + e.getMessage());
 			e.printStackTrace();
 		} finally {
 			try {
 				closeConnection(false);
 			} catch (SQLException e) {
+				log.error("countTasksByActivity() " + e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -468,13 +499,16 @@ public class TaskSetDBDAOv1 extends DAO {
 
 			r.close();
 		} catch (SQLException ex) {
+			log.error("getAllTasks() " + ex.getMessage());
 			ex.printStackTrace();
 		} catch (ClassNotFoundException e) {
+			log.error("getAllTasks() " + e.getMessage());
 			e.printStackTrace();
 		} finally {
 			try {
 				closeConnection(false);
 			} catch (SQLException e) {
+				log.error("getAllTasks() " + e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -494,13 +528,16 @@ public class TaskSetDBDAOv1 extends DAO {
 			}
 			r.close();
 		} catch (SQLException ex) {
+			log.error("getMostRecentTask() " + ex.getMessage());
 			ex.printStackTrace();
 		} catch (ClassNotFoundException e) {
+			log.error("getMostRecentTask() " + e.getMessage());
 			e.printStackTrace();
 		} finally {
 			try {
 				closeConnection(false);
 			} catch (SQLException e) {
+				log.error("getMostRecentTask() " + e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -553,13 +590,16 @@ public class TaskSetDBDAOv1 extends DAO {
 			}
 			r.close();
 		} catch (SQLException ex) {
+			log.error("getAllSystems() " + ex.getMessage());
 			ex.printStackTrace();
 		} catch (ClassNotFoundException e) {
+			log.error("getAllSystems() " + e.getMessage());
 			e.printStackTrace();
 		} finally {
 			try {
 				closeConnection(false);
 			} catch (SQLException e) {
+				log.error("getAllSystems() " + e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -599,13 +639,16 @@ public class TaskSetDBDAOv1 extends DAO {
 			}
 			r.close();
 		} catch (SQLException ex) {
+			log.error("getAllTypeClassification() " + ex.getMessage());
 			ex.printStackTrace();
 		} catch (ClassNotFoundException e) {
+			log.error("getAllTypeClassification() " + e.getMessage());
 			e.printStackTrace();
 		} finally {
 			try {
 				closeConnection(false);
 			} catch (SQLException e) {
+				log.error("getAllTypeClassification() " + e.getMessage());
 				e.printStackTrace();
 			}
 		}

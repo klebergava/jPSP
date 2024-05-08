@@ -1,18 +1,12 @@
 package br.com.jpsp.gui.database;
 
-import br.com.jpsp.gui.GuiSingleton;
-import br.com.jpsp.gui.resources.Images;
-import br.com.jpsp.services.Strings;
-import br.com.jpsp.services.TaskSetServices;
-import br.com.jpsp.utils.FilesUtils;
-import br.com.jpsp.utils.Gui;
-import br.com.jpsp.utils.Utils;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -21,6 +15,20 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import br.com.jpsp.gui.GuiSingleton;
+import br.com.jpsp.gui.resources.Images;
+import br.com.jpsp.services.Strings;
+import br.com.jpsp.services.TaskSetServices;
+import br.com.jpsp.utils.FilesUtils;
+import br.com.jpsp.utils.Gui;
+import br.com.jpsp.utils.Utils;
+
+/**
+ * 
+ */
 public class ExportDB2Txt extends JFrame {
 	private static final long serialVersionUID = -3218307819517596211L;
 	private JTextField separator;
@@ -29,6 +37,8 @@ public class ExportDB2Txt extends JFrame {
 	private JTextField fileName;
 	private JTextField encoding;
 	private final JFileChooser fc = new JFileChooser();
+	
+	private final static Logger log = LogManager.getLogger(ExportDB2Txt.class);
 
 	private JButton cancel;
 
@@ -43,7 +53,6 @@ public class ExportDB2Txt extends JFrame {
 	public void createAndShow() {
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-//		setUndecorated(true);
 		setIconImage(Images.DATABASE_EXPORT_IMG);
 
 		getContentPane().setLayout(new BorderLayout());
@@ -160,29 +169,29 @@ public class ExportDB2Txt extends JFrame {
 
 			if (this.services.exportDB2Txt(txtFile, s, enc)) {
 				try {
-					
-					
 					String path = txtFile.getCanonicalPath();
 					path = path.replaceAll("[\\\\]", "/");
 					
 					String message = Strings.DBOptions.EXPORT_SUCCESS.replaceAll("&1", path);
-					
-					
 					Gui.showMessage(this, message);
 					closeWindow();
 				} catch (IOException e) {
+					log.error("export() " + e.getMessage());
 					e.printStackTrace();
 				}
 			} else {
 				try {
 					String message = Strings.DBOptions.EXPORT_ERROR.replaceAll("&1", txtFile.getCanonicalPath());
 					Gui.showErrorMessage(this, message);
+					log.info("export() " + message);
 				} catch (IOException e) {
+					log.error("export() " + e.getMessage());
 					e.printStackTrace();
 				}
 
 			}
 		} catch (IOException e) {
+			log.error("export() " + e.getMessage());
 			e.printStackTrace();
 		}
 	}
@@ -195,6 +204,7 @@ public class ExportDB2Txt extends JFrame {
 			try {
 				this.targetDir.setText(this.directoryToExport.getCanonicalPath());
 			} catch (IOException e) {
+				log.info("chooseFile() " + e.getMessage());
 				e.printStackTrace();
 			}
 		}

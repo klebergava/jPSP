@@ -238,7 +238,6 @@ public final class GuiSingleton {
 		}
 	}
 	
-	
 	public static void disposeLoadingScreen() {
 		if (loading != null && loading.isVisible()) {
 			SwingUtilities.invokeLater(() -> {

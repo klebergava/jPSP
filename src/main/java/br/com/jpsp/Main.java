@@ -2,6 +2,9 @@ package br.com.jpsp;
 
 import javax.swing.SwingUtilities;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import br.com.jpsp.gui.GuiSingleton;
 import br.com.jpsp.gui.jPSP;
 import br.com.jpsp.services.Strings;
@@ -9,13 +12,21 @@ import br.com.jpsp.utils.FilesUtils;
 import br.com.jpsp.utils.Gui;
 import br.com.jpsp.utils.Utils;
 
+/**
+ * 
+ */
 public class Main {
+	private final static Logger log = LogManager.getLogger(Main.class);
+	
 	public static void main(String[] a) {
+		
+		log.trace("Checking jPSP app before start");
+		
 		GuiSingleton.showSplash();
 		
 		if (Utils.JAVA_VERSION < Utils.JAVA_MIN_VERSION) {
+			log.fatal(Strings.JAVA_VERSION_ERROR);
 			Gui.showErrorMessage(null, Strings.JAVA_VERSION_ERROR);
-
 			System.exit(0);
 		}
 		
@@ -23,7 +34,6 @@ public class Main {
 			public void run() {
 				jPSP jpsp = new jPSP();
 				jpsp.createAndShow();
-
 				FilesUtils.verifyDBBackup();
 			}
 		});

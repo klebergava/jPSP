@@ -31,6 +31,9 @@ import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import br.com.jpsp.model.Configuration;
 import br.com.jpsp.model.Task;
 import br.com.jpsp.model.TaskListTableModel;
@@ -38,7 +41,13 @@ import br.com.jpsp.services.ConfigServices;
 import br.com.jpsp.services.Strings;
 import br.com.jpsp.services.TaskSetServices;
 
+/**
+ * 
+ */
 public class Gui {
+	
+	private final static Logger log = LogManager.getLogger(Gui.class);
+	
 	private static final ConfigServices configServices = ConfigServices.instance;
 	private static final TaskSetServices services = TaskSetServices.instance;
 	
@@ -51,7 +60,6 @@ public class Gui {
 			layout = (SpringLayout) parent.getLayout();
 		} catch (ClassCastException exc) {
 			System.err.println("The first argument to makeCompactGrid must use SpringLayout.");
-
 			return;
 		}
 
@@ -194,12 +202,13 @@ public class Gui {
 
 			UIManager.setLookAndFeel(lookAndFeel);
 		} catch (UnsupportedLookAndFeelException unsupportedLookAndFeelException) {
-
+			log.info("setLookAndFeel() " + unsupportedLookAndFeelException.getMessage());
 		} catch (ClassNotFoundException classNotFoundException) {
-
+			log.info("setLookAndFeel() " + classNotFoundException.getMessage());
 		} catch (InstantiationException instantiationException) {
-
+			log.info("setLookAndFeel() " + instantiationException.getMessage());
 		} catch (IllegalAccessException illegalAccessException) {
+			log.info("setLookAndFeel() " + illegalAccessException.getMessage());
 		}
 	}
 
@@ -275,12 +284,13 @@ public class Gui {
 				SwingUtilities.updateComponentTreeUI(component);
 			}
 		} catch (UnsupportedLookAndFeelException unsupportedLookAndFeelException) {
-
+			log.info("setLookAndFeel(String lookAndFeel, Component component) " + unsupportedLookAndFeelException.getMessage());
 		} catch (ClassNotFoundException classNotFoundException) {
-
+			log.info("setLookAndFeel(String lookAndFeel, Component component) " + classNotFoundException.getMessage());
 		} catch (InstantiationException instantiationException) {
-
+			log.info("setLookAndFeel(String lookAndFeel, Component component) " + instantiationException.getMessage());
 		} catch (IllegalAccessException illegalAccessException) {
+			log.info("setLookAndFeel(String lookAndFeel, Component component) " + illegalAccessException.getMessage());
 		}
 	}
 

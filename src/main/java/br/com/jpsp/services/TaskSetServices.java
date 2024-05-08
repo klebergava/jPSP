@@ -12,6 +12,8 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import br.com.jpsp.dao.TaskSetDBDAOv1;
 import br.com.jpsp.gui.Refreshable;
@@ -30,6 +32,8 @@ import br.com.jpsp.utils.Utils;
  *
  */
 public class TaskSetServices {
+	private final static Logger log = LogManager.getLogger(TaskSetServices.class);
+	
 	public enum Order {
 		ASC, DESC;
 	}
@@ -38,6 +42,7 @@ public class TaskSetServices {
 	public static final TaskSetServices instance = new TaskSetServices();
 
 	private TaskSetServices() {
+		log.trace("Starting TaskSetServices");
 		FilesUtils.checkDirs();
 	}
 
@@ -251,6 +256,7 @@ public class TaskSetServices {
 			try {
 				ok = FilesUtils.writeTxtFile(target, new String(content.toString().getBytes(), encoding));
 			} catch (UnsupportedEncodingException e) {
+				log.error("exportDB2Txt() " + e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -267,6 +273,7 @@ public class TaskSetServices {
 			FileUtils.copyFile(fileToRestore, new File(FilesUtils.DATABASE_FILE_V1));
 			ok = true;
 		} catch (IOException e) {
+			log.error("restoreDB() " + e.getMessage());
 			e.printStackTrace();
 		}
 

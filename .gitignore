@@ -3,3 +3,4 @@ data/
 .gitignore
 .classpath
 jar/
+.settings/

@@ -25,6 +25,9 @@ import br.com.jpsp.services.ConfigServices;
 import br.com.jpsp.services.Strings;
 import br.com.jpsp.utils.Gui;
 
+/**
+ * 
+ */
 public class ConfigWindow extends JFrame implements WindowListener {
 	private static final long serialVersionUID = 7811181541648032335L;
 	private final ConfigServices configServices = ConfigServices.instance;
@@ -86,10 +89,6 @@ public class ConfigWindow extends JFrame implements WindowListener {
 		this.name = new JTextField("", 20);
 		textFields.add(this.name);
 		
-//		textFields.add(new JLabel(Strings.ConfigWindow.OUTPUT_FOLDER + ":"));
-//		this.outputFolder = new JTextField("", 20);
-//		textFields.add(this.outputFolder);
-
 		Gui.makeCompactGrid(textFields, 2, 2, 5, 5, 5, 5);
 
 		fields.add(textFields);
@@ -116,7 +115,7 @@ public class ConfigWindow extends JFrame implements WindowListener {
 		this.save = new JButton(Strings.GUI.CONFIRM);
 		this.save.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				ConfigWindow.this.saveToDFile();
+				ConfigWindow.this.saveToFile();
 			}
 		});
 
@@ -138,10 +137,9 @@ public class ConfigWindow extends JFrame implements WindowListener {
 		this.lookAndFeel.setSelectedItem(c.getLookAndFeel());
 		this.autoStart.setSelected(c.isAutoStart());
 		this.name.setText(c.getName());
-//		this.outputFolder.setText(c.getOutputFolder());
 	}
 
-	private void saveToDFile() {
+	private void saveToFile() {
 		
 		Configuration config = new Configuration();
 		config.setAutoPause(this.autoPause.isSelected() ? 1 : 0);
@@ -152,28 +150,6 @@ public class ConfigWindow extends JFrame implements WindowListener {
 		
 		this.configServices.updateConfiguration(config);
 		closeWindow();
-		/*
-		
-		String folder = this.outputFolder.getText();
-		if (Utils.isEmpty(folder))
-			folder = FilesUtils.DEFAULT_OUTPUT_FOLDER;
-		
-		c.setOutputFolder(folder);
-		
-		if (!c.validate()) {
-			File outputFolder = new File(this.outputFolder.getText());
-			try {
-				Gui.showErrorMessage(this, Strings.ConfigWindow.ERROR_OUTPUT_FOLDER.replaceAll("&1", outputFolder.getCanonicalPath()));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			this.outputFolder.setText(FilesUtils.DEFAULT_OUTPUT_FOLDER);
-		} else {
-			this.configServices.updateConfiguration(c);
-			closeWindow();
-		}
-		*/
-		
 	}
 
 	private void closeWindow() {

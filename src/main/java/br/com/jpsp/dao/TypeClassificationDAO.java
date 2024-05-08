@@ -2,6 +2,9 @@ package br.com.jpsp.dao;
 
 import java.sql.SQLException;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import br.com.jpsp.model.TypeClassification;
 
 /**
@@ -10,6 +13,7 @@ import br.com.jpsp.model.TypeClassification;
  *
  */
 public class TypeClassificationDAO extends TaskSetDBDAOv1 {
+	private final static Logger log = LogManager.getLogger(TaskSetDBDAOv1.class);
 	public static final TypeClassificationDAO instance = new TypeClassificationDAO();
 
 	private TypeClassificationDAO() {
@@ -18,7 +22,6 @@ public class TypeClassificationDAO extends TaskSetDBDAOv1 {
 	
 	public int getMaxTypeClassificationId() {
 		int maxtYPEId = 0;
-
 		try {
 			openConnection(false);
 			Result r = executeQuery("select max(id) from " + TYPE_CLASS_TABLE + ";");
@@ -28,13 +31,16 @@ public class TypeClassificationDAO extends TaskSetDBDAOv1 {
 			}
 			r.close();
 		} catch (SQLException ex) {
+			log.error("getMaxTypeClassificationId() " + ex.getMessage());
 			ex.printStackTrace();
 		} catch (ClassNotFoundException e) {
+			log.error("getMaxTypeClassificationId() " + e.getMessage());
 			e.printStackTrace();
 		} finally {
 			try {
 				closeConnection(false);
 			} catch (SQLException e) {
+				log.error("getMaxTypeClassificationId() " + e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -51,6 +57,7 @@ public class TypeClassificationDAO extends TaskSetDBDAOv1 {
 				
 				domainTablesCache.put(TYPE_CLASS_CACHE, getAllTypeClassification());
 			} catch (Exception e) {
+				log.error("addTypeClassification() " + e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -63,13 +70,16 @@ public class TypeClassificationDAO extends TaskSetDBDAOv1 {
 		
 			domainTablesCache.put(TYPE_CLASS_CACHE, getAllTypeClassification());
 		} catch (SQLException ex) {
+			log.error("updateTypeClassification() " + ex.getMessage());
 			ex.printStackTrace();
 		} catch (ClassNotFoundException e) {
+			log.error("updateTypeClassification() " + e.getMessage());
 			e.printStackTrace();
 		} finally {
 			try {
 				closeConnection(false);
 			} catch (SQLException e) {
+				log.error("updateTypeClassification() " + e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -81,6 +91,7 @@ public class TypeClassificationDAO extends TaskSetDBDAOv1 {
 			
 			domainTablesCache.put(TYPE_CLASS_CACHE, getAllTypeClassification());
 		} catch (Exception e) {
+			log.error("removeTypeClassification() " + e.getMessage());
 			e.printStackTrace();
 		}
 	}

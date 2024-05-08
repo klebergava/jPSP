@@ -53,7 +53,6 @@ public class TotalSpentOnTask extends JFrame {
 		main.setBorder(
 				Gui.getLinedBorder(Strings.jPSP.TASK_SPENT_TIME, Gui.getFont(1, Integer.valueOf(16)), Color.WHITE));
 		
-		
 		JPanel contentPanel = new JPanel(new BorderLayout());
 		contentPanel.setBorder(Gui.getEmptyBorder(10));
 		

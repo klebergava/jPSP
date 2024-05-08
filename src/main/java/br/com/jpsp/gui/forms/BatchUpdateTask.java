@@ -22,6 +22,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SpringLayout;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import br.com.jpsp.gui.GuiSingleton;
 import br.com.jpsp.gui.Refreshable;
 import br.com.jpsp.gui.resources.Images;
@@ -34,6 +37,8 @@ import br.com.jpsp.utils.Gui;
 import br.com.jpsp.utils.Utils;
 
 public class BatchUpdateTask extends JFrame implements WindowListener {
+	private final static Logger log = LogManager.getLogger(BatchUpdateTask.class);
+	
 	private static final long serialVersionUID = -103651380043899625L;
 	private final Collection<Task> tasks;
 	private final Refreshable refreshable;
@@ -76,13 +81,12 @@ public class BatchUpdateTask extends JFrame implements WindowListener {
 	}
 
 	public void createAndShow() {
-		setDefaultCloseOperation(2);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
 		getContentPane().setLayout(new BorderLayout());
 
 		getContentPane().add(mountMain(), "Center");
 
-//		setUndecorated(true);
 		setAlwaysOnTop(true);
 
 		pack();
@@ -212,7 +216,6 @@ public class BatchUpdateTask extends JFrame implements WindowListener {
 		innerMain.add(editFields, "Center");
 		innerMain.add(buttons, "South");
 		
-		
 		main.add(innerMain, "Center");
 
 		return main;
@@ -249,6 +252,7 @@ public class BatchUpdateTask extends JFrame implements WindowListener {
 			dispose();
 		} else {
 			JOptionPane.showMessageDialog(this, errors, Strings.Form.MANDATORY_FIELDS, 0);
+			log.trace(Strings.Form.MANDATORY_FIELDS);
 		}
 	}
 

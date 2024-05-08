@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 
 import javax.swing.JButton;
@@ -13,8 +14,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
-import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
 
 import br.com.jpsp.gui.resources.Images;
@@ -24,16 +25,19 @@ import br.com.jpsp.utils.Gui;
 
 public class About extends JFrame {
 	private static final long serialVersionUID = -2283777512879950127L;
-	private static final JTextArea textArea = new JTextArea("", 41, 72);
-
+	private final JTextArea appInfo = new JTextArea("");
+	private final JTextArea license = new JTextArea("");
+	private final JTextArea readMe = new JTextArea("");
+    // Criando o painel principal
+    private final JTabbedPane tabbedPane = new JTabbedPane();
+    
 	public About() {
 		super(Strings.ABOUT);
 		Gui.setConfiguredLookAndFeel(this);
 	}
 
 	public void createAndShow() {
-		setDefaultCloseOperation(2);
-		
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		this.setIconImage(Images.ABOUT_IMG);
 
 		getContentPane().setLayout(new BorderLayout());
@@ -50,12 +54,18 @@ public class About extends JFrame {
 
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				About.this.fillContent();
+				About.this.fillAppInfoContent();
+				About.this.fillLicenseContent();
+				About.this.fillReadmeContent();
 			}
 		});
 	}
 
-	private void fillContent() {
+	/**
+	 * 
+	 */
+	private void fillAppInfoContent() {
+		appInfo.setEditable(false);
 		StringBuffer content = new StringBuffer();
 
 		content.append(Strings.APP_TITLE + "\n");
@@ -68,6 +78,9 @@ public class About extends JFrame {
 		path = new File(FilesUtils.USER_CONFIG_DATA_FILE);
 		content.append("Arquivo de configurações: " + path.getAbsoluteFile() + "\n");
 
+		content.append("\nNotas da versão 1.0:\n");
+		content.append("\t- versão estável do aplicativo\n");
+		
 		content.append("\nNotas da versão 1.0RC5:\n");
 		content.append("\t- jars atualizados para as versões mais novas\n");
 		content.append("\t- projeto agora usa o maven\n");
@@ -84,6 +97,8 @@ public class About extends JFrame {
 		content.append("\t- configurações agora são salvas em um arquivo, não mais no SQLite\n");
 		content.append("\t- inclusão do campo 'Sistema' na atividade\n");
 		content.append("\t- inclusão de telas de edição de atividade, descrição,\n\t  classificação e sistema\n");
+		content.append("\t- remoção das sugestões de atividades/descrições em todas as telas de\n\t  edição de tarefas; alterado para combobox editável\n");
+
 		
 		content.append("\nNotas da versão 1.0RC3:\n");
 		content.append("\t- correções de bugs\n");
@@ -96,7 +111,7 @@ public class About extends JFrame {
 		content.append("\nNotas da versão 1.0RC2:\n");
 		content.append("\t- correções de bugs\n");
 		content.append("\t- geração de relatório incluído na barra de menu\n");
-		content.append("\t- sugest�es de atividades/descrições em todas as telas de\n\t  edição de tarefas\n");
+		content.append("\t- sugestões de atividades/descrições em todas as telas de\n\t  edição de tarefas\n");
 		content.append(
 				"\t- iniciar automaticamente tarefa ao desbloquear o sistema\n\t  somente se a tarefa já estivesse rodando\n");
 		content.append("\t- alteração desta tela\n");
@@ -123,16 +138,48 @@ public class About extends JFrame {
 		}
 		content.append("\n --------------------------- 8< ---------------------------\n");
 
-		/*
-		content.append("\njPSP � freeware, mas, que tal fazer uma doação?\n");
-		content.append("BTC: 1LVnucS1kT8RJTk6DSaQTk8xx5FoSvFEM4\n");
-		content.append("ETH: 0xEA88aE8827040DB1E481016b14C319d6F3DB2906\n");
-		content.append("LTC: LcFwg2C4DG3Q69zLziFkBnWooaq42cyWkd\n");
-		*/
-
-		textArea.setFont(Gui.COURIER_12);
-		textArea.setText(content.toString());
-		textArea.setCaretPosition(0);
+		appInfo.setLineWrap(true);
+		appInfo.setFont(Gui.COURIER_12);
+		appInfo.setText(content.toString());
+		appInfo.setCaretPosition(0);
+	}
+	
+	/**
+	 * 
+	 */
+	private void fillLicenseContent() {
+		license.setEditable(false);
+		license.setAlignmentX(JTextArea.LEFT_ALIGNMENT);
+		license.setLineWrap(true);
+		InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(FilesUtils.GPL3_LICENCE_FILE);
+		List<String> fileLines = FilesUtils.readTxtFile(is);
+		license.setFont(Gui.COURIER_12);
+		
+		fileLines.forEach(line -> {
+			license.append(line + "\n");
+		});
+		
+		license.setCaretPosition(0);
+	}
+	
+	/**
+	 * 
+	 */
+	private void fillReadmeContent() {
+		readMe.setEditable(false);
+		readMe.setAlignmentX(JTextArea.LEFT_ALIGNMENT);
+		readMe.setLineWrap(true);
+		
+		InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(FilesUtils.README_FILE);
+		List<String> fileLines = FilesUtils.readTxtFile(is);
+		
+		readMe.setFont(Gui.COURIER_12);
+		
+		fileLines.forEach(line -> {
+			readMe.append(line + "\n");
+		});
+		
+		readMe.setCaretPosition(0);
 	}
 
 	private JPanel mount() {
@@ -144,10 +191,17 @@ public class About extends JFrame {
 		label.setAlignmentX(0.5F);
 		main.add(label, "North");
 
-		textArea.setFont(Gui.COURIER_12);
-		textArea.setEditable(false);
-		JScrollPane scroll = Gui.getDefaultScroll(textArea);
-		scroll.setPreferredSize(new Dimension(600, 400));
+		JScrollPane appInfoScroll = Gui.getDefaultScroll(appInfo);
+		appInfoScroll.setPreferredSize(new Dimension(600, 400));
+		tabbedPane.addTab(Strings.ABOUT, appInfoScroll);
+		
+		JScrollPane licenseScroll = Gui.getDefaultScroll(license);
+		licenseScroll.setPreferredSize(new Dimension(600, 400));
+		tabbedPane.addTab(Strings.GPL3, licenseScroll);
+		
+		JScrollPane readmeScroll = Gui.getDefaultScroll(readMe);
+		readmeScroll.setPreferredSize(new Dimension(600, 400));
+		tabbedPane.addTab(Strings.README, readmeScroll);
 
 		JButton close = new JButton("Sair", Images.EXIT);
 		close.addActionListener(new ActionListener() {
@@ -155,13 +209,9 @@ public class About extends JFrame {
 				About.this.dispose();
 			}
 		});
-
-		JPanel info = new JPanel(new SpringLayout());
-		info.add(scroll);
-		info.add(close);
-		Gui.makeCompactGrid(info, 2, 1, 5, 5, 5, 5);
-
-		main.add(info, "Center");
+		
+		main.add(tabbedPane, "Center");
+		main.add(close, "South");
 
 		return main;
 	}

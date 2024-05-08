@@ -6,24 +6,32 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public abstract class DAO {
 	
 	protected Connection connection;
 	protected Statement stmt;
 	protected boolean noDatabase = false;
 
+	private final static Logger log = LogManager.getLogger(DAO.class);
+	
 	protected void execute(String sql) {
 		try {
 			openConnection(true);
 			this.stmt.execute(sql);
 		} catch (SQLException e) {
+			log.error("execute() " + e.getMessage());
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
+			log.error("execute() " + e.getMessage());
 			e.printStackTrace();
 		} finally {
 			try {
 				closeConnection(false);
 			} catch (SQLException e) {
+				log.error("execute() " + e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -33,8 +41,8 @@ public abstract class DAO {
 		try {
 			return this.stmt.executeUpdate(sql);
 		} catch (SQLException e) {
+			log.error("executeUpdate() " + e.getMessage());
 			e.printStackTrace();
-
 			return 0;
 		}
 	}
@@ -43,6 +51,7 @@ public abstract class DAO {
 		try {
 			return new MyResult(this.stmt.executeQuery(sql));
 		} catch (SQLException e) {
+			log.error("executeQuery() " + e.getMessage());
 			e.printStackTrace();
 
 			return null;
@@ -93,6 +102,7 @@ public abstract class DAO {
 				}
 				return (this.rs.getRow() == 0);
 			} catch (SQLException e) {
+				log.error("MyResult.isEmpty() " + e.getMessage());
 				e.printStackTrace();
 
 				return false;
@@ -107,6 +117,7 @@ public abstract class DAO {
 				}
 				return this.rs.next();
 			} catch (SQLException e) {
+				log.error("MyResult.moveToNext() " + e.getMessage());
 				e.printStackTrace();
 
 				return false;
@@ -117,8 +128,8 @@ public abstract class DAO {
 			try {
 				return this.rs.findColumn(name);
 			} catch (SQLException e) {
+				log.error("MyResult.getColumnIndex() " + e.getMessage());
 				e.printStackTrace();
-
 				return 0;
 			}
 		}
@@ -127,8 +138,8 @@ public abstract class DAO {
 			try {
 				return this.rs.getFloat(columnIndex);
 			} catch (SQLException e) {
+				log.error("MyResult.getFloat() " + e.getMessage());
 				e.printStackTrace();
-
 				return 0.0F;
 			}
 		}
@@ -137,8 +148,8 @@ public abstract class DAO {
 			try {
 				return this.rs.getBigDecimal(columnIndex);
 			} catch (SQLException e) {
+				log.error("MyResult.getBigDecimal() " + e.getMessage());
 				e.printStackTrace();
-
 				return new BigDecimal(0);
 			}
 		}
@@ -147,8 +158,8 @@ public abstract class DAO {
 			try {
 				return this.rs.getInt(columnIndex);
 			} catch (SQLException e) {
+				log.error("MyResult.getInt() " + e.getMessage());
 				e.printStackTrace();
-
 				return 0;
 			}
 		}
@@ -157,8 +168,8 @@ public abstract class DAO {
 			try {
 				return this.rs.getString(columnIndex);
 			} catch (SQLException e) {
+				log.error("MyResult.getString() " + e.getMessage());
 				e.printStackTrace();
-
 				return "";
 			}
 		}
@@ -167,8 +178,8 @@ public abstract class DAO {
 			try {
 				return this.rs.getFloat(columnName);
 			} catch (SQLException e) {
+				log.error("MyResult.getFloat() " + e.getMessage());
 				e.printStackTrace();
-
 				return 0.0F;
 			}
 		}
@@ -177,8 +188,8 @@ public abstract class DAO {
 			try {
 				return this.rs.getInt(columnName);
 			} catch (SQLException e) {
+				log.error("MyResult.getInt() " + e.getMessage());
 				e.printStackTrace();
-
 				return 0;
 			}
 		}
@@ -187,8 +198,8 @@ public abstract class DAO {
 			try {
 				return this.rs.getLong(columnName);
 			} catch (SQLException e) {
+				log.error("MyResult.getLong() " + e.getMessage());
 				e.printStackTrace();
-
 				return 0L;
 			}
 		}
@@ -197,8 +208,8 @@ public abstract class DAO {
 			try {
 				return this.rs.getString(index);
 			} catch (SQLException e) {
+				log.error("MyResult.getByColumnIndex() " + e.getMessage());
 				e.printStackTrace();
-
 				return null;
 			}
 		}
@@ -207,8 +218,8 @@ public abstract class DAO {
 			try {
 				return this.rs.getString(columnName);
 			} catch (SQLException e) {
+				log.error("MyResult.getString() " + e.getMessage());
 				e.printStackTrace();
-
 				return "";
 			}
 		}
