@@ -76,7 +76,7 @@ import br.com.jpsp.utils.Utils;
 /**
  *
  */
-public class jPSP extends JFrame implements WindowListener, Refreshable, MouseListener, WinUser.WindowProc {
+public class jPSP extends JFrame implements WindowListener, Refreshable, MouseListener, WinUser.WindowProc, Callback {
 	private static final long serialVersionUID = 5345992610620020749L;
 
 	private final static Logger log = LogManager.getLogger(jPSP.class);
