@@ -58,6 +58,7 @@ import com.sun.jna.platform.win32.WinDef;
 import com.sun.jna.platform.win32.WinUser;
 import com.sun.jna.platform.win32.Wtsapi32;
 
+import br.com.jpsp.gui.database.DBOptions;
 import br.com.jpsp.gui.resources.Images;
 import br.com.jpsp.model.Activity;
 import br.com.jpsp.model.Configuration;
@@ -73,13 +74,13 @@ import br.com.jpsp.utils.Gui;
 import br.com.jpsp.utils.Utils;
 
 /**
- * 
+ *
  */
 public class jPSP extends JFrame implements WindowListener, Refreshable, MouseListener, WinUser.WindowProc {
 	private static final long serialVersionUID = 5345992610620020749L;
 
 	private final static Logger log = LogManager.getLogger(jPSP.class);
-	
+
 	private static final Dimension BUTTON_DIMENSION = new Dimension(120, 50);
 	private static final Dimension SQUARE_BUTTON_DIMENSION = new Dimension(50, 50);
 	private static final Dimension COMBOBOX_SIZE = new Dimension(100, 50);
@@ -147,7 +148,7 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 
 	public void createAndShow() {
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		
+
 		this.setIconImage(Images.SPLASH_IMAGE);
 
 		getContentPane().setLayout(new BorderLayout());
@@ -162,20 +163,20 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 		if (this.autoStart) {
 			reStartLastTask();
 		}
-		
+
 		setSize((int) (Utils.SCREEN_WIDTH - (Utils.SCREEN_WIDTH*.25)), (int) (Utils.SCREEN_HEIGHT - Utils.SCREEN_HEIGHT*.25));
 
 		setLocationRelativeTo(this);
 
 		setVisible(true);
 		setMaximized();
-		
+
 		GuiSingleton.closeSplash();
-		
+
 		startUpdateDateThread();
-		
+
 		this.services.migrateDB(this);
-		
+
 		log.trace("jPSP app started");
 	}
 
@@ -206,24 +207,24 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 				this.alert.start();
 			}
 		}
-		
+
 		if (config.getCombosValues() != null && config.getCombosValues().length == 4) {
 			Object[] persistedValues = config.getCombosValues();
-			
+
 			if (persistedValues[0] != null)
 				taskActivity.setSelectedItem(persistedValues[0]);
-			
+
 			if (persistedValues[1] != null)
 				taskDescription.setSelectedItem(persistedValues[1]);
-			
+
 			if (persistedValues[2] != null)
 				taskClass.setSelectedItem(persistedValues[2]);
-			
+
 			if (persistedValues[3] != null)
 				system.setSelectedItem(persistedValues[3]);
 		}
-		
-		
+
+
 	}
 
 	private void updateMenu(String selectedLAF) {
@@ -241,7 +242,7 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 		JMenuBar menuBar = new JMenuBar();
 
 		JMenu editMenu = new JMenu(Strings.jPSP.EDIT);
-		
+
 		JMenu editItem = new JMenu(Strings.jPSP.CRUD);
 		editItem.setIcon(Images.CRUD);
 
@@ -253,7 +254,7 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 			}
 		});
 		editItem.add(editActivities);
-		
+
 		JMenuItem editDesc = new JMenuItem(Strings.jPSP.EDIT_DESCS);
 		editDesc.setIcon(Images.DESCRIPTION);
 		editDesc.addActionListener(new ActionListener() {
@@ -262,7 +263,7 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 			}
 		});
 		editItem.add(editDesc);
-		
+
 		JMenuItem editTaskClass = new JMenuItem(Strings.jPSP.EDIT_TASK_CLASS);
 		editTaskClass.setIcon(Images.EDIT_CLASS);
 		editTaskClass.addActionListener(new ActionListener() {
@@ -271,7 +272,7 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 			}
 		});
 		editItem.add(editTaskClass);
-		
+
 		JMenuItem editSystem = new JMenuItem(Strings.jPSP.EDIT_SYSTEMS);
 		editSystem.setIcon(Images.EDIT_SYSTEM);
 		editSystem.addActionListener(new ActionListener() {
@@ -280,7 +281,7 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 			}
 		});
 		editItem.add(editSystem);
-		
+
 		editMenu.add(editItem);
 		editMenu.addSeparator();
 
@@ -478,7 +479,8 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 		dbOptions.setIcon(Images.DATABASE);
 		dbOptions.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				GuiSingleton.showDBOptions();
+				DBOptions dbOptions = new DBOptions(jPSP.this);
+				dbOptions.createAndShow();
 			}
 		});
 
@@ -1032,7 +1034,7 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 
 		String taskClassification = this.taskClass.getSelectedItem().toString();
 		this.task.setTaskClass(taskClassification);
-		
+
 		String sys = this.system.getSelectedItem().toString();
 		this.task.setSystem(sys);
 
@@ -1042,7 +1044,7 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 		this.activityServices.add(newActivity);
 
 		startCounterClock();
-		
+
 		persistCombosValues();
 	}
 
@@ -1053,7 +1055,7 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 		this.system.setEnabled(enable);
 
 		if (enable) {
-			
+
 			if (this.taskActivity.getSelectedItem() != null) {
 				this.begin.setText(Strings.jPSP.NO_TASK_IN_PROGRESS + " (" + Strings.jPSP.LAST_TASK + ": "
 						+ Utils.date2String(this.taskEnd, Utils.DD_MM_YYYY_HH_mm_ss) + " - "
@@ -1129,33 +1131,33 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 	}
 
 	private boolean validateFields() {
-		
+
 		List<String> mandatoryFields = new ArrayList<String>();
-		
+
 		if (this.taskActivity.getSelectedItem() == null
 				|| Utils.isEmpty(this.taskActivity.getSelectedItem().toString())) {
 			mandatoryFields.add(Strings.jPSP.TASK_TYPE);
 			this.taskActivity.setBorder(BorderFactory.createLineBorder(Color.RED));
 		}
-		
+
 		if (this.taskDescription.getSelectedItem() == null
 				|| Utils.isEmpty(this.taskDescription.getSelectedItem().toString())) {
 			mandatoryFields.add(Strings.jPSP.TASK_DESC);
 			this.taskDescription.setBorder(BorderFactory.createLineBorder(Color.RED));
 		}
-		
+
 		if (this.taskClass.getSelectedItem() == null
 				|| Utils.isEmpty(this.taskClass.getSelectedItem().toString())) {
 			mandatoryFields.add(Strings.jPSP.TASK_CLASS);
 			this.taskClass.setBorder(BorderFactory.createLineBorder(Color.RED));
 		}
-		
+
 		if (this.system.getSelectedItem() == null
 				|| Utils.isEmpty(this.system.getSelectedItem().toString())) {
 			mandatoryFields.add(Strings.jPSP.TASK_SYSTEM);
 			this.system.setBorder(BorderFactory.createLineBorder(Color.RED));
 		}
-		
+
 		if (!Utils.isEmpty(mandatoryFields)) {
 			StringBuilder sb = new StringBuilder(Strings.Form.FILL_MANDATORY_FIELDS);
 			for (String m : mandatoryFields) {
@@ -1163,12 +1165,12 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 			}
 			JOptionPane.showMessageDialog(this, sb.toString(), Strings.Form.MANDATORY_FIELDS, 0);
 		}
-		
+
 		this.taskActivity.setBorder(BorderFactory.createEmptyBorder());
 		this.taskDescription.setBorder(BorderFactory.createEmptyBorder());
 		this.taskClass.setBorder(BorderFactory.createEmptyBorder());
 		this.system.setBorder(BorderFactory.createEmptyBorder());
-		
+
 		return Utils.isEmpty(mandatoryFields);
 	}
 
@@ -1206,46 +1208,46 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 		values[3] = system.getSelectedItem();
 		return values;
 	}
-	
+
 	public void refresh() {
 		updateTableByDate(getSelectedDay().intValue(), this.months.getSelectedIndex(), getYear());
 		loadConfigurationFromFile();
-		
+
 		// salar info antes do refresh
 		Object[] valuesBefore = this.getComboxValues();
-		
+
 		List<String> tasks = this.activityServices.getAllActivitiesDescriptions();
 		Set<String> descs = this.services.getAllDescriptions();
-		
+
 		taskDescription.removeAllItems();
 		for (String desc : descs) {
 			taskDescription.addItem(desc);
 		}
-		
+
 		taskActivity.removeAllItems();
 		for (String t : tasks) {
 			taskActivity.addItem(t);
 		}
-		
+
 		List<String> tcdesc = this.services.getAllTypeClassDesc();
 		taskClass.removeAllItems();
 		for (String t : tcdesc) {
 			taskClass.addItem(t);
 		}
 		taskClass.setSelectedIndex(0);
-		
+
 		List<String> sys = this.services.getAllSystemsNames();
 		system.removeAllItems();
 		for (String s : sys) {
 			system.addItem(s);
 		}
 		system.setSelectedIndex(0);
-		
+
 		activity.removeAllItems();
 		for (String t : tasks) {
 			activity.addItem(t);
 		}
-		
+
 		taskActivity.setSelectedItem(valuesBefore[0]);
 		taskDescription.setSelectedItem(valuesBefore[1]);
 		taskClass.setSelectedItem(valuesBefore[2]);
@@ -1265,7 +1267,7 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 	public void windowClosing(WindowEvent e) {
 
 		persistCombosValues();
-		
+
 		if (this.task != null) {
 			int answer = JOptionPane.showConfirmDialog(null, Strings.jPSP.TASK_IN_PROGRESS_CONFIRM,
 					Strings.GUI.CONFIRM_ACTION, 0, 3);
@@ -1279,7 +1281,7 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	private void persistCombosValues() {
 		Configuration config = this.configServices.getConfiguration();
@@ -1523,5 +1525,5 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 	public void setAutoPause(boolean autoPause) {
 		this.autoPause = autoPause;
 	}
-	
+
 }

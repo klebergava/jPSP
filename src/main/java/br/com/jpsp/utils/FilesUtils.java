@@ -22,16 +22,16 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class FilesUtils {
-	
+
 	private final static Logger log = LogManager.getLogger(FilesUtils.class);
-	
+
 	public static final String DATA_DIR = "data";
-	
+
 	public static final String JAR_FILE_NAME = "jPSP_v1.jar";
-	
+
 	public static final String FILE_SEPARATOR = System.getProperty("file.separator");
 	public static final String USER_NAME = System.getProperty("user.name");
-	
+
 	public static final String DATA_FOLDER = "." + FILE_SEPARATOR + DATA_DIR;
 	public static final String USER_CONFIG_DATA_FILE = DATA_FOLDER + FILE_SEPARATOR + USER_NAME + "_config.dat";
 	public static final String OLD_USER_CONFIG_DATA_FILE = DATA_FOLDER + FILE_SEPARATOR + USER_NAME + ".dat";
@@ -42,6 +42,7 @@ public class FilesUtils {
 
 	public static final String OUTPUT_DIR = "output";
 	public static final String DEFAULT_OUTPUT_FOLDER = "." + FILE_SEPARATOR + OUTPUT_DIR;
+	public static final String LOG_FILE = DEFAULT_OUTPUT_FOLDER + FILE_SEPARATOR + "jPSP.log";
 
 	public static final String DB_TXT_FILE_NAME = "jpsp_db.txt";
 	public static final String DB_TXT_FILE = DATA_DIR + FILE_SEPARATOR + DB_TXT_FILE_NAME;
@@ -51,9 +52,10 @@ public class FilesUtils {
 
 	public static final String BACKUP_EXT = ".dbkp";
 
-	public static final String GPL3_LICENCE_FILE = "LICENSE";
-	public static final String README_FILE = "README.md";
-	
+	public static final String GPL3_LICENCE_FILE = "license.html";
+	public static final String README_FILE = "readme.html";
+	public static final String ABOUT_FILE = "about.html";
+
 	public static boolean fileExists(String filePath) {
 		boolean exists = false;
 		File file = new File(filePath);
@@ -189,12 +191,16 @@ public class FilesUtils {
 		}
 
 	}
-	
+
+	/**
+	 *
+	 * @return
+	 */
 	public static List<String> readAppJARS() {
-		
+
 		List<String> jars = new ArrayList<String>();
-		
-		String zipFilePath = "." + FILE_SEPARATOR + JAR_FILE_NAME;
+
+		String zipFilePath = findJarFile();
 
 		try (ZipFile zipFile = new ZipFile(zipFilePath)) {
 		    Enumeration<? extends ZipEntry> entries = zipFile.entries();
@@ -212,10 +218,25 @@ public class FilesUtils {
 			log.error("readAppJARS() "+ e.getMessage());
 			e.printStackTrace();
 		}
-		
+
 		return jars;
 	}
-	
+
+	/**
+	 *
+	 * @return
+	 */
+	private static String findJarFile() {
+		String jarPath = "." + FILE_SEPARATOR + JAR_FILE_NAME;
+		File jarFile = new File(jarPath);
+
+		if (!jarFile.exists()) {
+
+		}
+
+		return jarPath;
+	}
+
 	public static List<String> readTxtFile(File toRead) {
 		List<String> lines = new ArrayList<String>();
         try (BufferedReader br = new BufferedReader(new FileReader(toRead))) {
@@ -227,12 +248,12 @@ public class FilesUtils {
         	log.error("readTxtFile(File toRead) "+ e.getMessage());
             e.printStackTrace();
         }
-        
+
         return lines;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param inputStream
 	 * @return
 	 */
@@ -250,7 +271,16 @@ public class FilesUtils {
                 e.printStackTrace();
             }
         }
-        
+
         return lines;
 	}
+
+	/**
+	 *
+	 * @return
+	 */
+	public static List<String> readLogFile() {
+		return readTxtFile(new File(LOG_FILE));
+	}
+
 }

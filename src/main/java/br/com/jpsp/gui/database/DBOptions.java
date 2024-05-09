@@ -18,6 +18,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import br.com.jpsp.gui.GuiSingleton;
+import br.com.jpsp.gui.Refreshable;
 import br.com.jpsp.gui.resources.Images;
 import br.com.jpsp.services.Strings;
 import br.com.jpsp.utils.FilesUtils;
@@ -27,10 +28,12 @@ public class DBOptions extends JFrame implements WindowListener {
 	private static final long serialVersionUID = 7811181541648032335L;
 	private JButton cancel;
 	private final static Logger log = LogManager.getLogger(DBOptions.class);
+	private final Refreshable refreshable;
 
-	public DBOptions() {
+	public DBOptions(Refreshable refreshable) {
 		super(Strings.DBOptions.TITLE);
 		Gui.setConfiguredLookAndFeel(this);
+		this.refreshable = refreshable;
 	}
 
 	public void createAndShow() {
@@ -49,6 +52,8 @@ public class DBOptions extends JFrame implements WindowListener {
 		setAlwaysOnTop(true);
 
 		addWindowListener(this);
+
+		toFront();
 	}
 
 	private JPanel mountMain() {
@@ -72,7 +77,7 @@ public class DBOptions extends JFrame implements WindowListener {
 		restore.setIcon(Images.DATABASE_RESTORE);
 		restore.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				GuiSingleton.showRestoreDB();
+				GuiSingleton.showRestoreDB(DBOptions.this.refreshable);
 			}
 		});
 		fields.add(restore);

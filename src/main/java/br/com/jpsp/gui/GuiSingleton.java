@@ -42,7 +42,7 @@ public final class GuiSingleton {
 	static Splash splash;
 	static TotalSpentOnTask totalSpent;
 	static LoadingScreen loading;
-	
+
 	public static Color DEFAULT_BG_COLOR = Color.DARK_GRAY; //new Color(47, 103, 253);
 
 	public static void showAbout() {
@@ -117,7 +117,7 @@ public final class GuiSingleton {
 			batchUpdateClass.toFront();
 		}
 	}
-	
+
 	public static void showBatchUpdateSystem(Collection<Task> tasks, Refreshable refreshable) {
 		if (batchUpdateSystem == null || !batchUpdateSystem.isVisible()) {
 			batchUpdateSystem = new BatchUpdateTask(tasks, Strings.BatchUpdateTask.TITLE_SYSTEM, FieldToEdit.SYSTEM, refreshable);
@@ -158,26 +158,26 @@ public final class GuiSingleton {
 		CRUDWindow crud = new CRUDWindow(refreshable, Strings.jPSP.TASK_ACTIVITY, Images.TASK_IMG, ActivityServices.instance, new br.com.jpsp.model.Activity());
 		crud.createAndShow();
 	}
-	
-	
+
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static void showEditSystem(Refreshable refreshable) {
 		CRUDWindow crud = new CRUDWindow(refreshable, Strings.jPSP.TASK_SYSTEM, Images.EDIT_SYSTEM_IMG, SystemServices.instance, new br.com.jpsp.model.System());
 		crud.createAndShow();
 	}
-	
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static void showEditTypeClass(Refreshable refreshable) {
 		CRUDWindow crud = new CRUDWindow(refreshable, Strings.jPSP.TASK_CLASS, Images.EDIT_CLASS_IMG, TypeClassificationServices.instance, new br.com.jpsp.model.TypeClassification());
 		crud.createAndShow();
 	}
-	
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static void showEditDescription(Refreshable refreshable) {
 		CRUDWindow crud = new CRUDWindow(refreshable, Strings.jPSP.TASK_DESCRIPTION, Images.DESCRIPTION_IMG, DescriptionServices.instance, new br.com.jpsp.model.Description());
 		crud.createAndShow();
 	}
-	
+
 	public static void showExportDB2Txt() {
 		if (exportDB2Txt == null || !exportDB2Txt.isVisible()) {
 			exportDB2Txt = new ExportDB2Txt();
@@ -187,21 +187,12 @@ public final class GuiSingleton {
 		}
 	}
 
-	public static void showRestoreDB() {
+	public static void showRestoreDB(Refreshable refreshable) {
 		if (restoreDB == null || !restoreDB.isVisible()) {
-			restoreDB = new RestoreDB();
+			restoreDB = new RestoreDB(refreshable);
 			restoreDB.createAndShow();
 		} else {
 			restoreDB.toFront();
-		}
-	}
-
-	public static void showDBOptions() {
-		if (DBOptions == null || !DBOptions.isVisible()) {
-			DBOptions = new DBOptions();
-			DBOptions.createAndShow();
-		} else {
-			DBOptions.toFront();
 		}
 	}
 
@@ -215,8 +206,8 @@ public final class GuiSingleton {
 		splash.dispose();
 		splash = null;
 	}
-	
-	
+
+
 	public static void showTotalSpent(Task task) {
 		if (totalSpent == null || !totalSpent.isVisible()) {
 			totalSpent = new TotalSpentOnTask(task);
@@ -225,7 +216,7 @@ public final class GuiSingleton {
 			totalSpent.toFront();
 		}
 	}
-	
+
 	public static void showLoadingScreen(String txt) {
 		if (loading == null || !loading.isVisible()) {
 			SwingUtilities.invokeLater(() -> {
@@ -237,7 +228,7 @@ public final class GuiSingleton {
 			loading.toFront();
 		}
 	}
-	
+
 	public static void disposeLoadingScreen() {
 		if (loading != null && loading.isVisible()) {
 			SwingUtilities.invokeLater(() -> {
@@ -247,5 +238,5 @@ public final class GuiSingleton {
 
 		}
 	}
-	
+
 }

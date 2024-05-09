@@ -35,7 +35,6 @@ public class ConfigWindow extends JFrame implements WindowListener {
 	private JCheckBox autoStart;
 	private JTextField alertTime;
 	private JTextField name;
-//	private JTextField outputFolder;
 	private JButton save;
 	private JButton cancel;
 	private JComboBox<String> lookAndFeel;

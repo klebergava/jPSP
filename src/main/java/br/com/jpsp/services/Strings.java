@@ -6,7 +6,7 @@ import br.com.jpsp.utils.Utils;
 public class Strings {
 	
 	public static final String VERSION = "1.0";
-	public static final String VERSION_DATE = "08/05/2024";
+	public static final String VERSION_DATE = "09/05/2024";
 	
 	public static final String START = "Iniciar";
 
@@ -56,6 +56,7 @@ public class Strings {
 	public static final String SAGE = "SAGe";
 	public static final String AGILIS = "Agilis";
 	public static final String OTHER_SYS = "Outro";
+	public static final String LOGS = "Logs";
 	
 	public static class Alert {
 		public static final String TIME_REACHED = "Hora atingida";
@@ -169,7 +170,7 @@ public class Strings {
 	public static class ConfigWindow {
 		public static final String TITLE = "Configurações";
 		public static final String AUTOMATICALLY_START_PAUSE = "Iniciar/Pausar automaticamente quando o sistema for bloqueado";
-		public static final String RESTART_FROM_LAST_TASK = "Reiniciar automaticamente a �ltima atividade quando a aplicação for executada";
+		public static final String RESTART_FROM_LAST_TASK = "Reiniciar automaticamente a última atividade quando a aplicação for aberta";
 		public static final String ALERT_WHEN_TIME_REACHED = "Alertar quando chegar a hora";
 		public static final String YOUR_NAME = "Seu nome";
 		public static final String OUTPUT_FOLDER = "Diretório de saída";

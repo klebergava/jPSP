@@ -27,13 +27,13 @@ import br.com.jpsp.utils.FilesUtils;
 import br.com.jpsp.utils.Utils;
 
 /**
- * 
+ *
  * @author kleber
  *
  */
 public class TaskSetServices {
 	private final static Logger log = LogManager.getLogger(TaskSetServices.class);
-	
+
 	public enum Order {
 		ASC, DESC;
 	}
@@ -239,16 +239,26 @@ public class TaskSetServices {
 		StringBuilder content = new StringBuilder("");
 
 		if (!Utils.isEmpty(tasks)) {
+
+			content.append("data_inicio" + separator);
+			content.append("hora_inicio" + separator);
+			content.append("hora_fim" + separator);
+			content.append("delta" + separator);
+			content.append("atividade" + separator);
+			content.append("descricao" + separator);
+			content.append("classificacao" + separator);
+			content.append("sistema\n");
+
 			for (Task t : tasks) {
 
 				content.append(String.valueOf(t.getBeginDateAsString()) + separator);
-				content.append(String.valueOf(Utils.date2String(t.getBegin(), "HH:mm:ss")) + separator);
-				content.append(String.valueOf(Utils.date2String(t.getEnd(), "HH:mm:ss")) + separator);
+				content.append(String.valueOf(Utils.date2String(t.getBegin(), Utils.HH_mm_ss)) + separator);
+				content.append(String.valueOf(Utils.date2String(t.getEnd(), Utils.HH_mm_ss)) + separator);
 				content.append(String.valueOf(t.getDelta()) + separator);
 				content.append(String.valueOf(t.getActivity()) + separator);
 				content.append(String.valueOf(t.getDescription()) + separator);
-				content.append(t.getTaskClass() + separator);
-				content.append(t.getSystem());
+				content.append(String.valueOf(t.getTaskClass()) + separator);
+				content.append(String.valueOf(t.getSystem()));
 
 				content.append("\n");
 			}

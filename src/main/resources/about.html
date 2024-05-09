@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+	<head>
+		<meta http-equiv="content-language" content="pt-br">
+		<style type="text/css">
+			body {
+				font-family: Tahoma, Verdana, sans-serif;
+			}
+
+			hr {
+ 				border-top: 1px dotted blue;
+			}
+
+			h1 {
+				color: blue;
+			}
+
+			h1, h2 {
+				background-color: lightgrey;
+			}
+		</style>
+		<title>Sobre...</title>
+	</head>
+
+	<body>
+		<h1>jPSP - Java Personal Software Process</h1>
+		<h3>Vers&atilde;o: ${appVersion}</h3>
+
+		<hr />
+
+		<p>
+				Diret&oacute;rio da aplica&ccedil;&atilde;o: <strong>${appFolder}</strong>
+		</p>
+		<p>
+				Arquivo de dados: <strong>${dbFile}</strong>
+		</p>
+		<p>
+				Arquivo de configura&ccedil;&otilde;es: <strong>${datFile}</strong>
+		</p>
+
+		<hr />
+
+		<p>
+				<h2>Notas da vers&atilde;o 1.0:</h2>
+				<ul>
+					<li>vers&atilde;o est&aacute;vel do aplicativo</li>
+				</ul>
+		</p>
+
+		<hr />
+
+		<p>
+				<h2>Notas da vers&atilde;o 1.0RC5:</h2>
+				<ul>
+					<li>jars atualizados para as vers&otilde;es mais novas</li>
+					<li>projeto agora usa o maven</li>
+					<li>implementada ordena&ccedil;&atilde;o nos relat&oacute;rios</li>
+					<li>c&oacute;digo do POI (Excel) refatorado</li>
+					<li>inclus&atilde;o do log4j</li>
+				</ul>
+		</p>
+
+		<hr />
+
+		<p>
+				<h2>Notas da vers&atilde;o 1.0RC4:</h2>
+				<ul>
+					<li>corre&ccedil;&otilde;es de bugs</li>
+					<li>labels de telas parametrizados</li>
+					<li>melhorias na interface</li>
+					<li>implementa&ccedil;&atilde;o da funcionalidade 'Tempo gasto na atividade'</li>
+					<li>refatora&ccedil;&atilde;o da base de dados</li>
+					<li>configura&ccedil;&otilde;es agora s&atilde;o salvas em um arquivo, n&atilde;o mais no SQLite</li>
+					<li>inclus&atilde;o do campo 'Sistema' na atividade</li>
+					<li>inclus&atilde;o de telas de edi&ccedil;&atilde;o de atividade, descri&ccedil;&atilde;o, classifica&ccedil;&atilde;o e sistema</li>
+					<li>remo&ccedil;&atilde;o das sugest&otilde;es de atividades/descri&ccedil;&otilde;es em todas as telas de edi&ccedil;&atilde;o de tarefas; alterado para combobox edit&aacute;vel</li>
+				</ul>
+		</p>
+
+		<hr />
+
+		<p>
+				<h2>Notas da vers&atilde;o 1.0RC3:</h2>
+				<ul>
+					<li>corre&ccedil;&otilde;es de bugs</li>
+					<li>telas de altera&ccedil;&atilde;o e inclus&atilde;o melhoradas</li>
+					<li>inclu&iacute;do o nome do usu&aacute;rio no arquivo excel</li>
+					<li>op&ccedil;&otilde;es de filtro alteradas</li>
+					<li>altera&ccedil;&atilde;o do layout</li>
+					<li>bot&atilde;o de ordena&ccedil;&atilde;o removido, ordena&ccedil;&atilde;o pode ser feita na pr&oacute;pria tabela</li>
+				</ul>
+		</p>
+
+		<hr />
+
+		<p>
+				<h2>Notas da vers&atilde;o 1.0RC2:</h2>
+				<ul>
+					<li>corre&ccedil;&otilde;es de bugs</li>
+					<li>gera&ccedil;&atilde;o de relat&oacute;rio inclu&iacute;do na barra de menu</li>
+					<li>sugest&otilde;es de atividades/descri&ccedil;&otilde;es em todas as telas de
+					  edi&ccedil;&atilde;o de tarefas</li>
+					<li>iniciar automaticamente tarefa ao desbloquear o sistema somente se a tarefa j&aacute; estivesse rodando</li>
+					<li>altera&ccedil;&atilde;o desta tela</li>
+				</ul>
+		</p>
+
+		<hr />
+
+		<p>
+				<h2>Notas da vers&atilde;o 1.0RC1:</h2>
+				<ul>
+					<li>todas as funcionalidades propostas est&atilde;o implementadas (inclus&atilde;o, edi&ccedil;&atilde;o e remo&ccedil;&atilde;o de atividades)</li>
+					<li>permite fazer backup/restore da base de dados</li>
+					<li>permite incluir/editar/excluir atividades</li>
+					<li>utiliza o SQLite para armazenar as informa&ccedil;&otilde;es e as configura&ccedil;&otilde;es</li>
+					<li>utiliza o POI para gerar a planilha excel</li>
+					<li>utiliza o JFreeChart para gerar os gr&aacute;ficos</li>
+					<li>utiliza o JNA para capturar eventos do sistema operacional</li>
+				</ul>
+		</p>
+
+		<hr />
+		<p>
+				Vers&atilde;o do Java: <strong>${javaVersion}</strong>
+		</p>
+
+		<p>
+				Jars utilizados na aplica&ccedil;&atilde;o:
+				<ul>
+					${jarFiles}
+				</ul>
+		</p>
+	</body>
+</html>

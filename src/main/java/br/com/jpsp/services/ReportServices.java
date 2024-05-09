@@ -1,9 +1,6 @@
 package br.com.jpsp.services;
 
-import java.awt.BorderLayout;
 import java.awt.Desktop;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -12,11 +9,6 @@ import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import javax.swing.JButton;
-import javax.swing.JEditorPane;
-import javax.swing.JFrame;
-import javax.swing.JScrollPane;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.BorderStyle;
@@ -33,13 +25,13 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.jfree.chart.ChartUtils;
 
+import br.com.jpsp.gui.SimpleBrowser;
 import br.com.jpsp.model.Configuration;
 import br.com.jpsp.model.Task;
 import br.com.jpsp.model.TaskActivityWrapper;
 import br.com.jpsp.model.TaskDateWrapper;
 import br.com.jpsp.model.TaskTypeWrapper;
 import br.com.jpsp.utils.FilesUtils;
-import br.com.jpsp.utils.Gui;
 import br.com.jpsp.utils.Utils;
 
 public class ReportServices {
@@ -48,18 +40,29 @@ public class ReportServices {
 	private static final TaskSetServices tasksServices = TaskSetServices.instance;
 	private static final ConfigServices configServices = ConfigServices.instance;
 
-	
+
 	private String getOutputFolder() {
 		Configuration config = configServices.getConfiguration();
-		
+
 		return config.getOutputFolder();
 	}
-	
+
+	/**
+	 *
+	 * @param monthTxt
+	 * @param year
+	 * @param wrappedType
+	 * @param includePieChartType
+	 * @param wrappedActivities
+	 * @param includePieChartActivity
+	 * @param openInDefaultBrowser
+	 * @return
+	 */
 	public File saveSummarizedReport(String monthTxt, int year, Map<String, TaskTypeWrapper> wrappedType,
 			boolean includePieChartType, Map<String, TaskActivityWrapper> wrappedActivities,
 			boolean includePieChartActivity, boolean openInDefaultBrowser) {
-		
-		
+
+
 		File html = new File(String.valueOf(getOutputFolder()) + FilesUtils.FILE_SEPARATOR + "report.html");
 		if (html.exists()) {
 			html.delete();
@@ -151,6 +154,10 @@ public class ReportServices {
 		return html;
 	}
 
+	/**
+	 *
+	 * @param content
+	 */
 	private void addCSS(StringBuilder content) {
 		content.append("\n<style>\n");
 		content.append("table, th, td {\n");
@@ -180,38 +187,24 @@ public class ReportServices {
 		}
 	}
 
+	/**
+	 *
+	 * @param html
+	 */
 	private void openHTML(String html) {
-		JFrame browser = new JFrame(Strings.Report.REPORT);
-		browser.setDefaultCloseOperation(2);
-		browser.getContentPane().setLayout(new BorderLayout());
-
-		final JEditorPane editor = new JEditorPane("text/html", html);
-		editor.setEditable(false);
-		JScrollPane scroll = Gui.getScroll(editor);
-		browser.add(scroll, "Center");
-		browser.setSize(1024, 768);
-
-		editor.setCaretPosition(0);
-
-		JButton selectAll = new JButton(Strings.Report.SELECT_ALL);
-		selectAll.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				editor.selectAll();
-			}
-		});
-
-		browser.setVisible(true);
+		SimpleBrowser browser = new SimpleBrowser(Strings.Report.TITLE, html);
+		browser.createAndShow();
 	}
 
 	public File saveCompleteReport(String monthTxt, int month, int year, Map<String, TaskTypeWrapper> wrappedTypes,
 			boolean includePieChartType, Map<String, TaskActivityWrapper> wrappedActivities,
 			boolean includePieChartActivity, boolean openInDefaultBrowser, OrderByDirection order) {
-		
+
 		File html = new File(String.valueOf(getOutputFolder()) + FilesUtils.FILE_SEPARATOR + "report.html");
 		if (html.exists()) {
 			html.delete();
 		}
-		
+
 		List<Task> tasks = tasksServices.filterTasksByMonthAndYear(month, year);
 
 		try {
@@ -248,7 +241,7 @@ public class ReportServices {
 				if (order.equals(OrderByDirection.DESC)) {
 					Collections.reverse(tasks);
 				}
-				
+
 				for (Task t : tasks) {
 					content.append("\t\t<tr>\n");
 					content.append("\t\t\t<td>" + Utils.date2String(t.getBegin(), "dd/MM/yyyy") + "</td>\n");
@@ -267,7 +260,7 @@ public class ReportServices {
 				content.append("\n<br />\n");
 				if (includePieChartType) {
 					PieChartType pie = new PieChartType(wrappedTypes, String.valueOf(monthTxt) + "/" + year);
-					
+
 					File png = new File(
 							String.valueOf(getOutputFolder()) + FilesUtils.FILE_SEPARATOR + "piecharttype.png");
 					ChartUtils.saveChartAsPNG(png, pie.getChart(), 1024, 768);
@@ -281,7 +274,7 @@ public class ReportServices {
 							String.valueOf(monthTxt) + "/" + year);
 					File png = new File(String.valueOf(getOutputFolder()) + FilesUtils.FILE_SEPARATOR
 							+ "piechartactivity.png");
-					
+
 					ChartUtils.saveChartAsPNG(png, pie.getChart(), 1024, 768);
 					String path = "file:///" + png.getCanonicalPath().replace('\\', '/');
 					content.append("<img alt='Pie chart activities' src='" + path + "' width='1024' height='768' />\n");
@@ -354,7 +347,7 @@ public class ReportServices {
 				content.append("\t\t\t<th bgcolor='#DDDDDD' class='sub'>Descri&ccedil;&atilde;o</th>\n");
 
 				content.append("\t\t</tr>\n");
-				
+
 				if (order.equals(OrderByDirection.DESC)) {
 					Collections.reverse(wrappedDates);
 				}
@@ -426,7 +419,7 @@ public class ReportServices {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param monthTxt
 	 * @param month
 	 * @param year
@@ -465,7 +458,7 @@ public class ReportServices {
 				int rowCount = 0;
 				HSSFWorkbook hSSFWorkbook = new HSSFWorkbook();
 
-				
+
 				// ABA DETALHADO
 				//**********************
 				Sheet sheet = hSSFWorkbook.createSheet(Strings.Excel.DETAILED);
@@ -588,11 +581,11 @@ public class ReportServices {
 
 				int cellCount = 0;
 				beginRow = rowCount + 1;
-				
+
 				if (order.equals(OrderByDirection.DESC)) {
 					Collections.reverse(wrappedDates);
 				}
-				
+
 				for (Map<String, TaskDateWrapper> map : wrappedDates) {
 					cellCount = 0;
 
@@ -715,7 +708,7 @@ public class ReportServices {
 				}
 
 				rowCount = 0;
-				
+
 				// ABA DE CONSOLIDADDOS
 				//**********************
 				Sheet sheet2 = hSSFWorkbook.createSheet(Strings.Excel.CONSOLIDATED);
@@ -785,7 +778,7 @@ public class ReportServices {
 				}
 
 				rowCount = 0;
-				
+
 				// ABA DE TABELAS
 				//**********************
 				Sheet sheet3 = hSSFWorkbook.createSheet(Strings.Excel.TABLES);
@@ -969,4 +962,5 @@ public class ReportServices {
 
 		return style;
 	}
+
 }
