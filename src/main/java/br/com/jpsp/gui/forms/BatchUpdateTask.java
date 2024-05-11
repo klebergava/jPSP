@@ -102,7 +102,7 @@ public class BatchUpdateTask extends JDialog implements WindowListener {
 	private JPanel mountMain() {
 		JPanel main = new JPanel(new BorderLayout());
 		main.setBorder(Gui.getLinedBorder(this.title, Gui.getFont(1, Integer.valueOf(16)), Color.WHITE));
-		main.setBackground(GuiSingleton.DEFAULT_BG_COLOR);
+		main.setBackground(GuiSingleton.DARK_BG_COLOR);
 
 		JPanel fields = new JPanel(new SpringLayout());
 		fields.setBackground(Color.WHITE);

@@ -39,31 +39,36 @@ public class TotalSpentOnTask extends JDialog {
 
 		setSize(800, 600);
 		pack();
-		setVisible(true);
 		setLocationRelativeTo(null);
 		setResizable(false);
 		toFront();
+		setVisible(true);
 	}
 
 	private JPanel mount() {
 		String total = services.getTotalSpentOn(task);
 
-		String txt = Strings.jPSP.TASK_TOTAL_SPENT_TIME.replaceAll("&1", task.getActivity());
+		String txt = "'" + task.getActivity() + "'";//Strings.jPSP.TASK_TOTAL_SPENT_TIME.replaceAll("&1", task.getActivity());
 
 		JPanel main = new JPanel(new BorderLayout());
-		main.setBackground(GuiSingleton.DEFAULT_BG_COLOR);
+		main.setBackground(GuiSingleton.DARK_BG_COLOR);
 		main.setBorder(
 				Gui.getLinedBorder(Strings.jPSP.TASK_SPENT_TIME, Gui.getFont(1, Integer.valueOf(16)), Color.WHITE));
 
 		JPanel contentPanel = new JPanel(new BorderLayout());
 		contentPanel.setBorder(Gui.getEmptyBorder(15));
 
-		contentPanel.add(new JLabel(txt), "North");
+		JLabel txtLabel = new JLabel(txt + ":");
+		txtLabel.setFont(Gui.getFont(Font.BOLD, 18));
+		contentPanel.add(txtLabel, "North");
 
 		JLabel label = new JLabel(total);
 		label.setForeground(Color.BLUE);
 		label.setFont(Gui.getFont(Font.BOLD, 16));
-		contentPanel.add(label, "Center");
+		JPanel timeSpentPanel = new JPanel(new BorderLayout());
+		timeSpentPanel.setBorder(Gui.getEmptyBorder(10));
+		timeSpentPanel.add(label, "Center");
+		contentPanel.add(timeSpentPanel, "Center");
 
 		JButton cancel = new JButton(Strings.GUI.OK);
 		cancel.addActionListener(new ActionListener() {
@@ -72,7 +77,8 @@ public class TotalSpentOnTask extends JDialog {
 			}
 		});
 		JPanel buttons = new JPanel(new BorderLayout());
-		buttons.add(cancel, "West");
+		buttons.setBorder(Gui.getEmptyBorder(5));
+		buttons.add(cancel, "East");
 
 		contentPanel.add(buttons, "South");
 

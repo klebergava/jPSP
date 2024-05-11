@@ -72,7 +72,7 @@ public class RestoreDB extends JDialog {
 
 	private JPanel mountMain() {
 		JPanel main = new JPanel(new BorderLayout());
-		main.setBackground(GuiSingleton.DEFAULT_BG_COLOR);
+		main.setBackground(GuiSingleton.DARK_BG_COLOR);
 		main.setBorder(Gui.getLinedBorder(Strings.RestoreDB.TITLE, Gui.getFont(1, Integer.valueOf(16)),
 				Color.WHITE));
 

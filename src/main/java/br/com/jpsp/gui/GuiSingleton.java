@@ -45,7 +45,7 @@ public final class GuiSingleton {
 	static TotalSpentOnTask totalSpent;
 	static LoadingScreen loading;
 
-	public static Color DEFAULT_BG_COLOR = Color.DARK_GRAY; //new Color(47, 103, 253);
+	public static Color DARK_BG_COLOR = Color.DARK_GRAY; //new Color(47, 103, 253);
 
 	public static void showAbout() {
 		if (about == null || !about.isVisible()) {

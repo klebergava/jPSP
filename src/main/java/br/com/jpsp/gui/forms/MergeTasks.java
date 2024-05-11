@@ -91,7 +91,7 @@ public class MergeTasks extends JDialog implements Refreshable, WindowListener {
 	private JPanel mountMain() {
 		JPanel main = new JPanel(new BorderLayout());
 		main.setBorder(Gui.getLinedBorder(Strings.MergeTasks.TITLE, Gui.getFont(1, Integer.valueOf(16)), Color.WHITE));
-		main.setBackground(GuiSingleton.DEFAULT_BG_COLOR);
+		main.setBackground(GuiSingleton.DARK_BG_COLOR);
 
 		JPanel tasksList = new JPanel(new SpringLayout());
 		tasksList.setBackground(Color.WHITE);

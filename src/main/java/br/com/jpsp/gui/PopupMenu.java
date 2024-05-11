@@ -16,6 +16,9 @@ import br.com.jpsp.services.Strings;
 import br.com.jpsp.services.TaskSetServices;
 import br.com.jpsp.utils.Gui;
 
+/**
+ *
+ */
 public class PopupMenu extends JPopupMenu {
 	private static final long serialVersionUID = 6879620017103017314L;
 	private final JTable tableSource;

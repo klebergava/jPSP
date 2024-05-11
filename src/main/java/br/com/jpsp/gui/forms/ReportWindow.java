@@ -24,10 +24,13 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
-import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import br.com.jpsp.gui.GuiSingleton;
+import br.com.jpsp.gui.jPSP;
 import br.com.jpsp.gui.resources.Images;
 import br.com.jpsp.model.Task;
 import br.com.jpsp.model.TaskActivityWrapper;
@@ -49,11 +52,12 @@ public class ReportWindow extends JDialog {
 	private static final long serialVersionUID = 4353742431227760939L;
 	private final TaskSetServices taskServices = TaskSetServices.instance;
 	private final ReportServices reportServices = ReportServices.instance;
+	private final static Logger log = LogManager.getLogger(jPSP.class);
 
 	private JComboBox<String> months;
 	private JComboBox<Integer> years;
 	private JComboBox<OrderByDirection> orderBy;
-	private JButton generate;
+	private JButton generateHTML;
 	private JButton pieChartByType;
 	private JButton pieChartByActivity;
 	private final ButtonGroup radios = new ButtonGroup();
@@ -91,7 +95,7 @@ public class ReportWindow extends JDialog {
 		JPanel main = new JPanel(new BorderLayout());
 
 		main.setBorder(Gui.getLinedBorder(Strings.Report.TITLE, Gui.getFont(1, Integer.valueOf(16)), Color.WHITE));
-		main.setBackground(GuiSingleton.DEFAULT_BG_COLOR);
+		main.setBackground(GuiSingleton.DARK_BG_COLOR);
 
 		this.months = Gui.createMonthsCombo();
 		this.months.setSelectedIndex(Utils.getCurrentMonth());
@@ -104,11 +108,11 @@ public class ReportWindow extends JDialog {
 		this.orderBy.addItem(OrderByDirection.DESC);
 		this.orderBy.setSelectedIndex(0);
 
-		this.generate = new JButton(Strings.Report.HTML);
-		this.generate.setIcon(Images.HTML_ICON);
-		this.generate.addActionListener(new ActionListener() {
+		this.generateHTML = new JButton(Strings.Report.HTML);
+		this.generateHTML.setIcon(Images.HTML_ICON);
+		this.generateHTML.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				ReportWindow.this.generateReport();
+				ReportWindow.this.generateHTMLReport();
 			}
 		});
 
@@ -211,7 +215,7 @@ public class ReportWindow extends JDialog {
 
 		JPanel reportButtons = new JPanel(new SpringLayout());
 		reportButtons.setBorder(Gui.getEmptyBorder(5));
-		reportButtons.add(this.generate);
+		reportButtons.add(this.generateHTML);
 		reportButtons.add(this.generateExcel);
 		Gui.makeCompactGrid(reportButtons, 2, 1, 10, 10, 10, 10);
 
@@ -225,50 +229,54 @@ public class ReportWindow extends JDialog {
 	/**
 	 *
 	 */
-	private void generateReport() {
+	private void generateHTMLReport() {
 		GuiSingleton.showLoadingScreen(Strings.LOADING_GENERATE_REPORT, true, 0, 0);
 
 		String monthTxt = Objects.requireNonNull(this.months.getSelectedItem()).toString();
 		int month = this.months.getSelectedIndex();
 		int year = Integer.parseInt(Objects.requireNonNull(this.years.getSelectedItem()).toString());
 
-		SwingUtilities.invokeLater( () -> {
-			File html = null;
-			boolean isComplete = this.complete.isSelected();
-			boolean isCompleteGrouped = this.completeGrouped.isSelected();
-			Map<String, TaskTypeWrapper> wrappedType = getWrappedTaskTasksTypes();
-			Map<String, TaskActivityWrapper> wrappedActivity = getWrappedTaskTasksActivities();
+		new Thread( () -> {
+			synchronized (ReportWindow.this) {
+				File html = null;
+				boolean isComplete = this.complete.isSelected();
+				boolean isCompleteGrouped = this.completeGrouped.isSelected();
+				Map<String, TaskTypeWrapper> wrappedType = getWrappedTaskTasksTypes();
+				Map<String, TaskActivityWrapper> wrappedActivity = getWrappedTaskTasksActivities();
 
-			if (isComplete) {
-				html = this.reportServices.saveCompleteReport(monthTxt, month, year, wrappedType,
-						this.includePieChartType.isSelected(), wrappedActivity, this.includePieChartActivity.isSelected(),
-						this.openInDefaultBrowser.isSelected(), (OrderByDirection)this.orderBy.getSelectedItem());
-			} else if (isCompleteGrouped) {
-				html = this.reportServices.saveCompleteGroupedReport(monthTxt, month, year, wrappedType,
-						this.includePieChartType.isSelected(), wrappedActivity, this.includePieChartActivity.isSelected(),
-						this.openInDefaultBrowser.isSelected(), (OrderByDirection)this.orderBy.getSelectedItem());
-			} else {
-				html = this.reportServices.saveSummarizedReport(monthTxt, year, wrappedType,
-						this.includePieChartType.isSelected(), wrappedActivity, this.includePieChartActivity.isSelected(),
-						this.openInDefaultBrowser.isSelected());
-			}
-
-			GuiSingleton.disposeLoadingScreen();
-
-			if (html.exists()) {
-				try {
-					this.filePath.setText(html.getCanonicalPath());
-					if (this.openInDefaultBrowser.isSelected()) {
-						String message = Strings.Report.SUCCESS.replaceAll("&1", html.getCanonicalPath());
-						Gui.showMessage(this, message);
-					}
-				} catch (IOException e) {
-					e.printStackTrace();
+				if (isComplete) {
+					html = this.reportServices.saveCompleteReport(monthTxt, month, year, wrappedType,
+							this.includePieChartType.isSelected(), wrappedActivity, this.includePieChartActivity.isSelected(),
+							this.openInDefaultBrowser.isSelected(), (OrderByDirection)this.orderBy.getSelectedItem());
+				} else if (isCompleteGrouped) {
+					html = this.reportServices.saveCompleteGroupedReport(monthTxt, month, year, wrappedType,
+							this.includePieChartType.isSelected(), wrappedActivity, this.includePieChartActivity.isSelected(),
+							this.openInDefaultBrowser.isSelected(), (OrderByDirection)this.orderBy.getSelectedItem());
+				} else {
+					html = this.reportServices.saveSummarizedReport(monthTxt, year, wrappedType,
+							this.includePieChartType.isSelected(), wrappedActivity, this.includePieChartActivity.isSelected(),
+							this.openInDefaultBrowser.isSelected());
 				}
-			} else {
-				Gui.showErrorMessage(this, Strings.Report.ERROR);
+
+				GuiSingleton.disposeLoadingScreen();
+
+				if (html.exists()) {
+					try {
+						this.filePath.setText(html.getCanonicalPath());
+						if (this.openInDefaultBrowser.isSelected()) {
+							String message = Strings.Report.SUCCESS.replaceAll("&1", html.getCanonicalPath());
+							Gui.showMessage(this, message);
+						}
+					} catch (IOException e) {
+						log.error("generateHTMLReport()" + e.getMessage());
+						e.printStackTrace();
+					}
+				} else {
+					Gui.showErrorMessage(this, Strings.Report.ERROR);
+					log.error(Strings.Report.ERROR);
+				}
 			}
-		});
+		}).start();
 
 
 	}
@@ -296,6 +304,7 @@ public class ReportWindow extends JDialog {
 			try {
 				outputFolder = dir.getCanonicalPath();
 			} catch (IOException e) {
+				log.error("generateReportExcel()" + e.getMessage());
 				GuiSingleton.disposeLoadingScreen();
 				e.printStackTrace();
 			}
@@ -305,26 +314,35 @@ public class ReportWindow extends JDialog {
 
 		final String outputFile = outputFolder;
 
-		SwingUtilities.invokeLater(() -> {
+		new Thread(() -> {
 
-			File excel = this.reportServices.saveCompleteGroupedReportExcel(monthTxt, month, year, wrappedType,
-					this.includePieChartType.isSelected(), wrappedActivity, this.includePieChartActivity.isSelected(),
-					outputFile, (OrderByDirection)this.orderBy.getSelectedItem());
+			synchronized (ReportWindow.this) {
 
-			GuiSingleton.disposeLoadingScreen();
-
-			if (excel.exists()) {
 				try {
-					this.filePath.setText(excel.getCanonicalPath());
-					Gui.showMessage(ReportWindow.this, Strings.Report.EXCEL_GENERATED.replaceAll("&1", excel.getCanonicalPath()));
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			} else {
-				Gui.showErrorMessage(ReportWindow.this, Strings.Report.ERROR);
-			}
+					File excel = this.reportServices.saveCompleteGroupedReportExcel(monthTxt, month, year, wrappedType,
+							this.includePieChartType.isSelected(), wrappedActivity, this.includePieChartActivity.isSelected(),
+							outputFile, (OrderByDirection)this.orderBy.getSelectedItem());
+					GuiSingleton.disposeLoadingScreen();
 
-		});
+					if (excel.exists()) {
+						try {
+							this.filePath.setText(excel.getCanonicalPath());
+							Gui.showMessage(ReportWindow.this, Strings.Report.EXCEL_GENERATED.replaceAll("&1", excel.getCanonicalPath()));
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					} else {
+						Gui.showErrorMessage(ReportWindow.this, Strings.Report.ERROR);
+						log.error("generateReportExcel() " + Strings.Report.ERROR + " " + excel.getAbsolutePath());
+					}
+				} catch (Exception ex) {
+					GuiSingleton.disposeLoadingScreen();
+					log.error("generateReportExcel()" + ex.getMessage());
+					ex.printStackTrace();
+				}
+
+			}
+		}).start();;
 
 	}
 

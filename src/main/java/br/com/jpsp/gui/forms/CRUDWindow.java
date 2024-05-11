@@ -77,7 +77,7 @@ public class CRUDWindow<T extends CRUDServices<CRUD>> extends JDialog {
 	private JPanel mountMain() {
 		final JPanel main = new JPanel(new BorderLayout());
 		main.setBorder(Gui.getLinedBorder(CRUDWindow.this.getTitle(), Gui.getFont(1, Integer.valueOf(16)), Color.WHITE));
-		main.setBackground(GuiSingleton.DEFAULT_BG_COLOR);
+		main.setBackground(GuiSingleton.DARK_BG_COLOR);
 		Set<? extends CRUD> items = this.services.getAll();
 		this.data = new CRUD[items.size()];
 		int i = 0;
@@ -130,7 +130,7 @@ public class CRUDWindow<T extends CRUDServices<CRUD>> extends JDialog {
 		button = new JButton(Strings.GUI.OK);
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				CRUDWindow.this.save();
+				CRUDWindow.this.closeWindow();
 			}
 		});
 		closePanel.add(button);
@@ -147,10 +147,6 @@ public class CRUDWindow<T extends CRUDServices<CRUD>> extends JDialog {
 		dispose();
 		if (this.refreshable != null)
 			this.refreshable.refresh();
-	}
-
-	private void save() {
-		closeWindow();
 	}
 
 	class MyListModel extends AbstractListModel<CRUD> {

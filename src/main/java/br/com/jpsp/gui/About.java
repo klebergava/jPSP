@@ -1,7 +1,6 @@
 package br.com.jpsp.gui;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -35,7 +34,7 @@ public class About extends JFrame {
     // Criando o painel principal
     private final JTabbedPane tabbedPane = new JTabbedPane();
 	private final Font textAreaFont = new Font("Arial Unicode MS", Font.PLAIN, 14);
-
+	private final JLabel splashImageLabel = new JLabel(Images.SPLASH_ICON);
 	public About() {
 		super(Strings.ABOUT);
 		Gui.setConfiguredLookAndFeel(this);
@@ -48,14 +47,15 @@ public class About extends JFrame {
 		getContentPane().setLayout(new BorderLayout());
 		getContentPane().add(mount(), "Center");
 
-		setSize((int)(Gui.WIDTH * 0.5), (int)(Gui.HEIGHT * 0.75));
+		setSize((int)(Gui.WIDTH * 0.5), (int)(Gui.HEIGHT * 0.85));
 
 //		pack();
 
-		setLocationRelativeTo(null);
-		setResizable(false);
-		setVisible(true);
 		setAlwaysOnTop(true);
+		setLocationRelativeTo(null);
+		setVisible(true);
+
+		toFront();
 
 		new Thread(() -> {
 			appInfo.setText(Strings.LOADING);
@@ -78,6 +78,21 @@ public class About extends JFrame {
 			logs.setText(Strings.LOADING);
 			About.this.fillLogContent();
 		}).start();
+
+
+		resizeToFitImage();
+
+	}
+
+	/**
+	 *
+	 */
+	private void resizeToFitImage() {
+		Dimension imageSize = splashImageLabel.getPreferredSize();
+		Dimension frameSize = this.getSize();
+		frameSize.setSize(imageSize.getWidth(), frameSize.getHeight());
+		this.setSize(frameSize);
+		setResizable(false);
 	}
 
 	/**
@@ -173,10 +188,9 @@ public class About extends JFrame {
 
 	private JPanel mount() {
 		JPanel main = new JPanel(new BorderLayout());
-		main.setBorder(Gui.getLinedBorder(Strings.ABOUT_APP, Gui.getFont(1, Integer.valueOf(18)), Color.WHITE));
-		main.setBackground(GuiSingleton.DEFAULT_BG_COLOR);
+//		main.setBackground(GuiSingleton.DARK_BG_COLOR);
 
-		JLabel splashImageLabel = new JLabel(Images.SPLASH_ICON);
+//		JLabel splashImageLabel = new JLabel(Images.SPLASH_ICON);
 		splashImageLabel.setAlignmentX(0.5F);
 		main.add(splashImageLabel, "North");
 

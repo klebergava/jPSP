@@ -54,7 +54,7 @@ public class LoadingScreen extends JFrame {
 	private JPanel mount() {
 
 		JPanel main = new JPanel(new BorderLayout());
-		main.setBackground(GuiSingleton.DEFAULT_BG_COLOR);
+		main.setBackground(GuiSingleton.DARK_BG_COLOR);
 		main.setBorder(
 				Gui.getLinedBorder(Strings.LOADING, Gui.getFont(1, Integer.valueOf(16)), Color.WHITE));
 

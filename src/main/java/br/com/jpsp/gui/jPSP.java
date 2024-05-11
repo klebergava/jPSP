@@ -172,7 +172,7 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 		setVisible(true);
 
 		GuiSingleton.disposeSplash();
-
+		toFront();
 	}
 
 	/**
@@ -194,10 +194,15 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 		SwingUtilities.invokeLater(() -> {
 			loadUserConfigurationFile();
 			GuiSingleton.disposeLoadingScreen();
-			setLocationRelativeTo(null);
-			setMaximized();
+			jPSP.this.refreshWindow();
 		});
 
+	}
+
+	private void refreshWindow() {
+		jPSP.this.pack();
+		jPSP.this.setLocationRelativeTo(null);
+		jPSP.this.setMaximized();
 	}
 
 	/**
@@ -205,50 +210,53 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 	 */
 	private boolean loadUserConfigurationFile() {
 		boolean loaded = false;
-		try {
-			Configuration config = this.configServices.getConfiguration();
-			this.autoPause = config.isAutoPause();
-			this.autoStart = config.isAutoStart();
+		synchronized (jPSP.this) {
+			try {
+				Configuration config = this.configServices.getConfiguration();
+				this.autoPause = config.isAutoPause();
+				this.autoStart = config.isAutoStart();
 
-			if (!Utils.isEmpty(config.getAlertTime())) {
-				String alertTime = config.getAlertTime().replaceAll(":", "");
-				if (Utils.isNumber(alertTime)) {
+				if (!Utils.isEmpty(config.getAlertTime())) {
+					String alertTime = config.getAlertTime().replaceAll(":", "");
+					if (Utils.isNumber(alertTime)) {
 
-					if (this.alert != null) {
-						this.alert.stop();
-						this.alert = null;
+						if (this.alert != null) {
+							this.alert.stop();
+							this.alert = null;
+						}
+
+						this.alert = new Alert(config.getAlertTime());
+						this.alert.start();
 					}
-
-					this.alert = new Alert(config.getAlertTime());
-					this.alert.start();
 				}
+
+				if (config.getCombosValues() != null && config.getCombosValues().length == 4) {
+					Object[] persistedValues = config.getCombosValues();
+
+					if (persistedValues[0] != null)
+						taskActivity.setSelectedItem(persistedValues[0]);
+
+					if (persistedValues[1] != null)
+						taskDescription.setSelectedItem(persistedValues[1]);
+
+					if (persistedValues[2] != null)
+						taskClass.setSelectedItem(persistedValues[2]);
+
+					if (persistedValues[3] != null)
+						system.setSelectedItem(persistedValues[3]);
+				}
+
+				Gui.setLookAndFeel(config.getLookAndFeel(), jPSP.this);
+				updateMenu(config.getLookAndFeel());
+
+				loaded = true;
+			} catch (Exception ex) {
+				log.info("Could not load configuration file: " + ex.getMessage());
+				Gui.showErrorMessage(jPSP.this, Strings.ERROR_CONFIG_FILE);
+				ex.printStackTrace();
 			}
-
-			if (config.getCombosValues() != null && config.getCombosValues().length == 4) {
-				Object[] persistedValues = config.getCombosValues();
-
-				if (persistedValues[0] != null)
-					taskActivity.setSelectedItem(persistedValues[0]);
-
-				if (persistedValues[1] != null)
-					taskDescription.setSelectedItem(persistedValues[1]);
-
-				if (persistedValues[2] != null)
-					taskClass.setSelectedItem(persistedValues[2]);
-
-				if (persistedValues[3] != null)
-					system.setSelectedItem(persistedValues[3]);
-			}
-
-			Gui.setLookAndFeel(config.getLookAndFeel(), jPSP.this);
-			updateMenu(config.getLookAndFeel());
-
-			loaded = true;
-		} catch (Exception ex) {
-			log.info("Could not load configuration file: " + ex.getMessage());
-			Gui.showErrorMessage(jPSP.this, Strings.ERROR_CONFIG_FILE);
-			ex.printStackTrace();
 		}
+
 		return loaded;
 	}
 
@@ -599,16 +607,38 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 		setJMenuBar(menuBar);
 	}
 
+	/**
+	 *
+	 * @param day
+	 * @param month
+	 * @param year
+	 */
 	private void updateTableByDate(int day, int month, int year) {
-		this.tasks = this.services.getAllTasks();
-		if (this.tasks != null) {
-			this.centerTable.removeAll();
 
-			if (month >= 0) {
-				this.tasks = filterTasksByDayAndMonth(day, month, year);
+		GuiSingleton.showLoadingScreen(Strings.DBOptions.DATABASE_RELOADING, true, 0, 0);
+
+		new Thread( () -> {
+			synchronized (jPSP.this.services) {
+				try {
+					jPSP.this.tasks = jPSP.this.services.getAllTasks();
+					if (jPSP.this.tasks != null) {
+						jPSP.this.centerTable.removeAll();
+
+						if (month >= 0) {
+							jPSP.this.tasks = jPSP.this.filterTasksByDayAndMonth(day, month, year);
+						}
+						jPSP.this.updateTable();
+					}
+				} catch (Exception ex) {
+					log.error("updateTableByDate() " + ex.getMessage());
+					ex.printStackTrace();
+				}
 			}
-			updateTable();
-		}
+
+			GuiSingleton.disposeLoadingScreen();
+		}).start();
+
+
 	}
 
 	private void updateTable() {
@@ -704,7 +734,6 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 
 	private JPanel mountMain() {
 		JPanel main = new JPanel(new BorderLayout());
-
 		main.setBorder(Gui.getEmptyBorder(5));
 
 		this.todayButton = new JButton(Strings.TODAY);
@@ -1031,14 +1060,31 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 	}
 
 	protected void updateTableByActivity() {
-		this.tasks = this.services.getAllTasks();
-		if (this.tasks != null) {
-			if (this.activity.getSelectedItem() != null && !Utils.isEmpty(this.activity.getSelectedItem().toString())) {
-				this.tasks = filterTasksByActivity(this.activity.getSelectedItem().toString());
-				this.centerTable.removeAll();
-				updateTable();
+
+
+		GuiSingleton.showLoadingScreen(Strings.DBOptions.DATABASE_RELOADING, true, 0, 0);
+
+		new Thread( () -> {
+
+			synchronized (jPSP.this.services) {
+				try {
+					jPSP.this.tasks = jPSP.this.services.getAllTasks();
+					if (jPSP.this.tasks != null) {
+						if (jPSP.this.activity.getSelectedItem() != null && !Utils.isEmpty(jPSP.this.activity.getSelectedItem().toString())) {
+							jPSP.this.tasks = filterTasksByActivity(jPSP.this.activity.getSelectedItem().toString());
+							jPSP.this.centerTable.removeAll();
+							jPSP.this.updateTable();
+						}
+					}
+				} catch (Exception ex) {
+					log.error("updateTableByActivity() " + ex.getMessage());
+					ex.printStackTrace();
+				}
 			}
-		}
+
+			GuiSingleton.disposeLoadingScreen();
+
+		}).start();;
 	}
 
 	private List<Task> filterTasksByActivity(String text) {
@@ -1055,6 +1101,9 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 		}
 	}
 
+	/**
+	 *
+	 */
 	private void pauseTask() {
 		if (this.task != null) {
 			this.task.setEnd(new Date());
@@ -1067,6 +1116,9 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 		resetCounterClock();
 	}
 
+	/**
+	 *
+	 */
 	private void startTask() {
 		if (this.task != null) {
 			pauseTask();
@@ -1100,7 +1152,11 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 		persistCombosValues();
 	}
 
-	private void enableButtons(boolean enable) {
+	/**
+	 *
+	 * @param enable
+	 */
+	private synchronized void enableButtons(boolean enable) {
 		this.taskDescription.setEnabled(enable);
 		this.taskActivity.setEnabled(enable);
 		this.taskClass.setEnabled(enable);
@@ -1150,7 +1206,9 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 					}
 
 					delta = System.currentTimeMillis() - initClockMillis;
-					jPSP.this.chronometer.setText("   " + Utils.getTimeByDelta(delta) + "   ");
+					synchronized(jPSP.this) {
+						jPSP.this.chronometer.setText("   " + Utils.getTimeByDelta(delta) + "   ");
+					}
 					countGC++;
 
 					if (countGC > 300) {
@@ -1270,6 +1328,7 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 
 		new Thread( () -> {
 			reloadAllGUIFromDB();
+			jPSP.this.refreshWindow();
 		}).start();
 	}
 
@@ -1277,52 +1336,60 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 	 *
 	 */
 	private void reloadAllGUIFromDB() {
+		synchronized (jPSP.this) {
+			try {
+				updateTableByDate(getSelectedDay().intValue(), this.months.getSelectedIndex(), getYear());
 
-		updateTableByDate(getSelectedDay().intValue(), this.months.getSelectedIndex(), getYear());
+				// salar info antes do refresh
+				Object[] valuesBefore = this.getComboxValues();
 
-		// salar info antes do refresh
-		Object[] valuesBefore = this.getComboxValues();
+				List<String> tasks = this.activityServices.getAllActivitiesDescriptions();
+				Set<String> descs = this.services.getAllDescriptions();
 
-		List<String> tasks = this.activityServices.getAllActivitiesDescriptions();
-		Set<String> descs = this.services.getAllDescriptions();
+				taskDescription.removeAllItems();
+				for (String desc : descs) {
+					taskDescription.addItem(desc);
+				}
 
-		taskDescription.removeAllItems();
-		for (String desc : descs) {
-			taskDescription.addItem(desc);
+				taskActivity.removeAllItems();
+				for (String t : tasks) {
+					taskActivity.addItem(t);
+				}
+
+				List<String> tcdesc = this.services.getAllTypeClassDesc();
+				taskClass.removeAllItems();
+				for (String t : tcdesc) {
+					taskClass.addItem(t);
+				}
+				taskClass.setSelectedIndex(0);
+
+				List<String> sys = this.services.getAllSystemsNames();
+				system.removeAllItems();
+				for (String s : sys) {
+					system.addItem(s);
+				}
+				system.setSelectedIndex(0);
+
+				activity.removeAllItems();
+				for (String t : tasks) {
+					activity.addItem(t);
+				}
+
+				taskActivity.setSelectedItem(valuesBefore[0]);
+				taskDescription.setSelectedItem(valuesBefore[1]);
+				taskClass.setSelectedItem(valuesBefore[2]);
+				system.setSelectedItem(valuesBefore[3]);
+
+
+			} catch (Exception ex) {
+				log.error("reloadAllGUIFromDB() " + ex.getMessage());
+				ex.printStackTrace();
+			} finally {
+				GuiSingleton.disposeLoadingScreen();
+			}
 		}
 
-		taskActivity.removeAllItems();
-		for (String t : tasks) {
-			taskActivity.addItem(t);
-		}
 
-		List<String> tcdesc = this.services.getAllTypeClassDesc();
-		taskClass.removeAllItems();
-		for (String t : tcdesc) {
-			taskClass.addItem(t);
-		}
-		taskClass.setSelectedIndex(0);
-
-		List<String> sys = this.services.getAllSystemsNames();
-		system.removeAllItems();
-		for (String s : sys) {
-			system.addItem(s);
-		}
-		system.setSelectedIndex(0);
-
-		activity.removeAllItems();
-		for (String t : tasks) {
-			activity.addItem(t);
-		}
-
-		taskActivity.setSelectedItem(valuesBefore[0]);
-		taskDescription.setSelectedItem(valuesBefore[1]);
-		taskClass.setSelectedItem(valuesBefore[2]);
-		system.setSelectedItem(valuesBefore[3]);
-
-		this.pack();
-
-		GuiSingleton.disposeLoadingScreen();
 	}
 
 	private void setTodayDate() {
