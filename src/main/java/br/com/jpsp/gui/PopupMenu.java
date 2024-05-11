@@ -89,8 +89,8 @@ public class PopupMenu extends JPopupMenu {
 			item.setEnabled(false);
 		}
 		add(item);
-		
-		
+
+
 		item = new JMenuItem(Strings.jPSP.BATCH_EDIT_SYSTEM);
 		item.setIcon(Images.EDIT_SYSTEM);
 		item.addActionListener(new ActionListener() {
@@ -106,7 +106,7 @@ public class PopupMenu extends JPopupMenu {
 		}
 		add(item);
 
-		
+
 		item = new JMenuItem(Strings.jPSP.TASK_SPENT_TIME);
 		item.setIcon(Images.CHRONOMETER);
 		item.addActionListener(new ActionListener() {
@@ -125,8 +125,8 @@ public class PopupMenu extends JPopupMenu {
 			item.setEnabled(false);
 		}
 		add(item);
-		
-		
+
+
 		item = new JMenuItem(Strings.jPSP.CONTINUE_THIS_TASK);
 		item.setIcon(Images.START);
 		item.addActionListener(new ActionListener() {
@@ -193,15 +193,15 @@ public class PopupMenu extends JPopupMenu {
 						String message = Strings.jPSP.CONFIRM_TASK_EXCLUSION.replaceAll("&1", toRemove.getActivity());
 						int answer = JOptionPane.showConfirmDialog(null,
 								message, Strings.GUI.CONFIRM_ACTION,
-								0);
-						if (answer == 0) {
+								JOptionPane.OK_CANCEL_OPTION);
+						if (answer == JOptionPane.OK_OPTION) {
 							PopupMenu.this.services.removeTask(toRemove);
 						}
 					}
 				} else if (selected > 1) {
 					int answer = JOptionPane.showConfirmDialog(null, Strings.jPSP.CONFIRM_TASK_LIST_EXCLUSION,
-							Strings.GUI.CONFIRM_ACTION, 0);
-					if (answer == 0) {
+							Strings.GUI.CONFIRM_ACTION, JOptionPane.OK_CANCEL_OPTION);
+					if (answer == JOptionPane.OK_OPTION) {
 
 						int rowModel = 0;
 

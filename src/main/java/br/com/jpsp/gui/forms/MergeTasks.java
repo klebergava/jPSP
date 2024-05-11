@@ -17,6 +17,7 @@ import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -41,7 +42,7 @@ import br.com.jpsp.services.TaskSetServices;
 import br.com.jpsp.utils.Gui;
 import br.com.jpsp.utils.Utils;
 
-public class MergeTasks extends JFrame implements Refreshable, WindowListener {
+public class MergeTasks extends JDialog implements Refreshable, WindowListener {
 	private static final long serialVersionUID = -103651380043899625L;
 	private JSpinner start;
 	private JSpinner end;
@@ -51,7 +52,7 @@ public class MergeTasks extends JFrame implements Refreshable, WindowListener {
 	private JComboBox<String> taskClass;
 	private JComboBox<String> system;
 	private final Refreshable refreshable;
-	
+
 	private final TaskSetServices services = TaskSetServices.instance;
 	private final ActivityServices activityServices = ActivityServices.instance;
 	private final DescriptionServices descriptionServices = DescriptionServices.instance;
@@ -61,7 +62,9 @@ public class MergeTasks extends JFrame implements Refreshable, WindowListener {
 	private List<Task> tasks;
 
 	public MergeTasks(List<Task> tasks, Refreshable refreshable) {
-		super(Strings.MergeTasks.TITLE);
+		super();
+		this.setTitle(Strings.MergeTasks.TITLE);
+		this.setModal(true);
 		this.tasks = tasks;
 		this.refreshable = refreshable;
 		Gui.setConfiguredLookAndFeel(this);
@@ -69,16 +72,14 @@ public class MergeTasks extends JFrame implements Refreshable, WindowListener {
 
 	public void createAndShow() {
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		
+
 		this.setIconImage(Images.MERGE_IMG);
 
 		getContentPane().setLayout(new BorderLayout());
 
 		getContentPane().add(mountMain(), "Center");
 
-//		setUndecorated(true);
 		setIconImage(Images.MERGE_IMG);
-		setAlwaysOnTop(true);
 
 		pack();
 		setLocationRelativeTo(this);
@@ -119,7 +120,7 @@ public class MergeTasks extends JFrame implements Refreshable, WindowListener {
 
 			label = new JLabel(t.getTaskClass());
 			tasksList.add(label);
-			
+
 			label = new JLabel(t.getSystem());
 			tasksList.add(label);
 		}
@@ -163,27 +164,27 @@ public class MergeTasks extends JFrame implements Refreshable, WindowListener {
 		this.description.setEditable(true);
 
 		this.taskClass = Gui.createTypeClassCombo();
-		
+
 		this.system = Gui.createSystemsCombo();
 
 		fields.add(new JLabel(Strings.Form.START));
 		fields.add(this.start);
-		
+
 		fields.add(new JLabel(Strings.Form.END));
 		fields.add(this.end);
-		
+
 		fields.add(new JLabel(Strings.Form.DELTA));
 		fields.add(this.delta);
-		
+
 		fields.add(new JLabel(Strings.Form.TASK));
 		fields.add(this.task);
-		
+
 		fields.add(new JLabel(Strings.Form.DESCRIPTION));
 		fields.add(this.description);
-		
+
 		fields.add(new JLabel(Strings.Form.CLASSIFICATION));
 		fields.add(this.taskClass);
-		
+
 		fields.add(new JLabel(Strings.Form.SYSTEM));
 		fields.add(this.system);
 
@@ -210,13 +211,13 @@ public class MergeTasks extends JFrame implements Refreshable, WindowListener {
 		});
 
 		buttons.add(button, "East");
-		
+
 		JScrollPane tasksListScroll = Gui.getDefaultScroll(tasksList);
 		tasksListScroll.setPreferredSize(new Dimension(400, 100));
-		
+
 		JPanel mainPanel = new JPanel(new SpringLayout());
 		mainPanel.setBorder(Gui.getEmptyBorder(5));
-		
+
 		mainPanel.add(tasksListScroll);
 		mainPanel.add(fields);
 		mainPanel.add(buttons);
@@ -285,14 +286,14 @@ public class MergeTasks extends JFrame implements Refreshable, WindowListener {
 		} else {
 			this.mergedTask.setDescription("");
 		}
-		
-		
+
+
 		if (this.system.getSelectedItem() != null && !Utils.isEmpty(this.system.getSelectedItem().toString())) {
 			this.mergedTask.setSystem(this.system.getSelectedItem().toString());
 		} else {
 			this.mergedTask.setSystem("");
 		}
-		
+
 		this.mergedTask.setTaskClass(this.taskClass.getSelectedItem().toString());
 	}
 

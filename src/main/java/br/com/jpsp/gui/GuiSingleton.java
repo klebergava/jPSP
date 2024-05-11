@@ -12,7 +12,7 @@ import br.com.jpsp.gui.database.ImportDBFromTxt;
 import br.com.jpsp.gui.database.RestoreDB;
 import br.com.jpsp.gui.forms.BatchUpdateTask;
 import br.com.jpsp.gui.forms.CRUDWindow;
-import br.com.jpsp.gui.forms.ConfigWindow;
+import br.com.jpsp.gui.forms.ConfigurationWindow;
 import br.com.jpsp.gui.forms.FieldToEdit;
 import br.com.jpsp.gui.forms.IncludeOrUpdateTask;
 import br.com.jpsp.gui.forms.MergeTasks;
@@ -28,7 +28,7 @@ import br.com.jpsp.services.TypeClassificationServices;
 
 public final class GuiSingleton {
 	static About about;
-	static ConfigWindow config;
+	static ConfigurationWindow config;
 	static ReportWindow report;
 	static IncludeOrUpdateTask include;
 	static IncludeOrUpdateTask edit;
@@ -77,7 +77,7 @@ public final class GuiSingleton {
 
 	public static void showConfiguration(jPSP jpsp) {
 		if (config == null || !config.isVisible()) {
-			config = new ConfigWindow(jpsp);
+			config = new ConfigurationWindow(jpsp);
 			config.createAndShow();
 		} else {
 			config.toFront();
@@ -203,7 +203,7 @@ public final class GuiSingleton {
 		splash.createAndShow();
 	}
 
-	public static void closeSplash() {
+	public static void disposeSplash() {
 		splash.setVisible(false);
 		splash.dispose();
 		splash = null;

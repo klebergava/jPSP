@@ -141,9 +141,7 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 	public jPSP() {
 		super(Strings.jPSP.TITLE + " (" + Utils.date2String(new Date(), Utils.DD_MM_YYYY) + ")");
 		log.trace("Starting jPSP app");
-		Gui.setLookAndFeel();
 		this.orderType = TaskSetServices.Order.ASC;
-
 		setJNA();
 	}
 
@@ -159,71 +157,99 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 
 		createMenuBar();
 
-		loadConfigurationFromFile();
+		setLocationRelativeTo(null);
 
+		startUpdateDateThread();
+
+		loadUserConfigurationFile();
 		if (this.autoStart) {
 			reStartLastTask();
 		}
 
-		setSize((int) (Utils.SCREEN_WIDTH - (Utils.SCREEN_WIDTH*.25)), (int) (Utils.SCREEN_HEIGHT - Utils.SCREEN_HEIGHT*.25));
-
-		setLocationRelativeTo(this);
-
-		setVisible(true);
-		setMaximized();
-
-		GuiSingleton.closeSplash();
-
-		startUpdateDateThread();
-
 		log.trace("jPSP app started");
+
+		setMaximized();
+		setVisible(true);
+
+		GuiSingleton.disposeSplash();
+
 	}
 
+	/**
+	 *
+	 */
 	private void setMaximized() {
 		GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		this.setMaximizedBounds(env.getMaximumWindowBounds());
 		this.setExtendedState(this.getExtendedState() | MAXIMIZED_BOTH);
+	}
+
+	/**
+	 *
+	 */
+	public void reloadUserConfiguration() {
+
+		GuiSingleton.showLoadingScreen(Strings.DBOptions.CONFIG_RELOADING, true, 0, 0);
+
+		SwingUtilities.invokeLater(() -> {
+			loadUserConfigurationFile();
+			GuiSingleton.disposeLoadingScreen();
+			setLocationRelativeTo(null);
+			setMaximized();
+		});
 
 	}
 
-	private void loadConfigurationFromFile() {
-		Configuration config = this.configServices.getConfiguration();
-		Gui.setLookAndFeel(config.getLookAndFeel(), this);
-		updateMenu(config.getLookAndFeel());
-		this.autoPause = config.isAutoPause();
-		this.autoStart = config.isAutoStart();
+	/**
+	 *
+	 */
+	private boolean loadUserConfigurationFile() {
+		boolean loaded = false;
+		try {
+			Configuration config = this.configServices.getConfiguration();
+			this.autoPause = config.isAutoPause();
+			this.autoStart = config.isAutoStart();
 
-		if (!Utils.isEmpty(config.getAlertTime())) {
-			String alertTime = config.getAlertTime().replaceAll(":", "");
-			if (Utils.isNumber(alertTime)) {
+			if (!Utils.isEmpty(config.getAlertTime())) {
+				String alertTime = config.getAlertTime().replaceAll(":", "");
+				if (Utils.isNumber(alertTime)) {
 
-				if (this.alert != null) {
-					this.alert.stop();
-					this.alert = null;
+					if (this.alert != null) {
+						this.alert.stop();
+						this.alert = null;
+					}
+
+					this.alert = new Alert(config.getAlertTime());
+					this.alert.start();
 				}
-
-				this.alert = new Alert(config.getAlertTime());
-				this.alert.start();
 			}
+
+			if (config.getCombosValues() != null && config.getCombosValues().length == 4) {
+				Object[] persistedValues = config.getCombosValues();
+
+				if (persistedValues[0] != null)
+					taskActivity.setSelectedItem(persistedValues[0]);
+
+				if (persistedValues[1] != null)
+					taskDescription.setSelectedItem(persistedValues[1]);
+
+				if (persistedValues[2] != null)
+					taskClass.setSelectedItem(persistedValues[2]);
+
+				if (persistedValues[3] != null)
+					system.setSelectedItem(persistedValues[3]);
+			}
+
+			Gui.setLookAndFeel(config.getLookAndFeel(), jPSP.this);
+			updateMenu(config.getLookAndFeel());
+
+			loaded = true;
+		} catch (Exception ex) {
+			log.info("Could not load configuration file: " + ex.getMessage());
+			Gui.showErrorMessage(jPSP.this, Strings.ERROR_CONFIG_FILE);
+			ex.printStackTrace();
 		}
-
-		if (config.getCombosValues() != null && config.getCombosValues().length == 4) {
-			Object[] persistedValues = config.getCombosValues();
-
-			if (persistedValues[0] != null)
-				taskActivity.setSelectedItem(persistedValues[0]);
-
-			if (persistedValues[1] != null)
-				taskDescription.setSelectedItem(persistedValues[1]);
-
-			if (persistedValues[2] != null)
-				taskClass.setSelectedItem(persistedValues[2]);
-
-			if (persistedValues[3] != null)
-				system.setSelectedItem(persistedValues[3]);
-		}
-
-
+		return loaded;
 	}
 
 	private void updateMenu(String selectedLAF) {
@@ -237,8 +263,33 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 		}
 	}
 
+	/**
+	 *
+	 */
 	private void createMenuBar() {
 		JMenuBar menuBar = new JMenuBar();
+
+		JMenu appMenu = new JMenu(Strings.jPSP.APP);
+
+		JMenuItem reloadConfig = new JMenuItem(Strings.jPSP.RELOAD_CONFIG);
+		reloadConfig.setIcon(Images.CONFIG);
+		reloadConfig.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				reloadUserConfiguration();
+			}
+		});
+		appMenu.add(reloadConfig);
+		appMenu.addSeparator();
+
+		JMenuItem exit = new JMenuItem(Strings.jPSP.EXIT);
+		exit.setIcon(Images.EXIT);
+		exit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				confirmExit();
+			}
+		});
+		appMenu.add(exit);
+		menuBar.add(appMenu);
 
 		JMenu editMenu = new JMenu(Strings.jPSP.EDIT);
 
@@ -425,15 +476,15 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 					Task toRemove = Gui.getSelectedTask(jPSP.this.table);
 					if (toRemove != null) {
 						String message = Strings.jPSP.CONFIRM_TASK_EXCLUSION.replaceAll("&1", toRemove.getActivity());
-						int answer = JOptionPane.showConfirmDialog(null, message, Strings.GUI.CONFIRM_ACTION, 0);
-						if (answer == 0) {
+						int answer = JOptionPane.showConfirmDialog(null, message, Strings.GUI.CONFIRM_ACTION, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+						if (answer == JOptionPane.OK_OPTION) {
 							jPSP.this.services.removeTask(toRemove);
 						}
 					}
 				} else if (Gui.getSelectedQty(jPSP.this.table) > 1) {
 					int answer = JOptionPane.showConfirmDialog(null, Strings.jPSP.CONFIRM_TASK_LIST_EXCLUSION,
-							Strings.GUI.CONFIRM_ACTION, 0);
-					if (answer == 0) {
+							Strings.GUI.CONFIRM_ACTION, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+					if (answer == JOptionPane.OK_OPTION) {
 
 						int rowModel = 0;
 
@@ -529,6 +580,8 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 			configMenu.add(rbMenuItem);
 		}
 
+
+		//////////////////////////////////////////////// SOBRE...
 		JMenu about = new JMenu(Strings.ABOUT);
 
 		JMenuItem aboutjPSP = new JMenuItem(Strings.jPSP.ABOUT, Images.ABOUT);
@@ -1214,15 +1267,18 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 	@Override
 	public void refresh() {
 		GuiSingleton.showLoadingScreen(Strings.DBOptions.DATABASE_RELOADING, true, 0, 0);
-		SwingUtilities.invokeLater(() -> {
-			reloadAll();
-			GuiSingleton.disposeLoadingScreen();
-		});
+
+		new Thread( () -> {
+			reloadAllGUIFromDB();
+		}).start();
 	}
 
-	private synchronized void reloadAll() {
+	/**
+	 *
+	 */
+	private void reloadAllGUIFromDB() {
+
 		updateTableByDate(getSelectedDay().intValue(), this.months.getSelectedIndex(), getYear());
-		loadConfigurationFromFile();
 
 		// salar info antes do refresh
 		Object[] valuesBefore = this.getComboxValues();
@@ -1263,6 +1319,10 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 		taskDescription.setSelectedItem(valuesBefore[1]);
 		taskClass.setSelectedItem(valuesBefore[2]);
 		system.setSelectedItem(valuesBefore[3]);
+
+		this.pack();
+
+		GuiSingleton.disposeLoadingScreen();
 	}
 
 	private void setTodayDate() {
@@ -1276,18 +1336,28 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 	}
 
 	public void windowClosing(WindowEvent e) {
+		confirmExit();
+	}
 
-		persistCombosValues();
+	/**
+	 *
+	 */
+	private void confirmExit() {
+		int answer = JOptionPane.showConfirmDialog(null, Strings.jPSP.CONFIRM_EXIT, Strings.GUI.CONFIRM_ACTION, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
 
-		if (this.task != null) {
-			int answer = JOptionPane.showConfirmDialog(null, Strings.jPSP.TASK_IN_PROGRESS_CONFIRM,
-					Strings.GUI.CONFIRM_ACTION, 0, 3);
-			if (answer == 0) {
-				pauseTask();
+		if (answer == JOptionPane.OK_OPTION) {
+			persistCombosValues();
+
+			if (this.task != null) {
+				answer = JOptionPane.showConfirmDialog(null, Strings.jPSP.TASK_IN_PROGRESS_CONFIRM,
+						Strings.GUI.CONFIRM_ACTION, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+				if (answer == JOptionPane.OK_OPTION) {
+					pauseTask();
+					dispose();
+				}
+			} else {
 				dispose();
 			}
-		} else {
-			dispose();
 		}
 	}
 

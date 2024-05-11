@@ -26,21 +26,21 @@ public class FilesUtils {
 	private final static Logger log = LogManager.getLogger(FilesUtils.class);
 
 	public static final String DATA_FOLDER_NAME = "data";
-
+	public static final String OUTPUT_FOLDER_NAME = "output";
 	public static final String JAR_FILE_NAME = "jPSP_v1.jar";
-
+	public static final String LOG_FILE_NAME = "jPSP.log";
+	public static final String DB_FILE_NAME = "jpsp_v1.db";
 	public static final String FILE_SEPARATOR = System.getProperty("file.separator");
 	public static final String USER_NAME = System.getProperty("user.name");
-
+	public static final String USER_CONFIG_FILE_NAME = USER_NAME + "_config.dat";
 	public static final String DATA_FOLDER = "." + FILE_SEPARATOR + DATA_FOLDER_NAME;
-	public static final String USER_CONFIG_DATA_FILE = DATA_FOLDER + FILE_SEPARATOR + USER_NAME + "_config.dat";
-	public static final String OLD_USER_CONFIG_DATA_FILE = DATA_FOLDER + FILE_SEPARATOR + USER_NAME + ".dat";
 
-	public static final String DATABASE_FILE_V1 = DATA_FOLDER + FILE_SEPARATOR + "jpsp_v1.db";
+	public static final String USER_CONFIG_DATA_FILE = DATA_FOLDER + FILE_SEPARATOR + USER_CONFIG_FILE_NAME;
 
-	public static final String OUTPUT_FOLDER_NAME = "output";
+	public static final String DATABASE_FILE_V1 = DATA_FOLDER + FILE_SEPARATOR + DB_FILE_NAME;
+
 	public static final String OUTPUT_FOLDER = "." + FILE_SEPARATOR + OUTPUT_FOLDER_NAME;
-	public static final String LOG_FILE = OUTPUT_FOLDER + FILE_SEPARATOR + "jPSP.log";
+	public static final String LOG_FILE = OUTPUT_FOLDER + FILE_SEPARATOR + LOG_FILE_NAME;
 
 	public static final String DB_TXT_FILE_NAME = "jpsp_db.txt";
 	public static final String DB_TXT_FILE = DATA_FOLDER_NAME + FILE_SEPARATOR + DB_TXT_FILE_NAME;
@@ -51,13 +51,12 @@ public class FilesUtils {
 
 	public static final String BACKUP_EXT = ".dbkp";
 
-	public static final String GPL3_LICENCE_FILE = "license.html";
-	public static final String README_FILE = "readme.html";
-	public static final String ABOUT_FILE = "about.html";
+	public static final String GPL3_LICENCE_FILE_NAME = "license.html";
+	public static final String README_FILE_NAME = "readme.html";
+	public static final String ABOUT_FILE_NAME = "about.html";
 
 	public static final String REPORT_FILE_NAME = "report.html";
 	public static final String PIE_CHART_TYPE_FILE_NAME = "piecharttype.png";
-
 	public static final String PIE_CHART_ACTIVITY_FILE_NAME = "piechartactivity.png";
 
 	public static boolean fileExists(String filePath) {

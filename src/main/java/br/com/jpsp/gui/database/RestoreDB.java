@@ -8,9 +8,11 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
@@ -29,7 +31,7 @@ import br.com.jpsp.utils.Gui;
 /**
  *
  */
-public class RestoreDB extends JFrame {
+public class RestoreDB extends JDialog {
 	private static final long serialVersionUID = -3218307819517596211L;
 	private final TaskSetServices services = TaskSetServices.instance;
 
@@ -41,7 +43,9 @@ public class RestoreDB extends JFrame {
 	private final static Logger log = LogManager.getLogger(RestoreDB.class);
 
 	public RestoreDB() {
-		super(Strings.RestoreDB.TITLE);
+		super();
+		this.setTitle(Strings.DBOptions.TITLE);
+		setModal(true);
 		Gui.setConfiguredLookAndFeel(this);
 	}
 
@@ -61,7 +65,7 @@ public class RestoreDB extends JFrame {
 		setLocationRelativeTo(this);
 		setResizable(false);
 		setVisible(true);
-		setAlwaysOnTop(true);
+//		setAlwaysOnTop(true);
 
 		toFront();
 	}
@@ -152,7 +156,7 @@ public class RestoreDB extends JFrame {
 	private void restoreDB() {
 		int choice = Gui.showConfirmMessage(this, Strings.RestoreDB.CONFIRM_RESTORE);
 
-		if (choice == 0) {
+		if (choice == JOptionPane.OK_OPTION) {
 			if (this.services.restoreDB(this.fileToRestore)) {
 				Gui.showMessage(this, Strings.RestoreDB.SUCESS);
 				closeWindow();
@@ -166,7 +170,7 @@ public class RestoreDB extends JFrame {
 	private void chooseFile() {
 		int returnVal = this.fc.showOpenDialog(this);
 
-		if (returnVal == 0) {
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			this.fileToRestore = this.fc.getSelectedFile();
 			try {
 				this.sourceFile.setText(this.fileToRestore.getCanonicalPath());

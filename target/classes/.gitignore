@@ -1,9 +1,2 @@
-output/
-data/
-.gitignore
-.classpath
-jar/
-.settings/
-.idea/
-.project
-jPSP.iml
+/br/
+/META-INF/

@@ -9,6 +9,7 @@ import java.io.IOException;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -30,7 +31,7 @@ import br.com.jpsp.utils.Utils;
 /**
  *
  */
-public class ExportDB2Txt extends JFrame {
+public class ExportDB2Txt extends JDialog {
 	private static final long serialVersionUID = -3218307819517596211L;
 	private JCheckBox includeHeaders;
 	private JTextField separator;
@@ -45,7 +46,9 @@ public class ExportDB2Txt extends JFrame {
 	private final static Logger log = LogManager.getLogger(ExportDB2Txt.class);
 
 	public ExportDB2Txt() {
-		super(Strings.DBOptions.IMPORT_TITLE);
+		super();
+		this.setTitle(Strings.DBOptions.IMPORT_TITLE);
+		setModal(true);
 		Gui.setConfiguredLookAndFeel(this);
 	}
 
@@ -62,7 +65,7 @@ public class ExportDB2Txt extends JFrame {
 		setLocationRelativeTo(this);
 		setResizable(false);
 		setVisible(true);
-		setAlwaysOnTop(true);
+//		setAlwaysOnTop(true);
 	}
 
 	private JPanel mountMain() {
@@ -204,7 +207,7 @@ public class ExportDB2Txt extends JFrame {
 	private void chooseFile() {
 		int returnVal = this.fc.showOpenDialog(this);
 
-		if (returnVal == 0) {
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			this.directoryToExport = this.fc.getSelectedFile();
 			try {
 				this.targetDir.setText(this.directoryToExport.getCanonicalPath());

@@ -15,6 +15,7 @@ import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -36,13 +37,16 @@ import br.com.jpsp.services.TaskSetServices;
 import br.com.jpsp.utils.Gui;
 import br.com.jpsp.utils.Utils;
 
-public class BatchUpdateTask extends JFrame implements WindowListener {
+/**
+ *
+ */
+public class BatchUpdateTask extends JDialog implements WindowListener {
 	private final static Logger log = LogManager.getLogger(BatchUpdateTask.class);
-	
+
 	private static final long serialVersionUID = -103651380043899625L;
 	private final Collection<Task> tasks;
 	private final Refreshable refreshable;
-	
+
 	private final TaskSetServices services = TaskSetServices.instance;
 	private final ActivityServices activityServices = ActivityServices.instance;
 	private final DescriptionServices descriptionServices = DescriptionServices.instance;
@@ -55,13 +59,15 @@ public class BatchUpdateTask extends JFrame implements WindowListener {
 	private String title;
 
 	public BatchUpdateTask(Collection<Task> tasks, String title, FieldToEdit toEdit, Refreshable refreshable) {
-		super(title);
+		super();
+		this.setTitle(title);
+		this.setModal(true);
 		this.toEdit = toEdit;
 		this.tasks = tasks;
 		this.refreshable = refreshable;
 		Gui.setConfiguredLookAndFeel(this);
 		this.title = title;
-		
+
 		switch (this.toEdit) {
 			case ACTIVITY_AND_DESC:
 				this.setIconImage(Images.EDIT_ACTIVITY_AND_DESC_IMG);
@@ -71,13 +77,13 @@ public class BatchUpdateTask extends JFrame implements WindowListener {
 				break;
 			case TYPE_CLASS:
 				this.setIconImage(Images.EDIT_CLASS_IMG);
-				
+
 				break;
 			default:
 				break;
-		
+
 		}
-		
+
 	}
 
 	public void createAndShow() {
@@ -86,8 +92,6 @@ public class BatchUpdateTask extends JFrame implements WindowListener {
 		getContentPane().setLayout(new BorderLayout());
 
 		getContentPane().add(mountMain(), "Center");
-
-		setAlwaysOnTop(true);
 
 		pack();
 		setLocationRelativeTo(this);
@@ -133,7 +137,7 @@ public class BatchUpdateTask extends JFrame implements WindowListener {
 				label.setForeground(Color.BLUE);
 			}
 			fields.add(label);
-			
+
 			label = new JLabel(t.getSystem());
 			if (this.toEdit.equals(FieldToEdit.SYSTEM)) {
 				label.setForeground(Color.BLUE);
@@ -156,32 +160,32 @@ public class BatchUpdateTask extends JFrame implements WindowListener {
 
 		JPanel editFields = new JPanel(new BorderLayout());
 		JPanel descAct = new JPanel(new SpringLayout());
-		
+
 			switch (this.toEdit) {
 			case ACTIVITY_AND_DESC:
 					descAct.add(new JLabel(Strings.BatchUpdateTask.ACTIVITY + ": "));
 					descAct.add(this.task);
-					
+
 					descAct.add(new JLabel(Strings.BatchUpdateTask.DESCRIPTION + ": "));
 					descAct.add(this.description);
-					
+
 					Gui.makeCompactGrid(descAct, 2, 2, 5, 5, 5, 5);
 				break;
 			case SYSTEM:
 				descAct.add(new JLabel(Strings.BatchUpdateTask.SYSTEM + ": "));
 				descAct.add(this.system);
-				
+
 				Gui.makeCompactGrid(descAct, 1, 2, 5, 5, 5, 5);
 				break;
 			case TYPE_CLASS:
 				descAct.add(new JLabel(Strings.BatchUpdateTask.CLASSIFICATION + ": "));
 				descAct.add(this.taskClass);
-				
+
 				Gui.makeCompactGrid(descAct, 1, 2, 5, 5, 5, 5);
 				break;
 			default:
 				break;
-		
+
 		}
 		editFields.add(descAct);
 
@@ -206,16 +210,16 @@ public class BatchUpdateTask extends JFrame implements WindowListener {
 		buttons.add(button, "East");
 		fields.add(buttons);
 
-		
+
 		JScrollPane fieldsScroll = Gui.getDefaultScroll(fields);
 		fieldsScroll.setPreferredSize(new Dimension(600, 100));
-		
+
 		JPanel innerMain = new JPanel(new BorderLayout());
 		innerMain.setBorder(Gui.getEmptyBorder(5));
 		innerMain.add(fieldsScroll, "North");
 		innerMain.add(editFields, "Center");
 		innerMain.add(buttons, "South");
-		
+
 		main.add(innerMain, "Center");
 
 		return main;

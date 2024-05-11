@@ -16,6 +16,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -31,7 +32,6 @@ import br.com.jpsp.gui.resources.Images;
 import br.com.jpsp.model.Task;
 import br.com.jpsp.model.TaskActivityWrapper;
 import br.com.jpsp.model.TaskTypeWrapper;
-import br.com.jpsp.services.ConfigServices;
 import br.com.jpsp.services.OrderByDirection;
 import br.com.jpsp.services.PieChartActivity;
 import br.com.jpsp.services.PieChartType;
@@ -42,12 +42,13 @@ import br.com.jpsp.utils.FilesUtils;
 import br.com.jpsp.utils.Gui;
 import br.com.jpsp.utils.Utils;
 
-public class ReportWindow extends JFrame {
+/**
+ *
+ */
+public class ReportWindow extends JDialog {
 	private static final long serialVersionUID = 4353742431227760939L;
 	private final TaskSetServices taskServices = TaskSetServices.instance;
 	private final ReportServices reportServices = ReportServices.instance;
-
-	private final ConfigServices configServices = ConfigServices.instance;
 
 	private JComboBox<String> months;
 	private JComboBox<Integer> years;
@@ -66,7 +67,9 @@ public class ReportWindow extends JFrame {
 	private final JRadioButton completeGrouped = new JRadioButton(Strings.Report.DETAILED_GROUPED, true);
 
 	public ReportWindow() {
-		super(Strings.Report.TITLE);
+		super();
+		this.setTitle(Strings.Report.TITLE);
+		this.setModal(true);
 		Gui.setConfiguredLookAndFeel(this);
 	}
 
@@ -287,7 +290,7 @@ public class ReportWindow extends JFrame {
 
 		int returnVal = fc.showOpenDialog(this);
 
-		if (returnVal == 0) {
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			GuiSingleton.showLoadingScreen(Strings.LOADING_GENERATE_REPORT, true, 0, 0);
 			File dir = fc.getSelectedFile();
 			try {

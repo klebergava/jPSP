@@ -677,6 +677,7 @@ Public License instead of this License.  But first, please read
 
 package br.com.jpsp;
 
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import org.apache.logging.log4j.LogManager;
@@ -686,27 +687,31 @@ import br.com.jpsp.gui.GuiSingleton;
 import br.com.jpsp.gui.jPSP;
 import br.com.jpsp.services.Strings;
 import br.com.jpsp.utils.FilesUtils;
-import br.com.jpsp.utils.Gui;
 import br.com.jpsp.utils.Utils;
 
 /**
- * 
+ *
  */
 public class Main {
 	private final static Logger log = LogManager.getLogger(Main.class);
-	
+
+	/**
+	 *
+	 * @param a
+	 */
 	public static void main(String[] a) {
-		
-		log.trace("Checking jPSP app before start");
-		
+
 		GuiSingleton.showSplash();
-		
+
+		log.trace("Checking jPSP app before start");
+
 		if (Utils.JAVA_VERSION < Utils.JAVA_MIN_VERSION) {
+			GuiSingleton.disposeSplash();
 			log.fatal(Strings.JAVA_VERSION_ERROR);
-			Gui.showErrorMessage(null, Strings.JAVA_VERSION_ERROR);
+			JOptionPane.showConfirmDialog(null, Strings.JAVA_VERSION_ERROR, Strings.GUI.FATAL_ERROR, JOptionPane.CLOSED_OPTION, JOptionPane.ERROR_MESSAGE);
 			System.exit(0);
 		}
-		
+
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				jPSP jpsp = new jPSP();

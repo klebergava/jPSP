@@ -14,6 +14,9 @@ import br.com.jpsp.gui.resources.Images;
 import br.com.jpsp.services.Strings;
 import br.com.jpsp.utils.Gui;
 
+/**
+ *
+ */
 public class LoadingScreen extends JFrame {
 	private static final long serialVersionUID = 6068987447068216025L;
 
@@ -37,17 +40,15 @@ public class LoadingScreen extends JFrame {
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
 		setUndecorated(true);
-
 		getContentPane().setLayout(new BorderLayout());
 		getContentPane().add(mount(), "Center");
-
 		setSize(400, 300);
 		pack();
-		setVisible(true);
-		setAlwaysOnTop(true);
-		setLocationRelativeTo(null);
+		setLocationRelativeTo( null );
 		setResizable(false);
 		toFront();
+		this.setAlwaysOnTop(true);
+		setVisible( true );
 	}
 
 	private JPanel mount() {

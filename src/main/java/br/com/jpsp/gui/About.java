@@ -19,7 +19,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
-import javax.swing.SwingUtilities;
 
 import br.com.jpsp.gui.resources.Images;
 import br.com.jpsp.services.Strings;
@@ -49,27 +48,36 @@ public class About extends JFrame {
 		getContentPane().setLayout(new BorderLayout());
 		getContentPane().add(mount(), "Center");
 
-		setSize(800, 600);
-		pack();
+		setSize((int)(Gui.WIDTH * 0.5), (int)(Gui.HEIGHT * 0.75));
 
-		setAlwaysOnTop(true);
+//		pack();
 
 		setLocationRelativeTo(null);
 		setResizable(false);
 		setVisible(true);
+		setAlwaysOnTop(true);
 
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					About.this.fillAppInfoContent();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				About.this.fillLicenseContent();
-				About.this.fillReadmeContent();
-				About.this.fillLogContent();
+		new Thread(() -> {
+			appInfo.setText(Strings.LOADING);
+			try {
+				About.this.fillAppInfoContent();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-		});
+		}).start();
+		new Thread(() -> {
+			license.setText(Strings.LOADING);
+			About.this.fillLicenseContent();
+		}).start();
+		new Thread(() -> {
+			readMe.setText(Strings.LOADING);
+			About.this.fillReadmeContent();
+		}).start();
+
+		new Thread(() -> {
+			logs.setText(Strings.LOADING);
+			About.this.fillLogContent();
+		}).start();
 	}
 
 	/**
@@ -80,7 +88,7 @@ public class About extends JFrame {
 		appInfo.setEditable(false);
 		StringBuilder content = new StringBuilder();
 
-		InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(FilesUtils.ABOUT_FILE);
+		InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(FilesUtils.ABOUT_FILE_NAME);
 		List<String> fileLines = FilesUtils.readTxtFile(is);
 		fileLines.forEach(line -> {
 			content.append(line).append("\n");
@@ -117,7 +125,7 @@ public class About extends JFrame {
 	private void fillLicenseContent() {
 		license.setEditable(false);
 
-		InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(FilesUtils.GPL3_LICENCE_FILE);
+		InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(FilesUtils.GPL3_LICENCE_FILE_NAME);
 		List<String> fileLines = FilesUtils.readTxtFile(is);
 
 		StringBuilder sb = new StringBuilder();
@@ -134,7 +142,7 @@ public class About extends JFrame {
 	 */
 	private void fillReadmeContent() {
 		readMe.setEditable(false);
-		InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(FilesUtils.README_FILE);
+		InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(FilesUtils.README_FILE_NAME);
 		List<String> fileLines = FilesUtils.readTxtFile(is);
 		StringBuilder sb = new StringBuilder();
 		fileLines.forEach(line -> {
@@ -165,12 +173,12 @@ public class About extends JFrame {
 
 	private JPanel mount() {
 		JPanel main = new JPanel(new BorderLayout());
-		main.setBorder(Gui.getLinedBorder("Sobre o jPSP", Gui.getFont(1, Integer.valueOf(16)), Color.WHITE));
+		main.setBorder(Gui.getLinedBorder(Strings.ABOUT_APP, Gui.getFont(1, Integer.valueOf(18)), Color.WHITE));
 		main.setBackground(GuiSingleton.DEFAULT_BG_COLOR);
 
-		JLabel label = new JLabel(Images.SPLASH_ICON);
-		label.setAlignmentX(0.5F);
-		main.add(label, "North");
+		JLabel splashImageLabel = new JLabel(Images.SPLASH_ICON);
+		splashImageLabel.setAlignmentX(0.5F);
+		main.add(splashImageLabel, "North");
 
 		JScrollPane appInfoScroll = Gui.getDefaultScroll(appInfo);
 		appInfoScroll.setPreferredSize(new Dimension(600, 400));
@@ -188,16 +196,20 @@ public class About extends JFrame {
 		logsScroll.setPreferredSize(new Dimension(600, 400));
 		tabbedPane.addTab(Strings.LOGS, logsScroll);
 
-		JButton close = new JButton("Sair", Images.EXIT);
+		JButton close = new JButton(Strings.GUI.OK);
 		close.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				About.this.dispose();
 			}
 		});
 
+		JPanel buttonsPanel = new JPanel(new BorderLayout());
+		buttonsPanel.add(close, "East");
+
 		main.add(tabbedPane, "Center");
-		main.add(close, "South");
+		main.add(buttonsPanel, "South");
 
 		return main;
 	}
+
 }

@@ -17,26 +17,22 @@ import br.com.jpsp.utils.FilesUtils;
 
 public class ConfigServices {
 	private final static Logger log = LogManager.getLogger(ConfigServices.class);
-	
+
 	private static final String KEY = "CONFIGURATION_INSTANCE";
 	private static final Map<String, Configuration> BUFFER = new HashMap<String, Configuration>();
 	public static final ConfigServices instance = new ConfigServices();
-	
+
 	private ConfigServices() {
 		checkFile();
 	}
-	
+
 	private void checkFile() {
 		try {
 			File datFile = new File(FilesUtils.USER_CONFIG_DATA_FILE);
 			if (!datFile.exists()) {
 				createEmptyFile();
 			}
-			
-			File oldDatFile = new File(FilesUtils.OLD_USER_CONFIG_DATA_FILE);
-			if (oldDatFile.exists()) {
-				oldDatFile.delete();
-			}
+
 		} catch (Exception ex) {
 			log.error("checkFile() " + ex.getMessage());
 			ex.printStackTrace();
@@ -50,16 +46,16 @@ public class ConfigServices {
 		defaultConfig.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
 		defaultConfig.setName(FilesUtils.USER_NAME);
 		defaultConfig.setAutoStart(0);
-		
+
 		this.updateConfiguration(defaultConfig);
 	}
 
 	public synchronized Configuration getConfiguration() {
 		checkFile();
-		
+
 		Configuration instance = BUFFER.get(KEY);
 		if (instance == null) {
-			
+
 	        try {
 	        	File datFile = new File(FilesUtils.USER_CONFIG_DATA_FILE);
 	            FileInputStream fileIn = new FileInputStream(datFile);
@@ -74,21 +70,21 @@ public class ConfigServices {
 	        	log.error("getConfiguration() " + e.getMessage());
 	            e.printStackTrace();
 	        }
-			
+
 			BUFFER.put(KEY, instance);
 		}
 
 		return instance;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param config
 	 * @return
 	 */
 	public synchronized boolean updateConfiguration(Configuration config) {
 		boolean updated = false;
-		
+
         try {
         	File datFile = new File(FilesUtils.USER_CONFIG_DATA_FILE);
 			if (!datFile.exists()) {
@@ -101,16 +97,16 @@ public class ConfigServices {
             out.writeObject(config);
             out.close();
             fileOut.close();
-            
+
             BUFFER.put(KEY, config);
-            
+
             updated = true;
         } catch (IOException ex) {
         	log.error("updateConfiguration() " + ex.getMessage());
             ex.printStackTrace();
         }
-		
+
 		return updated;
 	}
-	
+
 }

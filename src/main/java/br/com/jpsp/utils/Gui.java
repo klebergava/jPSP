@@ -42,17 +42,21 @@ import br.com.jpsp.services.Strings;
 import br.com.jpsp.services.TaskSetServices;
 
 /**
- * 
+ *
  */
 public class Gui {
-	
+
 	private final static Logger log = LogManager.getLogger(Gui.class);
-	
+
 	private static final ConfigServices configServices = ConfigServices.instance;
 	private static final TaskSetServices services = TaskSetServices.instance;
-	
+
 	public static final Font COURIER_12 = new Font("Courier", 0, 12);
-	
+
+	public static final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+	public static final int WIDTH = (int) screenSize.getWidth();
+	public static final int HEIGHT = (int) screenSize.getHeight();
+
 	public static void makeCompactGrid(Container parent, int rows, int cols, int initialX, int initialY, int xPad,
 			int yPad) {
 		SpringLayout layout;
@@ -329,13 +333,13 @@ public class Gui {
 		JComboBox<String> taskClass = new JComboBox<String>(types.toArray(new String[types.size()]));
 		return taskClass;
 	}
-	
+
 	public static JComboBox<String> createSystemsCombo() {
 		List<String> systems = services.getAllSystemsNames();
 		JComboBox<String> systemsCombo = new JComboBox<String>(systems.toArray(new String[systems.size()]));
 		return systemsCombo;
 	}
-	
+
 
 	public static Task getSelectedTask(JTable tableSource) {
 		int row = tableSource.convertRowIndexToModel(tableSource.getSelectedRow());
@@ -367,7 +371,7 @@ public class Gui {
 	}
 
 	public static void showErrorMessage(Container c, String mesg) {
-		JOptionPane.showMessageDialog(c, mesg, Strings.GUI.ERROR, 0);
+		JOptionPane.showMessageDialog(c, mesg, Strings.GUI.ERROR, JOptionPane.ERROR_MESSAGE);
 	}
 
 	public static void setConfiguredLookAndFeel(Container container) {
@@ -380,9 +384,13 @@ public class Gui {
 	}
 
 	public static int showConfirmMessage(Container c, String mesg) {
-		return JOptionPane.showConfirmDialog(c, mesg, Strings.GUI.CONFIRM_ACTION, 0, JOptionPane.QUESTION_MESSAGE);
+		return JOptionPane.showConfirmDialog(c, mesg, Strings.GUI.CONFIRM_ACTION, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
 	}
-	
+
+	public static int showConfirmMessage(Container c, String mesg, int type) {
+		return JOptionPane.showConfirmDialog(c, mesg, Strings.GUI.CONFIRM_ACTION, type, JOptionPane.QUESTION_MESSAGE);
+	}
+
 	public static Font getTitledBorderFont() {
 		return getFont(Font.BOLD, 16);
 	}
@@ -401,7 +409,7 @@ public class Gui {
 		months.addItem(Strings.OCT);
 		months.addItem(Strings.NOV);
 		months.addItem(Strings.DEZ);
-		
+
 		return months;
 	}
 }

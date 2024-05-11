@@ -15,6 +15,7 @@ import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -38,7 +39,7 @@ import br.com.jpsp.services.TaskSetServices;
 import br.com.jpsp.utils.Gui;
 import br.com.jpsp.utils.Utils;
 
-public class SplitTasks extends JFrame implements Refreshable, WindowListener {
+public class SplitTasks extends JDialog implements Refreshable, WindowListener {
 	private static final long serialVersionUID = -103651380043899625L;
 	private JSpinner beginTask1;
 	private JSpinner endTask1;
@@ -55,7 +56,7 @@ public class SplitTasks extends JFrame implements Refreshable, WindowListener {
 	private JComboBox<String> taskClassTask2;
 	private JComboBox<String> systemTask2;
 	private final Refreshable refreshable;
-	
+
 	private final TaskSetServices services = TaskSetServices.instance;
 	private final ActivityServices activityServices = ActivityServices.instance;
 	private final DescriptionServices descriptionServices = DescriptionServices.instance;
@@ -65,7 +66,9 @@ public class SplitTasks extends JFrame implements Refreshable, WindowListener {
 	private Task task2 = new Task();
 
 	public SplitTasks(Task originalTask, Refreshable refreshable) {
-		super(Strings.SplitTasks.TITLE);
+		super();
+		this.setTitle(Strings.SplitTasks.TITLE);
+		this.setModal(true);
 		this.setIconImage(Images.SPLIT_IMG);
 		this.originalTask = originalTask;
 		this.refreshable = refreshable;
@@ -79,9 +82,7 @@ public class SplitTasks extends JFrame implements Refreshable, WindowListener {
 
 		getContentPane().add(mountMain(), "Center");
 
-//		setUndecorated(true);
 		this.setIconImage(Images.SPLIT_IMG);
-		setAlwaysOnTop(true);
 
 		pack();
 		setLocationRelativeTo(this);
@@ -115,7 +116,7 @@ public class SplitTasks extends JFrame implements Refreshable, WindowListener {
 
 		List<String> tasks = this.activityServices.getAllActivitiesDescriptions();
 		Set<String> descs = this.services.getAllDescriptions();
-		
+
 		this.deltaTask2 = new JTextField("");
 		this.deltaTask2.setEditable(false);
 
@@ -126,27 +127,27 @@ public class SplitTasks extends JFrame implements Refreshable, WindowListener {
 		this.descriptionTask2.setEditable(true);
 
 		this.taskClassTask2 = Gui.createTypeClassCombo();
-		
+
 		this.systemTask2 = Gui.createSystemsCombo();
-		
+
 		task2Panel.add(new JLabel(Strings.Form.START));
 		task2Panel.add(this.beginTask2);
-		
+
 		task2Panel.add(new JLabel(Strings.Form.END));
 		task2Panel.add(this.endTask2);
-		
+
 		task2Panel.add(new JLabel(Strings.Form.DELTA));
 		task2Panel.add(this.deltaTask2);
-		
+
 		task2Panel.add(new JLabel(Strings.Form.TASK));
 		task2Panel.add(this.activityTask2);
-		
+
 		task2Panel.add(new JLabel(Strings.Form.DESCRIPTION));
 		task2Panel.add(this.descriptionTask2);
-		
+
 		task2Panel.add(new JLabel(Strings.Form.CLASSIFICATION));
 		task2Panel.add(this.taskClassTask2);
-		
+
 		task2Panel.add(new JLabel(Strings.Form.SYSTEM));
 		task2Panel.add(this.systemTask2);
 
@@ -179,27 +180,27 @@ public class SplitTasks extends JFrame implements Refreshable, WindowListener {
 		this.descriptionTask1.setEditable(true);
 
 		this.taskClassTask1 = Gui.createTypeClassCombo();
-		
+
 		this.systemTask1 = Gui.createSystemsCombo();
 
 		task1Panel.add(new JLabel(Strings.Form.START));
 		task1Panel.add(this.beginTask1);
-		
+
 		task1Panel.add(new JLabel(Strings.Form.END));
 		task1Panel.add(this.endTask1);
-		
+
 		task1Panel.add(new JLabel(Strings.Form.DELTA));
 		task1Panel.add(this.deltaTask1);
-		
+
 		task1Panel.add(new JLabel(Strings.Form.TASK));
 		task1Panel.add(this.activityTask1);
-		
+
 		task1Panel.add(new JLabel(Strings.Form.DESCRIPTION));
 		task1Panel.add(this.descriptionTask1);
-		
+
 		task1Panel.add(new JLabel(Strings.Form.CLASSIFICATION));
-		task1Panel.add(this.taskClassTask1);		
-		
+		task1Panel.add(this.taskClassTask1);
+
 		task1Panel.add(new JLabel(Strings.Form.SYSTEM));
 		task1Panel.add(this.systemTask1);
 
@@ -265,6 +266,9 @@ public class SplitTasks extends JFrame implements Refreshable, WindowListener {
 		refresh();
 	}
 
+	/**
+	 *
+	 */
 	private void save() {
 		fillTask();
 		List<String> errors = new ArrayList<String>();

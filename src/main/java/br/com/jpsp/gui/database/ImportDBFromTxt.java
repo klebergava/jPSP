@@ -11,9 +11,11 @@ import java.util.List;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
@@ -34,7 +36,7 @@ import br.com.jpsp.utils.Utils;
 /**
  *
  */
-public class ImportDBFromTxt extends JFrame {
+public class ImportDBFromTxt extends JDialog {
 	private static final long serialVersionUID = -3218307819517596211L;
 	private JCheckBox hasHeaders;
 	private ButtonGroup buttonGroup = new ButtonGroup();
@@ -54,7 +56,9 @@ public class ImportDBFromTxt extends JFrame {
 	private final static Logger log = LogManager.getLogger(ImportDBFromTxt.class);
 
 	public ImportDBFromTxt() {
-		super(Strings.DBOptions.IMPORT_TITLE);
+		super();
+		this.setTitle(Strings.DBOptions.IMPORT_TITLE);
+		setModal(true);
 		Gui.setConfiguredLookAndFeel(this);
 	}
 
@@ -71,7 +75,7 @@ public class ImportDBFromTxt extends JFrame {
 		setLocationRelativeTo(this);
 		setResizable(false);
 		setVisible(true);
-		setAlwaysOnTop(true);
+//		setAlwaysOnTop(true);
 	}
 
 	private JPanel mountMain() {
@@ -95,16 +99,17 @@ public class ImportDBFromTxt extends JFrame {
 		inputs.add(new JLabel(Strings.DBOptions.HAS_HEADERS));
 		inputs.add(this.hasHeaders);
 
-		this.doNotDeleteAllData = new JRadioButton();
+		this.doNotDeleteAllData = new JRadioButton(Strings.DBOptions.DO_NOT_DELETE_ALL_DATA);
 		this.doNotDeleteAllData.setSelected(true);
 		this.doNotDeleteAllData.setActionCommand(Boolean.FALSE.toString());
+		inputs.add(new JLabel(Strings.DBOptions.CURRENT_DATABASE));
 		inputs.add(this.doNotDeleteAllData);
-		inputs.add(new JLabel(Strings.DBOptions.DO_NOT_DELETE_ALL_DATA));
-		this.deleteAllData = new JRadioButton();
+
+		this.deleteAllData = new JRadioButton(Strings.DBOptions.DELETE_ALL_DATA);
 		this.deleteAllData.setSelected(false);
 		this.deleteAllData.setActionCommand(Boolean.TRUE.toString());
+		inputs.add(new JLabel(""));
 		inputs.add(this.deleteAllData);
-		inputs.add(new JLabel(Strings.DBOptions.DELETE_ALL_DATA));
 
 		buttonGroup.add(deleteAllData);
 		buttonGroup.add(doNotDeleteAllData);
@@ -220,7 +225,7 @@ public class ImportDBFromTxt extends JFrame {
 
 		choice = Gui.showConfirmMessage(this, Strings.DBOptions.CONFIRM_IMPORT);
 
-		if (choice == 0) {
+		if (choice == JOptionPane.OK_OPTION) {
 
 			Thread thread = new Thread(() -> {
 				String fieldSeparator = this.separator.getText();
@@ -231,7 +236,7 @@ public class ImportDBFromTxt extends JFrame {
 
 				String enc = this.encoding.getText();
 				if (Utils.isEmpty(enc)) {
-					enc = "ISO8859_1";
+					enc = FilesUtils.DEFAULT_ENCODING;
 					this.encoding.setText(enc);
 				}
 
@@ -284,7 +289,7 @@ public class ImportDBFromTxt extends JFrame {
 	private void chooseFile() {
 		int returnVal = this.fc.showOpenDialog(this);
 
-		if (returnVal == 0) {
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			this.fileToImportFrom = this.fc.getSelectedFile();
 
 			try {

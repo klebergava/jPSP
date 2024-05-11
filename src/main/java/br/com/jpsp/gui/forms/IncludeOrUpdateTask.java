@@ -15,6 +15,7 @@ import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -38,32 +39,34 @@ import br.com.jpsp.services.TaskSetServices;
 import br.com.jpsp.utils.Gui;
 import br.com.jpsp.utils.Utils;
 
-public class IncludeOrUpdateTask extends JFrame implements Refreshable, WindowListener {
+public class IncludeOrUpdateTask extends JDialog implements Refreshable, WindowListener {
 	private static final long serialVersionUID = -103651380043899625L;
 	private Task updatedTask;
 	private JSpinner begin;
 	private JSpinner end;
 	private JTextField delta;
-	
+
 	private JComboBox<String> task;
 	private JComboBox<String>  description;
-	
+
 	private JComboBox<String> taskClass;
-	
+
 	private JComboBox<String> system;
-	
-	
+
+
 	private final Refreshable refreshable;
-	
+
 	private final TaskSetServices services = TaskSetServices.instance;
 	private final ActivityServices activityServices = ActivityServices.instance;
 	private final DescriptionServices descriptionServices = DescriptionServices.instance;
-	
+
 	private final boolean isInclusion;
 	private String title;
 
 	public IncludeOrUpdateTask(Task task, Refreshable refreshable) {
-		super((task == null) ? Strings.IncludeOrUpdateTask.TITLE_INCLUDE : Strings.IncludeOrUpdateTask.TITLE_EDIT);
+		super();
+		this.setTitle((task == null) ? Strings.IncludeOrUpdateTask.TITLE_INCLUDE : Strings.IncludeOrUpdateTask.TITLE_EDIT);
+		this.setModal(true);
 		this.isInclusion = (task == null);
 		this.refreshable = refreshable;
 		Gui.setConfiguredLookAndFeel(this);
@@ -74,7 +77,7 @@ public class IncludeOrUpdateTask extends JFrame implements Refreshable, WindowLi
 		}
 
 		this.title = (task == null) ? Strings.IncludeOrUpdateTask.TITLE_INCLUDE : Strings.IncludeOrUpdateTask.TITLE_EDIT;
-		
+
 		if (task == null)
 			this.setIconImage(Images.ADD_IMG);
 		else this.setIconImage(Images.EDIT_IMG);
@@ -86,10 +89,6 @@ public class IncludeOrUpdateTask extends JFrame implements Refreshable, WindowLi
 		getContentPane().setLayout(new BorderLayout());
 
 		getContentPane().add(mountMain(), "Center");
-
-//		setUndecorated(true);
-		
-		setAlwaysOnTop(true);
 
 		pack();
 		setLocationRelativeTo(this);
@@ -114,7 +113,7 @@ public class IncludeOrUpdateTask extends JFrame implements Refreshable, WindowLi
 				IncludeOrUpdateTask.this.calculateDelta();
 			}
 		});
-		
+
 		this.begin = DateSpinner.createSpinner(this.end.getModel(), null, null, Gui.getFont(0, Integer.valueOf(12)),
 				this);
 		this.begin.addFocusListener(new FocusListener() {
@@ -126,7 +125,7 @@ public class IncludeOrUpdateTask extends JFrame implements Refreshable, WindowLi
 				IncludeOrUpdateTask.this.calculateDelta();
 			}
 		});
-		
+
 		this.delta = new JTextField("");
 		this.delta.setEditable(false);
 
@@ -137,28 +136,28 @@ public class IncludeOrUpdateTask extends JFrame implements Refreshable, WindowLi
 		Set<String> descs = this.services.getAllDescriptions();
 		this.description = new JComboBox<String>(descs.toArray(new String[descs.size()]));
 		this.description.setEditable(true);
-		
+
 		this.taskClass = Gui.createTypeClassCombo();
 		this.system = Gui.createSystemsCombo();
 
 		fields.add(new JLabel(Strings.Form.START));
 		fields.add(this.begin);
-		
+
 		fields.add(new JLabel(Strings.Form.END));
 		fields.add(this.end);
-		
+
 		fields.add(new JLabel(Strings.Form.DELTA));
 		fields.add(this.delta);
-		
+
 		fields.add(new JLabel(Strings.Form.TASK));
 		fields.add(this.task);
-		
+
 		fields.add(new JLabel(Strings.Form.DESCRIPTION));
 		fields.add(this.description);
-		
+
 		fields.add(new JLabel(Strings.Form.CLASSIFICATION));
 		fields.add(this.taskClass);
-		
+
 		fields.add(new JLabel(Strings.Form.SYSTEM));
 		fields.add(this.system);
 
@@ -185,14 +184,14 @@ public class IncludeOrUpdateTask extends JFrame implements Refreshable, WindowLi
 		buttons.add(button, "East");
 
 		Gui.makeCompactGrid(fields, 7, 2, 5, 5, 5, 5);
-		
+
 		JPanel panel = new JPanel(new BorderLayout());
 		panel.setBorder(Gui.getEmptyBorder(5));
 		panel.add(fields, "Center");
 		panel.add(buttons, "South");
 
 		main.add(panel, "Center");
-		
+
 		return main;
 	}
 

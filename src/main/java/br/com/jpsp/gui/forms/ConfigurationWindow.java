@@ -11,6 +11,7 @@ import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -18,7 +19,7 @@ import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 
 import br.com.jpsp.gui.GuiSingleton;
-import br.com.jpsp.gui.Refreshable;
+import br.com.jpsp.gui.jPSP;
 import br.com.jpsp.gui.resources.Images;
 import br.com.jpsp.model.Configuration;
 import br.com.jpsp.services.ConfigServices;
@@ -26,9 +27,9 @@ import br.com.jpsp.services.Strings;
 import br.com.jpsp.utils.Gui;
 
 /**
- * 
+ *
  */
-public class ConfigWindow extends JFrame implements WindowListener {
+public class ConfigurationWindow extends JDialog implements WindowListener {
 	private static final long serialVersionUID = 7811181541648032335L;
 	private final ConfigServices configServices = ConfigServices.instance;
 	private JCheckBox autoPause;
@@ -38,14 +39,19 @@ public class ConfigWindow extends JFrame implements WindowListener {
 	private JButton save;
 	private JButton cancel;
 	private JComboBox<String> lookAndFeel;
-	private Refreshable refreshable;
+	private jPSP appWindow;
 
-	public ConfigWindow(Refreshable refreshable) {
-		super(Strings.ConfigWindow.TITLE);
+	public ConfigurationWindow(jPSP appWindow) {
+		super();
+		this.setTitle(Strings.ConfigWindow.TITLE);
+		this.setModal(true);
 		Gui.setConfiguredLookAndFeel(this);
-		this.refreshable = refreshable;
+		this.appWindow = appWindow;
 	}
 
+	/**
+	 *
+	 */
 	public void createAndShow() {
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
@@ -59,11 +65,8 @@ public class ConfigWindow extends JFrame implements WindowListener {
 		setLocationRelativeTo(this);
 		setResizable(false);
 		setVisible(true);
-		setAlwaysOnTop(true);
 
 		addWindowListener(this);
-
-		fillFromFile();
 	}
 
 	private JPanel mountMain() {
@@ -87,7 +90,7 @@ public class ConfigWindow extends JFrame implements WindowListener {
 		textFields.add(new JLabel(Strings.ConfigWindow.YOUR_NAME + ":"));
 		this.name = new JTextField("", 20);
 		textFields.add(this.name);
-		
+
 		Gui.makeCompactGrid(textFields, 2, 2, 5, 5, 5, 5);
 
 		fields.add(textFields);
@@ -98,7 +101,11 @@ public class ConfigWindow extends JFrame implements WindowListener {
 		for (String l : laf) {
 			this.lookAndFeel.addItem(l);
 		}
-		
+		this.lookAndFeel.addActionListener(e -> {
+			Gui.setLookAndFeel(lookAndFeel.getSelectedItem().toString(), ConfigurationWindow.this);
+			ConfigurationWindow.this.pack();
+		});
+
 		appearance.add(new JLabel(Strings.ConfigWindow.APPEARANCE + ": "), "West");
 		appearance.add(this.lookAndFeel, "Center");
 		fields.add(appearance);
@@ -107,14 +114,14 @@ public class ConfigWindow extends JFrame implements WindowListener {
 		this.cancel = new JButton(Strings.GUI.CANCEL);
 		this.cancel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				ConfigWindow.this.closeWindow();
+				ConfigurationWindow.this.dispose();
 			}
 		});
 
 		this.save = new JButton(Strings.GUI.CONFIRM);
 		this.save.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				ConfigWindow.this.saveToFile();
+				ConfigurationWindow.this.saveToFile();
 			}
 		});
 
@@ -126,9 +133,14 @@ public class ConfigWindow extends JFrame implements WindowListener {
 		Gui.makeCompactGrid(fields, 5, 1, 10, 10, 10, 10);
 		main.add(fields, "Center");
 
+		fillFromFile();
+
 		return main;
 	}
 
+	/**
+	 *
+	 */
 	private void fillFromFile() {
 		Configuration c = this.configServices.getConfiguration();
 		this.autoPause.setSelected(c.isAutoPause());
@@ -138,23 +150,30 @@ public class ConfigWindow extends JFrame implements WindowListener {
 		this.name.setText(c.getName());
 	}
 
+	/**
+	 *
+	 */
 	private void saveToFile() {
-		
+
 		Configuration config = new Configuration();
 		config.setAutoPause(this.autoPause.isSelected() ? 1 : 0);
 		config.setAlertTime(this.alertTime.getText());
 		config.setLookAndFeel(this.lookAndFeel.getSelectedItem().toString());
 		config.setAutoStart(this.autoStart.isSelected() ? 1 : 0);
 		config.setName(this.name.getText());
-		
+
 		this.configServices.updateConfiguration(config);
 		closeWindow();
 	}
 
+	/**
+	 *
+	 */
 	private void closeWindow() {
+		if (this.appWindow != null)
+			this.appWindow.reloadUserConfiguration();
+
 		dispose();
-		if (this.refreshable != null)
-			this.refreshable.refresh();
 	}
 
 	public void windowOpened(WindowEvent e) {

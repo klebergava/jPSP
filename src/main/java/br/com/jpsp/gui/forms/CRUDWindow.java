@@ -19,9 +19,11 @@ import java.util.Set;
 import javax.swing.AbstractListModel;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -39,7 +41,7 @@ import br.com.jpsp.services.Strings;
 import br.com.jpsp.utils.Gui;
 import br.com.jpsp.utils.Utils;
 
-public class CRUDWindow<T extends CRUDServices<CRUD>> extends JFrame {
+public class CRUDWindow<T extends CRUDServices<CRUD>> extends JDialog {
 	private final static Logger log = LogManager.getLogger(CRUDWindow.class);
 	private static final long serialVersionUID = -4084846662008987183L;
 	private Refreshable refreshable;
@@ -48,11 +50,13 @@ public class CRUDWindow<T extends CRUDServices<CRUD>> extends JFrame {
 	private JList<CRUD> list;
 	private JScrollPane scroll;
 	private CRUD[] data;
-	
+
 	private final CRUD instance;
 
 	public CRUDWindow(Refreshable refreshable, String title, Image img, T services, CRUD instance) {
-		super(title);
+		super();
+		this.setTitle(title);
+		this.setModal(true);
 		this.refreshable = refreshable;
 		this.setIconImage(img);
 		this.services = services;
@@ -68,7 +72,6 @@ public class CRUDWindow<T extends CRUDServices<CRUD>> extends JFrame {
 		setLocationRelativeTo(null);
 		setResizable(false);
 		setVisible(true);
-		setAlwaysOnTop(true);
 	}
 
 	private JPanel mountMain() {
@@ -87,7 +90,7 @@ public class CRUDWindow<T extends CRUDServices<CRUD>> extends JFrame {
 		this.list.setModel(new MyListModel(this.data));
 		this.list.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 		this.list.addMouseListener(new MouseAdapter() {
-			
+
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 2) {
@@ -95,7 +98,7 @@ public class CRUDWindow<T extends CRUDServices<CRUD>> extends JFrame {
 				}
 			}
 		});
-		
+
 		this.scroll = new JScrollPane(this.list);
 		JPanel buttons = new JPanel(new GridLayout(3, 1));
 		JButton button = new JButton(Strings.Form.EDIT, Images.EDIT);
@@ -187,7 +190,7 @@ public class CRUDWindow<T extends CRUDServices<CRUD>> extends JFrame {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void editItem() {
@@ -201,16 +204,16 @@ public class CRUDWindow<T extends CRUDServices<CRUD>> extends JFrame {
 			log.trace(Strings.Form.ERROR_SELECT_ITEM);
 		}
 	}
-	
+
 	/**
-	 * 
+	 *
 	 */
 	private void deleteTxt() {
 		if (this.list.getSelectedIndex() > 0) {
-			
+
 			int answer = Gui.showConfirmMessage(this, Strings.Form.CONFIRM_EXCLUSION.replaceAll("&1", this.list.getSelectedValue().toString()));
-			
-			if (answer == 0) {
+
+			if (answer == JOptionPane.OK_OPTION) {
 				MyListModel m = (MyListModel) this.list.getModel();
 				CRUD toRemove = m.getElementAt(this.list.getSelectedIndex());
 				try {
@@ -221,7 +224,7 @@ public class CRUDWindow<T extends CRUDServices<CRUD>> extends JFrame {
 					Gui.showErrorMessage(CRUDWindow.this, e.getMessage());
 					e.printStackTrace();
 				}
-				
+
 			}
 		} else {
 			log.trace(Strings.Form.ERROR_SELECT_ITEM);
@@ -231,7 +234,7 @@ public class CRUDWindow<T extends CRUDServices<CRUD>> extends JFrame {
 
 	private void refreshlList(boolean include, CRUD newItem, CRUD oldItem) {
 		MyListModel m = (MyListModel) this.list.getModel();
-		
+
 		if (include) {
 			this.services.add(newItem);
 			m.add(newItem);
@@ -313,7 +316,7 @@ public class CRUDWindow<T extends CRUDServices<CRUD>> extends JFrame {
 		}
 
 		protected void closeMiniEdit() {
-			
+
 			if (Utils.isEmpty(this.txt.getText())) {
 				Gui.showErrorMessage(this, Strings.Form.ERROR_MANDATORY_FIELD);
 			} else {
@@ -324,9 +327,9 @@ public class CRUDWindow<T extends CRUDServices<CRUD>> extends JFrame {
 	}
 
 	public class MyCustomListRenderer extends DefaultListCellRenderer {
-		 
+
 	    /**
-		 * 
+		 *
 		 */
 		private static final long serialVersionUID = -7254795982083286653L;
 
@@ -334,11 +337,11 @@ public class CRUDWindow<T extends CRUDServices<CRUD>> extends JFrame {
 	    public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected,
 	    		boolean cellHasFocus) {
 	    	Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-	    	
+
 	    	if (isSelected) {
 	    		c.setBackground(Color.LIGHT_GRAY);
 	    	}
-	    	
+
 	    	CRUD crud = (CRUD)value;
 	    	if (crud.isBlocked()) {
 	    		this.setText(crud.toString() + " (" + Strings.jPSP.BLOCKED + ")");
@@ -346,7 +349,7 @@ public class CRUDWindow<T extends CRUDServices<CRUD>> extends JFrame {
 	    	}
 	    	return c;
 	    }
-		
+
 	}
 
 }

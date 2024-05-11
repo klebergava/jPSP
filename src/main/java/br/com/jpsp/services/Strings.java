@@ -6,10 +6,9 @@ import br.com.jpsp.utils.Utils;
 public class Strings {
 
 	public static final String VERSION = "1.0.1";
-	public static final String VERSION_DATE = "10/05/2024";
+	public static final String VERSION_DATE = "11/05/2024";
 
 	public static final String START = "Iniciar";
-
 	public static final String PAUSE = "Pausar ";
 
 	public static final String JAVA_VERSION_ERROR = "Java versão " + Utils.JAVA_MIN_VERSION + " necessária para rodar esta aplicação (sua versão é " + Utils.JAVA_VERSION + ")";
@@ -57,6 +56,8 @@ public class Strings {
 	public static final String AGILIS = "Agilis";
 	public static final String OTHER_SYS = "Outro";
 	public static final String LOGS = "Logs";
+	public static final String ERROR_CONFIG_FILE = "Não foi possível carregar o arquivo de configurações.";
+	public static final String ABOUT_APP = "Sobre o jPSP";
 
 	public static class Alert {
 		public static final String TIME_REACHED = "Hora atingida";
@@ -165,6 +166,16 @@ public class Strings {
 		public static final String COL_WEEK_DAY = "Dia da Semana";
 		public static final String COL_DELTA = "Delta";
 
+		public static final String APP = "Aplicação";
+
+		public static final String EXIT = "Sair";
+
+		public static final String CONFIRM_EXIT = "Confirma encerramento da aplicação?";
+
+		public static final String RELOAD_CONFIG = "Recarregar configurações";
+
+		public static final String CONFIRM_REALOD_CONFIG = "Aplicar as alterações agora?";
+
 	}
 
 	public static class ConfigWindow {
@@ -183,6 +194,13 @@ public class Strings {
 
 		public static final String TASK_1 = "Tarefa 1";
 		public static final String TASK_2 = "Tarefa 2";
+
+		public static final String ERROR_START_DATE_REQUIRED = "Data de início está em branco";
+		public static final String ERROR_END_DATE_REQUIRED = "Data de fim está em branco";
+		public static final String ERROR_INVALID_DELTA = "Delta possui um valor inválido";
+		public static final String ERROR_ACTIVITY_REQUIRED = "A atividade está em branco";
+		public static final String ERROR_TASKCLASS_REQUIRED = "A classificação da tarefa está em branco";
+		public static final String ERROR_INVALID_DATES = "Data de início é posterior à data de fim";
 
 	}
 
@@ -217,6 +235,7 @@ public class Strings {
 
 	public static class GUI {
 		public static final String ERROR = "Erro";
+		public static final String FATAL_ERROR = "Erro fatal!";
 		public static final String CONFIRM_ACTION = "Confirmar ação";
 
 		public static final String EXIT = "Sair";
@@ -225,6 +244,7 @@ public class Strings {
 
 		public static final String SAVE = "Salvar";
 		public static final String OK = "OK";
+		public static final String CLOSE = "Fechar";
 	}
 
 	public static class DBOptions {
@@ -243,6 +263,7 @@ public class Strings {
 		public static final String CHOOSE_FILE = "Escolher arquivo...";
 		public static final String SEPARATOR = "Separador";
 		public static final String DATABASE_RELOADING = "Relendo base de dados, por favor, aguarde...";
+		public static final String CONFIG_RELOADING = "Relendo configurações, por favor, aguarde...";
 
 		public static final String EXPORT = "Exportar";
 		public static final String EXPORT_SUCCESS = "Arquivo salvo com sucesso em '&1'.";
@@ -266,6 +287,7 @@ public class Strings {
 		public static final String IMPORTING_DATA = "Importando dados, por favor aguarde...";
 		public static final String READING_FILE = "Lendo arquivo, por favor aguarde...";
 		public static final String LINES_READ = "&1 linhas lidas do arquivo";
+		public static final String CURRENT_DATABASE = "Base de dados atual";
 	}
 
 	public static class BatchUpdateTask {
@@ -309,7 +331,7 @@ public class Strings {
 		public static final String TASK_CHART = "Gráfico (por atividades)";
 		public static final String OPEN_DEFAULT_BROWSER = "Abrir no browser default";
 		public static final String INCLUDE_GRAPH = "Incluir gráfico por classificação";
-		public static final String INCLUDE_TASK_GRAPH = "Incluir gráficopor atividade";
+		public static final String INCLUDE_TASK_GRAPH = "Incluir gráfico por atividade";
 		public static final String HTML_OPTIONS = "Opções HTML";
 		public static final String GENERATED_FILE = "Arquivo gerado";
 		public static final String SUCCESS = "Arquivo HTML gerado com sucesso em '&1'. O arquivo será aberto no browser default (se já estiver aberto, verifique se o relatório já foi mostrado).";

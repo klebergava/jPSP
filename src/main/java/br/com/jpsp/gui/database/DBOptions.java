@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
@@ -24,14 +25,19 @@ import br.com.jpsp.services.Strings;
 import br.com.jpsp.utils.FilesUtils;
 import br.com.jpsp.utils.Gui;
 
-public class DBOptions extends JFrame implements WindowListener {
+/**
+ *
+ */
+public class DBOptions extends JDialog implements WindowListener {
 	private static final long serialVersionUID = 7811181541648032335L;
 	private JButton cancel;
 	private final static Logger log = LogManager.getLogger(DBOptions.class);
 	private final Refreshable refreshable;
 
 	public DBOptions(Refreshable refreshable) {
-		super(Strings.DBOptions.TITLE);
+		super();
+		this.setTitle(Strings.DBOptions.TITLE);
+		setModal(true);
 		Gui.setConfiguredLookAndFeel(this);
 		this.refreshable = refreshable;
 	}
@@ -49,7 +55,7 @@ public class DBOptions extends JFrame implements WindowListener {
 		setLocationRelativeTo(this);
 		setResizable(false);
 		setVisible(true);
-		setAlwaysOnTop(true);
+//		setAlwaysOnTop(true);
 
 		addWindowListener(this);
 
