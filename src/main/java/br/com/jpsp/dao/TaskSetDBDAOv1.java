@@ -14,74 +14,52 @@ import java.util.TreeSet;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import br.com.jpsp.gui.GuiSingleton;
-import br.com.jpsp.gui.Refreshable;
 import br.com.jpsp.model.System;
 import br.com.jpsp.model.Task;
 import br.com.jpsp.model.TaskSet;
 import br.com.jpsp.model.TypeClassification;
-import br.com.jpsp.services.MigrateDataFromOldDB;
 import br.com.jpsp.services.Strings;
 import br.com.jpsp.utils.FilesUtils;
-import br.com.jpsp.utils.Gui;
 import br.com.jpsp.utils.Utils;
 
 /**
- * 
+ *
  * @author kleber
  *
  */
 public class TaskSetDBDAOv1 extends DAO {
-	
+
 	private final static Logger log = LogManager.getLogger(TaskSetDBDAOv1.class);
-	
+
 	protected final String TASK_TABLE = "TAREFA";
 	protected final String DESC_HIST_TABLE = "HIST_DESC";
 	protected final String ACTIVITY_TABLE = "ATIVIDADE";
 	protected final String VERSION_TABLE = "VERSAO";
 	protected final String TYPE_CLASS_TABLE = "TIPO_CLASS";
 	protected final String SYSTEM_TABLE = "SISTEMA";
-	
+
 	protected final String VERSION = "1.0";
-	
+
 	public static final Map<String, Object> domainTablesCache = new HashMap<String, Object>();
-	
+
 	protected final String SYSTEM_CACHE = "SYSTEM_CACHE";
 	protected final String TYPE_CLASS_CACHE = "TYPE_CLASS_CACHE";
 
 	public static final TaskSetDBDAOv1 instance = new TaskSetDBDAOv1();
-	
+
 	protected TaskSetDBDAOv1() {
 		log.trace("Starting TaskSetDBDAOv1");
 		checkDBFile();
 		loadDatabase();
-		
+
 		if (isNewDatabase()) {
 			onCreate();
 		} else if (isVersionDifferent()) {
 			onUpgrade();
 		}
-		
+
 		loadDomainTablesCache();
-		
-	}
 
-	public void migrateData(Refreshable r) {
-		if (this.isDBOldVersion() && this.isNewDatabase()) {
-			GuiSingleton.showLoadingScreen(Strings.LOADING_MIGRATING_DB);
-			
-			Thread t = new Thread( () -> {
-				MigrateDataFromOldDB migrate = new MigrateDataFromOldDB();
-				migrate.migrateData();
-				GuiSingleton.disposeLoadingScreen();
-				r.refresh();
-				
-				Gui.showMessage(null, Strings.MIGRATION_SUCCESS);
-			});
-			t.start();
-
-		}
-		
 	}
 
 	private void loadDomainTablesCache() {
@@ -90,11 +68,11 @@ public class TaskSetDBDAOv1 extends DAO {
 	}
 
 	private void checkDBFile() {
-		File dataDir = new File(FilesUtils.DATA_DIR);
+		File dataDir = new File(FilesUtils.DATA_FOLDER_NAME);
 		if (!dataDir.exists()) {
 			dataDir.mkdir();
 		}
-		
+
 		File file = new File(FilesUtils.DATABASE_FILE_V1);
 		if (!file.exists()) {
 			this.noDatabase = true;
@@ -115,7 +93,7 @@ public class TaskSetDBDAOv1 extends DAO {
 			if (connection == null || connection.isClosed()) {
 				try {
 					Class.forName("org.sqlite.JDBC");
-						
+
 						File databasePath = new File(FilesUtils.DATABASE_FILE_V1);
 						String url = "jdbc:sqlite:" + databasePath.getCanonicalPath();
 						connection = DriverManager.getConnection(url);
@@ -157,9 +135,9 @@ public class TaskSetDBDAOv1 extends DAO {
 
 			execute("CREATE TABLE '" + SYSTEM_TABLE
 					+ "' ('id' INTEGER PRIMARY KEY NOT NULL , 'nome' TEXT NOT NULL);");
-			
+
 			insertDefaultData();
-			
+
 		} catch (Exception ex) {
 			log.trace("onCreate() " + ex.getMessage());
 			ex.printStackTrace();
@@ -168,24 +146,24 @@ public class TaskSetDBDAOv1 extends DAO {
 
 	private void insertDefaultData() {
 		execute("INSERT INTO '" + VERSION_TABLE + "' (versao) values (" + VERSION + ");");
-		
+
 		execute("INSERT INTO '" + TYPE_CLASS_TABLE + "' (id, descricao, bloqueado) values (1, 'Desenvolvimento', 1);");
-		execute("INSERT INTO '" + TYPE_CLASS_TABLE + "' (id, descricao, bloqueado) values (2, 'Corre��o', 1);");
-		execute("INSERT INTO '" + TYPE_CLASS_TABLE + "' (id, descricao, bloqueado) values (3, 'Configura��o', 1);");
+		execute("INSERT INTO '" + TYPE_CLASS_TABLE + "' (id, descricao, bloqueado) values (2, 'Correção', 1);");
+		execute("INSERT INTO '" + TYPE_CLASS_TABLE + "' (id, descricao, bloqueado) values (3, 'Configuração', 1);");
 		execute("INSERT INTO '" + TYPE_CLASS_TABLE + "' (id, descricao, bloqueado) values (4, 'Outros', 1);");
-		
+
 		execute("INSERT INTO '" + SYSTEM_TABLE + "' (id, nome) values (1, '" + Strings.SAGE + "');");
 		execute("INSERT INTO '" + SYSTEM_TABLE + "' (id, nome) values (2, '" + Strings.AGILIS + "');");
 		execute("INSERT INTO '" + SYSTEM_TABLE + "' (id, nome) values (3, '" + Strings.OTHER_SYS + "');");
 	}
 
 	/**
-	 * 
+	 *
 	 * @param newTask
 	 */
 	public void addTask(Task newTask) {
 		if (newTask != null) {
-			
+
 			 if (newTask.getId() == 0) {
 				try {
 					long maxId = (getMaxTaskId() + 1);
@@ -200,10 +178,10 @@ public class TaskSetDBDAOv1 extends DAO {
 			 }
 		}
 	}
-	
+
 	public void insertNewTask(Task newTask) {
 		if (newTask != null) {
-			
+
 				try {
 					long maxId = (getMaxTaskId() + 1);
 					execute("INSERT INTO '" + TASK_TABLE
@@ -293,12 +271,12 @@ public class TaskSetDBDAOv1 extends DAO {
 		try {
 			openConnection(true);
 			executeUpdate("UPDATE " + TASK_TABLE + " SET data_inicio = '"
-					+ Utils.date2String(updatedTask.getBegin(), "dd/MM/yyyy HH:mm:ss") + "'" 
-					+ ", data_fim = '"	+ Utils.date2String(updatedTask.getEnd(), "dd/MM/yyyy HH:mm:ss") + "'" 
-					+ ", class = '" + updatedTask.getTaskClass() + "'" 
+					+ Utils.date2String(updatedTask.getBegin(), "dd/MM/yyyy HH:mm:ss") + "'"
+					+ ", data_fim = '"	+ Utils.date2String(updatedTask.getEnd(), "dd/MM/yyyy HH:mm:ss") + "'"
+					+ ", class = '" + updatedTask.getTaskClass() + "'"
 					+ ", atividade = '" + updatedTask.getActivity() + "'"
 					+ ", sistema = '" + updatedTask.getSystem() + "'"
-					+ ", descricao = '" + updatedTask.getDescription() + "'" 
+					+ ", descricao = '" + updatedTask.getDescription() + "'"
 					+ ", delta = " + updatedTask.getDelta()
 					+ " WHERE ID = " + updatedTask.getId() + ";");
 		} catch (SQLException ex) {
@@ -434,32 +412,32 @@ public class TaskSetDBDAOv1 extends DAO {
 
 		return tasks;
 	}
-	
+
 	public String countTasksByActivity(String atividade) {
 		String count = "0 dias 0 horas 0 minutos";
 		long timeSpent = 0;
-		
+
 		try {
 			openConnection(true);
 			Result r = executeQuery("select delta from " + TASK_TABLE
 					+ " where lower(atividade) = '" + Utils.toLower(atividade) + "';");
-			
+
 			while (r.moveToNext()) {
 				timeSpent = r.getLong("delta") + timeSpent;
 			}
-			
+
 			long days = (long)(timeSpent / Utils._1_DAY_MILI);
 			if (days > 0) {
 				timeSpent -= (days * Utils._1_DAY_MILI);
 			}
-			
+
 			long hours = (long)(timeSpent / Utils._1_HOUR_MILI);
 			if (hours > 0) {
 				timeSpent -= (hours * Utils._1_HOUR_MILI);
 			}
-			
+
 			long minutes = (long)(timeSpent / Utils._1_MINUTE_MILI);
-			
+
 			count = Long.toString(days) + " dia(s) " + Long.toString(hours) + " hora(s) e " + Long.toString(minutes) + " minuto(s)";
 
 			r.close();
@@ -480,15 +458,15 @@ public class TaskSetDBDAOv1 extends DAO {
 
 		return count;
 	}
-	
+
 
 	public List<Task> getAllTasks() {
 		List<Task> tasks = new ArrayList<Task>();
-		
+
 		try {
 			openConnection(true);
 			Result r = executeQuery("select id,data_inicio,data_fim,class,atividade,sistema,descricao,delta from " + TASK_TABLE
-					+ " order by data_inicio ASC;");
+					+ " order by id ASC;");
 
 			if (!r.isEmpty()) {
 
@@ -544,7 +522,7 @@ public class TaskSetDBDAOv1 extends DAO {
 
 		return t;
 	}
-	
+
 	private Task getTask(Result r) {
 		Task t = new Task();
 		t.setId(r.getLong("id"));
@@ -555,13 +533,13 @@ public class TaskSetDBDAOv1 extends DAO {
 		t.setSystem(r.getString("sistema"));
 		t.setDescription(r.getString("descricao"));
 		t.setDelta(r.getLong("delta"));
-		
+
 		return t;
 	}
-	
+
 	////////////////// SISTEMA
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public Set<System> getAllCachedSystems() {
@@ -573,9 +551,9 @@ public class TaskSetDBDAOv1 extends DAO {
 		}
 		return cached;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public Set<System> getAllSystems() {
@@ -606,11 +584,11 @@ public class TaskSetDBDAOv1 extends DAO {
 
 		return systems;
 	}
-	
-	
+
+
 	 ///////////////////// TIPO CLASSIFICA��O
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public Set<TypeClassification> getAllCachedTypeClassification() {
@@ -622,9 +600,9 @@ public class TaskSetDBDAOv1 extends DAO {
 		}
 		return cached;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	public Set<TypeClassification> getAllTypeClassification() {
@@ -655,13 +633,21 @@ public class TaskSetDBDAOv1 extends DAO {
 
 		return types;
 	}
-	
-	
-	
-	@SuppressWarnings("deprecation")
-	public boolean isDBOldVersion() {
-		File file = new File(FilesUtils.DEV_DATABASE_FILE);
-		boolean isDBOldVersion = file.exists();
-		return isDBOldVersion;
+
+	/**
+	 *
+	 * @return
+	 */
+	public boolean deleteAllTasks() {
+		boolean allDelted = false;
+		try {
+			execute("DELETE FROM " + TASK_TABLE + ";");
+			allDelted = true;
+		} catch (Exception e) {
+			log.error("deleteAllTasks() " + e.getMessage());
+			e.printStackTrace();
+		}
+
+		return allDelted;
 	}
 }

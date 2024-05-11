@@ -25,14 +25,14 @@ public class FilesUtils {
 
 	private final static Logger log = LogManager.getLogger(FilesUtils.class);
 
-	public static final String DATA_DIR = "data";
+	public static final String DATA_FOLDER_NAME = "data";
 
 	public static final String JAR_FILE_NAME = "jPSP_v1.jar";
 
 	public static final String FILE_SEPARATOR = System.getProperty("file.separator");
 	public static final String USER_NAME = System.getProperty("user.name");
 
-	public static final String DATA_FOLDER = "." + FILE_SEPARATOR + DATA_DIR;
+	public static final String DATA_FOLDER = "." + FILE_SEPARATOR + DATA_FOLDER_NAME;
 	public static final String USER_CONFIG_DATA_FILE = DATA_FOLDER + FILE_SEPARATOR + USER_NAME + "_config.dat";
 	public static final String OLD_USER_CONFIG_DATA_FILE = DATA_FOLDER + FILE_SEPARATOR + USER_NAME + ".dat";
 
@@ -45,9 +45,10 @@ public class FilesUtils {
 	public static final String LOG_FILE = DEFAULT_OUTPUT_FOLDER + FILE_SEPARATOR + "jPSP.log";
 
 	public static final String DB_TXT_FILE_NAME = "jpsp_db.txt";
-	public static final String DB_TXT_FILE = DATA_DIR + FILE_SEPARATOR + DB_TXT_FILE_NAME;
+	public static final String DB_TXT_FILE = DATA_FOLDER_NAME + FILE_SEPARATOR + DB_TXT_FILE_NAME;
 
-	public static final String DEFAULT_ENCODING = "ISO8859_1";
+//	public static final String DEFAULT_ENCODING = "ISO8859_1";
+	public static final String DEFAULT_ENCODING = "UTF-8";
 	public static final String USER_HOME_DIR = System.getProperty("user.home");
 
 	public static final String BACKUP_EXT = ".dbkp";
@@ -121,27 +122,31 @@ public class FilesUtils {
 		return ok;
 	}
 
-	public static boolean backupDataBase() {
+	public static File backupDataBase() {
 		return backupDataBase(
 				String.valueOf(DATABASE_FILE_V1) + "_backup" + Utils.date2String(new Date(), "yyyyMMdd_HHmmss") + ".dbkp");
 	}
 
-	public static boolean backupDataBase(String fileName) {
-		boolean ok = false;
-
+	/**
+	 *
+	 * @param fileName
+	 * @return
+	 */
+	public static File backupDataBase(String fileName) {
+		File destFile = null;
 		File db = new File(DATABASE_FILE_V1);
 		if (db.exists()) {
-			File destFile = new File(fileName);
+			destFile = new File(fileName);
 			try {
 				FileUtils.copyFile(db, destFile);
-				ok = true;
 			} catch (IOException e) {
+				destFile = null;
 				log.error("backupDataBase() " + e.getMessage());
 				e.printStackTrace();
 			}
 		}
 
-		return ok;
+		return destFile;
 	}
 
 	public static void verifyDBBackup() {
@@ -248,6 +253,28 @@ public class FilesUtils {
         	log.error("readTxtFile(File toRead) "+ e.getMessage());
             e.printStackTrace();
         }
+
+        return lines;
+	}
+
+	public static List<String> readTxtFile(File toRead, String encoding) {
+
+		List<String> lines = new ArrayList<String>();
+
+		if (Utils.isEmpty(encoding)) {
+			return readTxtFile(toRead);
+		} else {
+
+	        try (BufferedReader br = new BufferedReader(new FileReader(toRead))) {
+	            String line;
+	            while ((line = br.readLine()) != null) {
+	                lines.add(new String(line.getBytes(), encoding) + "\n");
+	            }
+	        } catch (IOException e) {
+	        	log.error("readTxtFile(File toRead) "+ e.getMessage());
+	            e.printStackTrace();
+	        }
+		}
 
         return lines;
 	}

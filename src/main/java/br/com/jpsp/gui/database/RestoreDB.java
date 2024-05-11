@@ -20,7 +20,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import br.com.jpsp.gui.GuiSingleton;
-import br.com.jpsp.gui.Refreshable;
 import br.com.jpsp.gui.resources.Images;
 import br.com.jpsp.services.Strings;
 import br.com.jpsp.services.TaskSetServices;
@@ -39,14 +38,11 @@ public class RestoreDB extends JFrame {
 	private JButton cancel;
 	private JButton restore;
 
-	private final Refreshable refreshable;
-
 	private final static Logger log = LogManager.getLogger(RestoreDB.class);
 
-	public RestoreDB(Refreshable refreshable) {
+	public RestoreDB() {
 		super(Strings.RestoreDB.TITLE);
 		Gui.setConfiguredLookAndFeel(this);
-		this.refreshable = refreshable;
 	}
 
 	private File fileToRestore = null;
@@ -133,7 +129,7 @@ public class RestoreDB extends JFrame {
 		Gui.makeCompactGrid(fields, 2, 1, 10, 10, 10, 10);
 		main.add(fields, "Center");
 
-		JLabel warning = new JLabel(Strings.RestoreDB.ATENTION);
+		JLabel warning = new JLabel(Strings.RestoreDB.WARNING);
 		warning.setFont(Gui.getFont(1, Integer.valueOf(16)));
 		warning.setForeground(Color.RED);
 		main.add(warning, "North");
@@ -159,7 +155,6 @@ public class RestoreDB extends JFrame {
 		if (choice == 0) {
 			if (this.services.restoreDB(this.fileToRestore)) {
 				Gui.showMessage(this, Strings.RestoreDB.SUCESS);
-				refreshable.refresh();
 				closeWindow();
 			} else {
 				Gui.showErrorMessage(this, Strings.RestoreDB.ERROR);

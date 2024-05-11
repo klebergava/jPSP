@@ -32,7 +32,7 @@ public class Task implements Serializable, Comparable<Task> {
 
 	public void setBegin(Date begin) {
 		this.begin = begin;
-		this.dateAsString = Utils.date2String(this.begin, "dd/MM/yyyy");
+		this.dateAsString = Utils.date2String(this.begin, Utils.DD_MM_YYYY);
 	}
 
 	public Date getEnd() {
@@ -81,6 +81,12 @@ public class Task implements Serializable, Comparable<Task> {
 		return month;
 	}
 
+	@Override
+	public String toString() {
+		return "Task [id=" + id + ", begin=" + begin + ", end=" + end + ", activity=" + activity + ", description="
+				+ description + ", taskClass=" + taskClass + ", delta=" + delta + ", system=" + system + "]";
+	}
+
 	@SuppressWarnings("unused")
 	public int hashCode() {
 		int prime = 31;
@@ -92,13 +98,13 @@ public class Task implements Serializable, Comparable<Task> {
 	public boolean equals(Object that) {
 		if (this == that)
 			return true;
-		
+
 		if (that == null)
 			return false;
-		
+
 		if (getClass() != that.getClass())
 			return false;
-		
+
 		Task other = (Task) that;
 		if (this.activity == null) {
 			if (other.activity != null)
@@ -106,14 +112,14 @@ public class Task implements Serializable, Comparable<Task> {
 		} else if (!this.activity.equals(other.activity)) {
 			return false;
 		}
-		
+
 		if (this.dateAsString == null) {
 			if (other.dateAsString != null)
 				return false;
 		} else if (!this.dateAsString.equals(other.dateAsString)) {
 			return false;
 		}
-		
+
 		if (!this.taskClass.equals(other.taskClass))
 			return false;
 		return true;

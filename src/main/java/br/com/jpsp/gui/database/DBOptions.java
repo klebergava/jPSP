@@ -77,7 +77,7 @@ public class DBOptions extends JFrame implements WindowListener {
 		restore.setIcon(Images.DATABASE_RESTORE);
 		restore.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				GuiSingleton.showRestoreDB(DBOptions.this.refreshable);
+				GuiSingleton.showRestoreDB();
 			}
 		});
 		fields.add(restore);
@@ -92,6 +92,16 @@ public class DBOptions extends JFrame implements WindowListener {
 
 		fields.add(export);
 
+		JButton importDB = new JButton(Strings.DBOptions.IMPORT_DB);
+		importDB.setIcon(Images.DATABASE_IMPORT);
+		importDB.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				GuiSingleton.showImportDBFromTxt();
+			}
+		});
+
+		fields.add(importDB);
+
 		JPanel buttons = new JPanel(new BorderLayout());
 		this.cancel = new JButton(Strings.GUI.CANCEL);
 		this.cancel.addActionListener(new ActionListener() {
@@ -104,13 +114,14 @@ public class DBOptions extends JFrame implements WindowListener {
 
 		fields.add(buttons);
 
-		Gui.makeCompactGrid(fields, 4, 1, 10, 10, 10, 10);
+		Gui.makeCompactGrid(fields, 5, 1, 10, 10, 10, 10);
 		main.add(fields, "Center");
 
 		return main;
 	}
 
 	private void closeWindow() {
+		DBOptions.this.refreshable.refresh();
 		dispose();
 	}
 
@@ -136,7 +147,7 @@ public class DBOptions extends JFrame implements WindowListener {
 	}
 
 	private void doBackup() {
-		if (FilesUtils.backupDataBase()) {
+		if (FilesUtils.backupDataBase() != null) {
 			File dir = new File(FilesUtils.DATA_FOLDER);
 			try {
 				String path = dir.getCanonicalPath();

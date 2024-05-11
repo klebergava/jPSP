@@ -19,11 +19,11 @@ import br.com.jpsp.model.Task;
 import br.com.jpsp.services.Strings;
 
 /**
- * 
+ *
  */
 public class Utils {
 	private final static Logger log = LogManager.getLogger(Utils.class);
-	
+
 	public static final String DD_MM_YYYY = "dd/MM/yyyy";
 	public static final String DD_MM_YYYY_HH_mm_ss = "dd/MM/yyyy HH:mm:ss";
 	public static final String HH_mm_ss = "HH:mm:ss";
@@ -34,12 +34,12 @@ public class Utils {
 	public static final String DD_MM_YYYY_HH_mm = "dd/MM/yyyy HH:mm";
 	public static final double JAVA_VERSION = getVersion();
 	public static final double JAVA_MIN_VERSION = 1.8D;
-	
+
 	public static final long _1_HOUR_MILI = 3600000L;
 	public static final long _1_MINUTE_MILI = 60000L;
 	public static final long _1_SECOND_MILI = 1000L;
 	public static final long _1_DAY_MILI = _1_HOUR_MILI * 24;
-	
+
 	public static final String DEFAULT_SEPARATOR = ";";
 
 	public static int SCREEN_WIDTH = 0;
@@ -118,16 +118,16 @@ public class Utils {
 
 		long hours = (long)(delta / _1_HOUR_MILI);
 		delta -= (hours * _1_HOUR_MILI);
-		
+
 		long minutes = (long)(delta / _1_MINUTE_MILI);
 		delta -= (minutes * _1_MINUTE_MILI);
-		
+
 		long seconds = (long)(delta / _1_SECOND_MILI);
-		
-		time = String.format("%02d", new Object[] { Long.valueOf(hours) }) 
+
+		time = String.format("%02d", new Object[] { Long.valueOf(hours) })
 				+ ":" + String.format("%02d", new Object[] { Long.valueOf(minutes) })
 				+ ":" + String.format("%02d", new Object[] { Long.valueOf(seconds) });
-		
+
 		return time;
 		/*
 		String time = "";
@@ -156,14 +156,14 @@ public class Utils {
 
 		long hours = (long)(delta / _1_HOUR_MILI);
 		delta -= (hours * _1_HOUR_MILI);
-		
+
 		long minutes = (long)(delta / _1_MINUTE_MILI);
 		delta -= (minutes * _1_MINUTE_MILI);
-		
-		time = String.format("%02d", new Object[] { Long.valueOf(hours) }) 
+
+		time = String.format("%02d", new Object[] { Long.valueOf(hours) })
 				+ ":" + String.format("%02d", new Object[] { Long.valueOf(minutes) });
-		
-		return time;		
+
+		return time;
 		/*
 		String time = "";
 
@@ -186,13 +186,13 @@ public class Utils {
 
 		long hours = (long)(delta / _1_HOUR_MILI);
 		delta -= (hours * _1_HOUR_MILI);
-		
+
 		long minutes = (long)(delta / _1_MINUTE_MILI);
 		delta -= (minutes * _1_MINUTE_MILI);
-		
-		time = String.format("%02d", new Object[] { Long.valueOf(hours) }) 
+
+		time = String.format("%02d", new Object[] { Long.valueOf(hours) })
 				+ ":" + String.format("%02d", new Object[] { Long.valueOf(minutes) });
-		
+
 		return time;
 		/*
 		long seconds = delta / 1000L;
@@ -381,6 +381,15 @@ public class Utils {
 			}
 		}
 		return novaString;
+	}
+
+	/**
+	 *
+	 * @param strArray
+	 * @return
+	 */
+	public static boolean isEmpty(String[] strArray) {
+		return strArray == null || strArray.length == 0;
 	}
 
 }

@@ -8,6 +8,7 @@ import javax.swing.SwingUtilities;
 
 import br.com.jpsp.gui.database.DBOptions;
 import br.com.jpsp.gui.database.ExportDB2Txt;
+import br.com.jpsp.gui.database.ImportDBFromTxt;
 import br.com.jpsp.gui.database.RestoreDB;
 import br.com.jpsp.gui.forms.BatchUpdateTask;
 import br.com.jpsp.gui.forms.CRUDWindow;
@@ -37,6 +38,7 @@ public final class GuiSingleton {
 	static SplitTasks branch;
 	static MergeTasks merge;
 	static ExportDB2Txt exportDB2Txt;
+	static ImportDBFromTxt importDBFromTxt;
 	static RestoreDB restoreDB;
 	static DBOptions DBOptions;
 	static Splash splash;
@@ -187,9 +189,9 @@ public final class GuiSingleton {
 		}
 	}
 
-	public static void showRestoreDB(Refreshable refreshable) {
+	public static void showRestoreDB() {
 		if (restoreDB == null || !restoreDB.isVisible()) {
-			restoreDB = new RestoreDB(refreshable);
+			restoreDB = new RestoreDB();
 			restoreDB.createAndShow();
 		} else {
 			restoreDB.toFront();
@@ -217,25 +219,30 @@ public final class GuiSingleton {
 		}
 	}
 
-	public static void showLoadingScreen(String txt) {
+	public static LoadingScreen showLoadingScreen(String txt, boolean indeterminated, int start, int end) {
 		if (loading == null || !loading.isVisible()) {
-			SwingUtilities.invokeLater(() -> {
-				loading = new LoadingScreen(txt);
-				loading.createAndShow();
-			});
-
+			loading = new LoadingScreen(txt, indeterminated, start, end);
+			loading.createAndShow();
 		} else {
 			loading.toFront();
 		}
+
+		return loading;
 	}
 
 	public static void disposeLoadingScreen() {
 		if (loading != null && loading.isVisible()) {
-			SwingUtilities.invokeLater(() -> {
-				loading.dispose();
-				loading = null;
-			});
+			loading.dispose();
+			loading = null;
+		}
+	}
 
+	public static void showImportDBFromTxt() {
+		if (importDBFromTxt == null || !importDBFromTxt.isVisible()) {
+			importDBFromTxt = new ImportDBFromTxt();
+			importDBFromTxt.createAndShow();
+		} else {
+			importDBFromTxt.toFront();
 		}
 	}
 

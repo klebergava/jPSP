@@ -46,7 +46,7 @@ public class ReportWindow extends JFrame {
 	private static final long serialVersionUID = 4353742431227760939L;
 	private final TaskSetServices taskServices = TaskSetServices.instance;
 	private final ReportServices reportServices = ReportServices.instance;
-	
+
 	private final ConfigServices configServices = ConfigServices.instance;
 
 	private JComboBox<String> months;
@@ -95,7 +95,7 @@ public class ReportWindow extends JFrame {
 
 		this.years = new JComboBox<Integer>();
 		Gui.loadYearsComboUntilCurrent(2000, this.years);
-		
+
 		this.orderBy = new JComboBox<OrderByDirection>();
 		this.orderBy.addItem(OrderByDirection.ASC);
 		this.orderBy.addItem(OrderByDirection.DESC);
@@ -139,7 +139,7 @@ public class ReportWindow extends JFrame {
 
 		JPanel htmlSettings = new JPanel(new SpringLayout());
 		htmlSettings.setBorder(new EmptyBorder(5, 5, 5, 5));
-		
+
 		htmlSettings.add(this.openInDefaultBrowser);
 		htmlSettings.add(this.includePieChartType);
 		htmlSettings.add(this.includePieChartActivity);
@@ -153,14 +153,14 @@ public class ReportWindow extends JFrame {
 		this.radios.add(this.completeGrouped);
 		htmlSettings.add(radioButtons);
 
-		
+
 		JPanel chartButtons = new JPanel(new FlowLayout());
 		chartButtons.add(this.pieChartByType);
 		chartButtons.add(this.pieChartByActivity);
 		htmlSettings.add(chartButtons);
 
 		htmlSettings.setBorder(Gui.getTitledBorder(Strings.Report.HTML_OPTIONS, Gui.getFont(1, Integer.valueOf(13)), Color.BLUE));
-		
+
 		Gui.makeCompactGrid(htmlSettings, 5, 1, 0, 0, 5, 5);
 
 		JPanel options = new JPanel(new BorderLayout());
@@ -168,21 +168,21 @@ public class ReportWindow extends JFrame {
 
 		JPanel dateParams = new JPanel(new SpringLayout());
 		dateParams.setBorder(new EmptyBorder(5, 5, 5, 5));
-		
+
 		dateParams.add(new JLabel(Strings.Report.MONTH + ": "));
 		dateParams.add(this.months);
-		
+
 		dateParams.add(new JLabel(Strings.Report.YEAR + ": "));
 		dateParams.add(this.years);
-		
+
 		dateParams.add(new JLabel(Strings.Report.ORDER_BY + ": "));
 		dateParams.add(this.orderBy);
 		Gui.makeCompactGrid(dateParams, 1, 6, 5, 5, 5, 5);
-		
+
 		JPanel dateParamsPanel = new JPanel(new BorderLayout());
 		dateParamsPanel.setBorder(Gui.getTitledBorder(Strings.Report.DATE_PARAMS, Gui.getFont(1, Integer.valueOf(13)), Color.BLUE));
 		dateParamsPanel.add(dateParams, "Center");
-		
+
 		options.add(dateParamsPanel, "Center");
 
 		JPanel info = new JPanel(new BorderLayout());
@@ -203,7 +203,7 @@ public class ReportWindow extends JFrame {
 		JPanel buttonsPanel = new JPanel(new BorderLayout());
 		buttonsPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 		buttonsPanel.add(exit, "West");
-		
+
 		info.add(buttonsPanel, "South");
 
 		JPanel reportButtons = new JPanel(new SpringLayout());
@@ -211,7 +211,7 @@ public class ReportWindow extends JFrame {
 		reportButtons.add(this.generate);
 		reportButtons.add(this.generateExcel);
 		Gui.makeCompactGrid(reportButtons, 2, 1, 10, 10, 10, 10);
-		
+
 		main.add(options, "Center");
 		main.add(reportButtons, "East");
 		main.add(info, "South");
@@ -219,9 +219,12 @@ public class ReportWindow extends JFrame {
 		return main;
 	}
 
+	/**
+	 *
+	 */
 	private void generateReport() {
-		GuiSingleton.showLoadingScreen(Strings.LOADING_GENERATE_REPORT);
-		
+		GuiSingleton.showLoadingScreen(Strings.LOADING_GENERATE_REPORT, true, 0, 0);
+
 		String monthTxt = this.months.getSelectedItem().toString();
 		int month = this.months.getSelectedIndex();
 		int year = Integer.parseInt(this.years.getSelectedItem().toString());
@@ -248,7 +251,7 @@ public class ReportWindow extends JFrame {
 			}
 
 			GuiSingleton.disposeLoadingScreen();
-			
+
 			if (html.exists()) {
 				try {
 					this.filePath.setText(html.getCanonicalPath());
@@ -263,12 +266,12 @@ public class ReportWindow extends JFrame {
 				Gui.showErrorMessage(this, Strings.Report.ERROR);
 			}
 		});
-		
-		
+
+
 	}
 
 	private void generateReportExcel() {
-		
+
 		String monthTxt = this.months.getSelectedItem().toString();
 		int month = this.months.getSelectedIndex();
 		int year = Integer.parseInt(this.years.getSelectedItem().toString());
@@ -289,7 +292,7 @@ public class ReportWindow extends JFrame {
 		int returnVal = fc.showOpenDialog(this);
 
 		if (returnVal == 0) {
-			GuiSingleton.showLoadingScreen(Strings.LOADING_GENERATE_REPORT);
+			GuiSingleton.showLoadingScreen(Strings.LOADING_GENERATE_REPORT, true, 0, 0);
 			File dir = fc.getSelectedFile();
 			try {
 				outputFolder = dir.getCanonicalPath();
@@ -300,17 +303,17 @@ public class ReportWindow extends JFrame {
 		} else {
 			return;
 		}
-		
+
 		final String outputFile = outputFolder;
-		
+
 		SwingUtilities.invokeLater(() -> {
-			
+
 			File excel = this.reportServices.saveCompleteGroupedReportExcel(monthTxt, month, year, wrappedType,
 					this.includePieChartType.isSelected(), wrappedActivity, this.includePieChartActivity.isSelected(),
 					this.openInDefaultBrowser.isSelected(), outputFile, (OrderByDirection)this.orderBy.getSelectedItem());
 
 			GuiSingleton.disposeLoadingScreen();
-			
+
 			if (excel.exists()) {
 				try {
 					this.filePath.setText(excel.getCanonicalPath());
@@ -321,7 +324,7 @@ public class ReportWindow extends JFrame {
 			} else {
 				Gui.showErrorMessage(ReportWindow.this, Strings.Report.ERROR);
 			}
-			
+
 		});
 
 	}
@@ -369,7 +372,7 @@ public class ReportWindow extends JFrame {
 
 		String monthTxt = this.months.getSelectedItem().toString();
 		int year = Integer.parseInt(this.years.getSelectedItem().toString());
-		
+
 		PieChartActivity pie = new PieChartActivity(wrapped, String.valueOf(monthTxt) + "/" + year);
 		frame.getContentPane().setLayout(new BorderLayout());
 

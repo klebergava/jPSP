@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -27,33 +28,31 @@ import br.com.jpsp.utils.Gui;
 import br.com.jpsp.utils.Utils;
 
 /**
- * 
+ *
  */
 public class ExportDB2Txt extends JFrame {
 	private static final long serialVersionUID = -3218307819517596211L;
+	private JCheckBox includeHeaders;
 	private JTextField separator;
 	private JTextField targetDir;
 	private final TaskSetServices services = TaskSetServices.instance;
 	private JTextField fileName;
 	private JTextField encoding;
 	private final JFileChooser fc = new JFileChooser();
-	
+	private JButton cancel;
+	private JButton exportDB;
+	private File directoryToExport;
 	private final static Logger log = LogManager.getLogger(ExportDB2Txt.class);
 
-	private JButton cancel;
-
 	public ExportDB2Txt() {
-		super(Strings.DBOptions.EXPORT_TITLE);
+		super(Strings.DBOptions.IMPORT_TITLE);
 		Gui.setConfiguredLookAndFeel(this);
 	}
-
-	private JButton save;
-	private File directoryToExport;
 
 	public void createAndShow() {
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-		setIconImage(Images.DATABASE_EXPORT_IMG);
+		setIconImage(Images.DATABASE_IMPORT_IMG);
 
 		getContentPane().setLayout(new BorderLayout());
 		getContentPane().add(mountMain(), "Center");
@@ -72,27 +71,33 @@ public class ExportDB2Txt extends JFrame {
 		main.setBorder(Gui.getLinedBorder(Strings.DBOptions.EXPORT_TITLE,
 				Gui.getFont(1, Integer.valueOf(16)), Color.WHITE));
 
-		this.fc.setFileSelectionMode(1);
+		this.fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		this.fc.setMultiSelectionEnabled(false);
 
 		JPanel fields = new JPanel(new SpringLayout());
 
 		JPanel inputs = new JPanel(new SpringLayout());
+
+		this.includeHeaders = new JCheckBox();
+		this.includeHeaders.setSelected(true);
+		inputs.add(new JLabel(Strings.DBOptions.INCLUDE_HEADERS));
+		inputs.add(this.includeHeaders);
 
 		this.separator = new JTextField(Utils.DEFAULT_SEPARATOR, 5);
 		this.separator.setSize(5, this.separator.getHeight());
 		inputs.add(new JLabel(Strings.DBOptions.SEPARATOR + ": "));
 		inputs.add(this.separator);
 
-		this.encoding = new JTextField("ISO8859_1", 5);
+		this.encoding = new JTextField(FilesUtils.DEFAULT_ENCODING, 5);
 		this.encoding.setSize(5, this.separator.getHeight());
 		inputs.add(new JLabel(Strings.DBOptions.ENCODING + ": "));
 		inputs.add(this.encoding);
 
-		this.fileName = new JTextField(Strings.DBOptions.DEFAULT_FILE_NAME, 30);
+		this.fileName = new JTextField(Strings.DBOptions.DEFAULT_EXPORT_FILE_NAME, 30);
 		inputs.add(new JLabel(Strings.DBOptions.FILE_NAME + ": "));
 		inputs.add(this.fileName);
 
-		this.directoryToExport = new File("data");
+		this.directoryToExport = new File(FilesUtils.DATA_FOLDER_NAME);
 
 		JButton chooseFile = new JButton(Strings.DBOptions.CHOOSE_DIR);
 		chooseFile.addActionListener(new ActionListener() {
@@ -110,7 +115,7 @@ public class ExportDB2Txt extends JFrame {
 		this.targetDir.setEditable(false);
 		inputs.add(this.targetDir);
 
-		Gui.makeCompactGrid(inputs, 4, 2, 5, 5, 5, 5);
+		Gui.makeCompactGrid(inputs, 5, 2, 5, 5, 5, 5);
 
 		fields.add(inputs);
 
@@ -122,15 +127,15 @@ public class ExportDB2Txt extends JFrame {
 			}
 		});
 
-		this.save = new JButton(Strings.DBOptions.EXPORT);
-		this.save.addActionListener(new ActionListener() {
+		this.exportDB = new JButton(Strings.DBOptions.EXPORT);
+		this.exportDB.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				ExportDB2Txt.this.export();
+				ExportDB2Txt.this.exportToTxt();
 			}
 		});
 
 		buttons.add(this.cancel, "West");
-		buttons.add(this.save, "East");
+		buttons.add(this.exportDB, "East");
 
 		fields.add(buttons);
 
@@ -144,7 +149,7 @@ public class ExportDB2Txt extends JFrame {
 		dispose();
 	}
 
-	private void export() {
+	private void exportToTxt() {
 		String s = this.separator.getText();
 		if (Utils.isEmpty(s)) {
 			s = Utils.DEFAULT_SEPARATOR;
@@ -153,7 +158,7 @@ public class ExportDB2Txt extends JFrame {
 
 		String fn = this.fileName.getText();
 		if (Utils.isEmpty(fn)) {
-			fn = Strings.DBOptions.DEFAULT_FILE_NAME;
+			fn = Strings.DBOptions.DEFAULT_EXPORT_FILE_NAME;
 			this.fileName.setText(fn);
 		}
 
@@ -167,11 +172,11 @@ public class ExportDB2Txt extends JFrame {
 			File txtFile = new File(
 					String.valueOf(this.directoryToExport.getCanonicalPath()) + FilesUtils.FILE_SEPARATOR + fn);
 
-			if (this.services.exportDB2Txt(txtFile, s, enc)) {
+			if (this.services.exportDB2Txt(txtFile, s, enc, this.includeHeaders.isSelected())) {
 				try {
 					String path = txtFile.getCanonicalPath();
 					path = path.replaceAll("[\\\\]", "/");
-					
+
 					String message = Strings.DBOptions.EXPORT_SUCCESS.replaceAll("&1", path);
 					Gui.showMessage(this, message);
 					closeWindow();

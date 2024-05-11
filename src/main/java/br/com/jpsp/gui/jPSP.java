@@ -42,6 +42,7 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SpringLayout;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -174,8 +175,6 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 		GuiSingleton.closeSplash();
 
 		startUpdateDateThread();
-
-		this.services.migrateDB(this);
 
 		log.trace("jPSP app started");
 	}
@@ -1209,7 +1208,19 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 		return values;
 	}
 
+	/**
+	 *
+	 */
+	@Override
 	public void refresh() {
+		GuiSingleton.showLoadingScreen(Strings.DBOptions.DATABASE_RELOADING, true, 0, 0);
+		SwingUtilities.invokeLater(() -> {
+			reloadAll();
+			GuiSingleton.disposeLoadingScreen();
+		});
+	}
+
+	private synchronized void reloadAll() {
 		updateTableByDate(getSelectedDay().intValue(), this.months.getSelectedIndex(), getYear());
 		loadConfigurationFromFile();
 
