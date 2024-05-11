@@ -36,13 +36,11 @@ public class FilesUtils {
 	public static final String USER_CONFIG_DATA_FILE = DATA_FOLDER + FILE_SEPARATOR + USER_NAME + "_config.dat";
 	public static final String OLD_USER_CONFIG_DATA_FILE = DATA_FOLDER + FILE_SEPARATOR + USER_NAME + ".dat";
 
-	@Deprecated
-	public static final String DEV_DATABASE_FILE = DATA_FOLDER + FILE_SEPARATOR + "jpsp.db";
 	public static final String DATABASE_FILE_V1 = DATA_FOLDER + FILE_SEPARATOR + "jpsp_v1.db";
 
-	public static final String OUTPUT_DIR = "output";
-	public static final String DEFAULT_OUTPUT_FOLDER = "." + FILE_SEPARATOR + OUTPUT_DIR;
-	public static final String LOG_FILE = DEFAULT_OUTPUT_FOLDER + FILE_SEPARATOR + "jPSP.log";
+	public static final String OUTPUT_FOLDER_NAME = "output";
+	public static final String OUTPUT_FOLDER = "." + FILE_SEPARATOR + OUTPUT_FOLDER_NAME;
+	public static final String LOG_FILE = OUTPUT_FOLDER + FILE_SEPARATOR + "jPSP.log";
 
 	public static final String DB_TXT_FILE_NAME = "jpsp_db.txt";
 	public static final String DB_TXT_FILE = DATA_FOLDER_NAME + FILE_SEPARATOR + DB_TXT_FILE_NAME;
@@ -56,6 +54,11 @@ public class FilesUtils {
 	public static final String GPL3_LICENCE_FILE = "license.html";
 	public static final String README_FILE = "readme.html";
 	public static final String ABOUT_FILE = "about.html";
+
+	public static final String REPORT_FILE_NAME = "report.html";
+	public static final String PIE_CHART_TYPE_FILE_NAME = "piecharttype.png";
+
+	public static final String PIE_CHART_ACTIVITY_FILE_NAME = "piechartactivity.png";
 
 	public static boolean fileExists(String filePath) {
 		boolean exists = false;
@@ -75,7 +78,7 @@ public class FilesUtils {
 		}
 
 		boolean outputFolderOK = false;
-		File outputFolder = new File(DEFAULT_OUTPUT_FOLDER);
+		File outputFolder = new File(OUTPUT_FOLDER);
 		if (outputFolder.exists()) {
 			outputFolderOK = true;
 		} else {

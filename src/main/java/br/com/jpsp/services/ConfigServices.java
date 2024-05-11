@@ -51,13 +51,6 @@ public class ConfigServices {
 		defaultConfig.setName(FilesUtils.USER_NAME);
 		defaultConfig.setAutoStart(0);
 		
-		File outputFolder = new File(FilesUtils.DEFAULT_OUTPUT_FOLDER);
-		try {
-			defaultConfig.setOutputFolder(outputFolder.getCanonicalPath());
-		} catch (IOException e) {
-			log.error("createEmptyFile() " + e.getMessage());
-			e.printStackTrace();
-		}
 		this.updateConfiguration(defaultConfig);
 	}
 
@@ -98,6 +91,11 @@ public class ConfigServices {
 		
         try {
         	File datFile = new File(FilesUtils.USER_CONFIG_DATA_FILE);
+			if (!datFile.exists()) {
+				if (!datFile.createNewFile()) {
+					throw new IOException("Could not create file " + datFile.getAbsolutePath());
+				}
+			}
             FileOutputStream fileOut = new FileOutputStream(datFile);
             ObjectOutputStream out = new ObjectOutputStream(fileOut);
             out.writeObject(config);
@@ -107,9 +105,9 @@ public class ConfigServices {
             BUFFER.put(KEY, config);
             
             updated = true;
-        } catch (IOException i) {
-        	log.error("updateConfiguration() " + i.getMessage());
-            i.printStackTrace();
+        } catch (IOException ex) {
+        	log.error("updateConfiguration() " + ex.getMessage());
+            ex.printStackTrace();
         }
 		
 		return updated;

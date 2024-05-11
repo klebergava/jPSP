@@ -35,7 +35,7 @@ public class About extends JFrame {
 
     // Criando o painel principal
     private final JTabbedPane tabbedPane = new JTabbedPane();
-	private Font textAreaFont = new Font("Arial Unicode MS", Font.PLAIN, 14);
+	private final Font textAreaFont = new Font("Arial Unicode MS", Font.PLAIN, 14);
 
 	public About() {
 		super(Strings.ABOUT);
@@ -78,12 +78,12 @@ public class About extends JFrame {
 	 */
 	private void fillAppInfoContent() throws IOException {
 		appInfo.setEditable(false);
-		StringBuilder content = new StringBuilder("");
+		StringBuilder content = new StringBuilder();
 
 		InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(FilesUtils.ABOUT_FILE);
 		List<String> fileLines = FilesUtils.readTxtFile(is);
 		fileLines.forEach(line -> {
-			content.append(line + "\n");
+			content.append(line).append("\n");
 		});
 
 		String html = content.toString();
@@ -101,9 +101,9 @@ public class About extends JFrame {
 		html = html.replaceAll("[$][{]javaVersion[}]", System.getProperty("java.version"));
 
 		List<String> jars = FilesUtils.readAppJARS();
-		StringBuilder jarFiles = new StringBuilder("");
+		StringBuilder jarFiles = new StringBuilder();
 		for (String jar : jars) {
-			jarFiles.append("<li>" + jar + "</li>\n");
+			jarFiles.append("<li>").append(jar).append("</li>\n");
 		}
 		html = html.replaceAll("[$][{]jarFiles[}]", jarFiles.toString());
 
@@ -120,9 +120,9 @@ public class About extends JFrame {
 		InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(FilesUtils.GPL3_LICENCE_FILE);
 		List<String> fileLines = FilesUtils.readTxtFile(is);
 
-		StringBuilder sb = new StringBuilder("");
+		StringBuilder sb = new StringBuilder();
 		fileLines.forEach(line -> {
-			sb.append(line + "\n");
+			sb.append(line).append("\n");
 		});
 
 		license.setText(sb.toString());
@@ -136,9 +136,9 @@ public class About extends JFrame {
 		readMe.setEditable(false);
 		InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(FilesUtils.README_FILE);
 		List<String> fileLines = FilesUtils.readTxtFile(is);
-		StringBuilder sb = new StringBuilder("");
+		StringBuilder sb = new StringBuilder();
 		fileLines.forEach(line -> {
-			sb.append(line + "\n");
+			sb.append(line).append("\n");
 		});
 
 		readMe.setText(sb.toString());
@@ -154,9 +154,9 @@ public class About extends JFrame {
 		List<String> fileLines = FilesUtils.readLogFile();
 		logs.setFont(textAreaFont);
 
-		StringBuilder sb = new StringBuilder("");
+		StringBuilder sb = new StringBuilder();
 		fileLines.forEach(line -> {
-			sb.append(line + "\n");
+			sb.append(line).append("\n");
 		});
 
 		logs.setText(sb.toString());

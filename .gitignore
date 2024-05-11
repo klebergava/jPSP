@@ -4,3 +4,6 @@ data/
 .classpath
 jar/
 .settings/
+.idea/
+.project
+jPSP.iml

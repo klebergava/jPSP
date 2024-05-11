@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -27,7 +28,6 @@ import javax.swing.border.EmptyBorder;
 
 import br.com.jpsp.gui.GuiSingleton;
 import br.com.jpsp.gui.resources.Images;
-import br.com.jpsp.model.Configuration;
 import br.com.jpsp.model.Task;
 import br.com.jpsp.model.TaskActivityWrapper;
 import br.com.jpsp.model.TaskTypeWrapper;
@@ -225,9 +225,9 @@ public class ReportWindow extends JFrame {
 	private void generateReport() {
 		GuiSingleton.showLoadingScreen(Strings.LOADING_GENERATE_REPORT, true, 0, 0);
 
-		String monthTxt = this.months.getSelectedItem().toString();
+		String monthTxt = Objects.requireNonNull(this.months.getSelectedItem()).toString();
 		int month = this.months.getSelectedIndex();
-		int year = Integer.parseInt(this.years.getSelectedItem().toString());
+		int year = Integer.parseInt(Objects.requireNonNull(this.years.getSelectedItem()).toString());
 
 		SwingUtilities.invokeLater( () -> {
 			File html = null;
@@ -272,22 +272,18 @@ public class ReportWindow extends JFrame {
 
 	private void generateReportExcel() {
 
-		String monthTxt = this.months.getSelectedItem().toString();
+		String monthTxt = Objects.requireNonNull(this.months.getSelectedItem()).toString();
 		int month = this.months.getSelectedIndex();
-		int year = Integer.parseInt(this.years.getSelectedItem().toString());
+		int year = Integer.parseInt(Objects.requireNonNull(this.years.getSelectedItem()).toString());
 
 		Map<String, TaskTypeWrapper> wrappedType = getWrappedTaskTasksTypes();
 		Map<String, TaskActivityWrapper> wrappedActivity = getWrappedTaskTasksActivities();
 
-		String outputFolder = FilesUtils.DEFAULT_OUTPUT_FOLDER;
-		Configuration config = configServices.getConfiguration();
-		if (config != null && !Utils.isEmpty(config.getOutputFolder())) {
-			outputFolder = config.getOutputFolder();
-		}
+		String outputFolder = FilesUtils.OUTPUT_FOLDER;
 
 		JFileChooser fc = new JFileChooser(
 				new File(String.valueOf(FilesUtils.USER_HOME_DIR) + FilesUtils.FILE_SEPARATOR + "Desktop"));
-		fc.setFileSelectionMode(1);
+		fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
 		int returnVal = fc.showOpenDialog(this);
 
@@ -310,7 +306,7 @@ public class ReportWindow extends JFrame {
 
 			File excel = this.reportServices.saveCompleteGroupedReportExcel(monthTxt, month, year, wrappedType,
 					this.includePieChartType.isSelected(), wrappedActivity, this.includePieChartActivity.isSelected(),
-					this.openInDefaultBrowser.isSelected(), outputFile, (OrderByDirection)this.orderBy.getSelectedItem());
+					outputFile, (OrderByDirection)this.orderBy.getSelectedItem());
 
 			GuiSingleton.disposeLoadingScreen();
 
@@ -331,20 +327,18 @@ public class ReportWindow extends JFrame {
 
 	private Map<String, TaskTypeWrapper> getWrappedTaskTasksTypes() {
 		int month = this.months.getSelectedIndex();
-		int year = Integer.parseInt(this.years.getSelectedItem().toString());
+		int year = Integer.parseInt(Objects.requireNonNull(this.years.getSelectedItem()).toString());
 		List<Task> tasks = this.taskServices.getTasksOfPeriod(month, year);
-		Map<String, TaskTypeWrapper> wrapped = this.taskServices.wrapType(tasks);
 
-		return wrapped;
+        return this.taskServices.wrapType(tasks);
 	}
 
 	private Map<String, TaskActivityWrapper> getWrappedTaskTasksActivities() {
 		int month = this.months.getSelectedIndex();
-		int year = Integer.parseInt(this.years.getSelectedItem().toString());
+		int year = Integer.parseInt(Objects.requireNonNull(this.years.getSelectedItem()).toString());
 		List<Task> tasks = this.taskServices.getTasksOfPeriod(month, year);
-		Map<String, TaskActivityWrapper> wrapped = this.taskServices.wrapActivity(tasks);
 
-		return wrapped;
+        return this.taskServices.wrapActivity(tasks);
 	}
 
 	private void showPieChartType() {
@@ -353,8 +347,8 @@ public class ReportWindow extends JFrame {
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.setIconImage(Images.PIE_CHART_IMG);
 
-		String monthTxt = this.months.getSelectedItem().toString();
-		int year = Integer.parseInt(this.years.getSelectedItem().toString());
+		String monthTxt = Objects.requireNonNull(this.months.getSelectedItem()).toString();
+		int year = Integer.parseInt(Objects.requireNonNull(this.years.getSelectedItem()).toString());
 
 		PieChartType pie = new PieChartType(wrapped, String.valueOf(monthTxt) + "/" + year);
 		frame.getContentPane().setLayout(new BorderLayout());
@@ -370,8 +364,8 @@ public class ReportWindow extends JFrame {
 		JFrame frame = new JFrame(Strings.Report.TASK_CHART);
 		frame.setDefaultCloseOperation(2);
 
-		String monthTxt = this.months.getSelectedItem().toString();
-		int year = Integer.parseInt(this.years.getSelectedItem().toString());
+		String monthTxt = Objects.requireNonNull(this.months.getSelectedItem()).toString();
+		int year = Integer.parseInt(Objects.requireNonNull(this.years.getSelectedItem()).toString());
 
 		PieChartActivity pie = new PieChartActivity(wrapped, String.valueOf(monthTxt) + "/" + year);
 		frame.getContentPane().setLayout(new BorderLayout());

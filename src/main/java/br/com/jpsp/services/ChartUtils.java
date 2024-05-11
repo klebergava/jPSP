@@ -18,7 +18,7 @@ public class ChartUtils {
 		panel.printAll(g);
 		g.dispose();
 		try { 
-		    ImageIO.write(image, "png", new File(FilesUtils.DEFAULT_OUTPUT_FOLDER + FilesUtils.FILE_SEPARATOR + "arquivo.png")); 
+		    ImageIO.write(image, "png", new File(FilesUtils.OUTPUT_FOLDER + FilesUtils.FILE_SEPARATOR + "arquivo.png"));
 		} catch (IOException e) {
 		    e.printStackTrace();
 		}

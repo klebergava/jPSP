@@ -1,6 +1,18 @@
 package br.com.jpsp.services;
 
-import java.awt.Desktop;
+import br.com.jpsp.gui.SimpleBrowser;
+import br.com.jpsp.model.*;
+import br.com.jpsp.utils.FilesUtils;
+import br.com.jpsp.utils.Utils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.jfree.chart.ChartUtils;
+
+import java.awt.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -10,42 +22,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.BorderStyle;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.FillPatternType;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.HorizontalAlignment;
-import org.apache.poi.ss.usermodel.IndexedColors;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.VerticalAlignment;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.util.CellRangeAddress;
-import org.jfree.chart.ChartUtils;
-
-import br.com.jpsp.gui.SimpleBrowser;
-import br.com.jpsp.model.Configuration;
-import br.com.jpsp.model.Task;
-import br.com.jpsp.model.TaskActivityWrapper;
-import br.com.jpsp.model.TaskDateWrapper;
-import br.com.jpsp.model.TaskTypeWrapper;
-import br.com.jpsp.utils.FilesUtils;
-import br.com.jpsp.utils.Utils;
-
 public class ReportServices {
+
+	private final static Logger log = LogManager.getLogger(ReportServices.class);
+
 	public static final ReportServices instance = new ReportServices();
 
 	private static final TaskSetServices tasksServices = TaskSetServices.instance;
 	private static final ConfigServices configServices = ConfigServices.instance;
-
-
-	private String getOutputFolder() {
-		Configuration config = configServices.getConfiguration();
-
-		return config.getOutputFolder();
-	}
 
 	/**
 	 *
@@ -63,17 +47,21 @@ public class ReportServices {
 			boolean includePieChartActivity, boolean openInDefaultBrowser) {
 
 
-		File html = new File(String.valueOf(getOutputFolder()) + FilesUtils.FILE_SEPARATOR + "report.html");
+		File html = new File(String.valueOf(FilesUtils.USER_CONFIG_DATA_FILE) + FilesUtils.FILE_SEPARATOR + FilesUtils.REPORT_FILE_NAME);
 		if (html.exists()) {
-			html.delete();
+			if (!html.delete()) {
+				log.info("Could not delete file " + html.getAbsolutePath());
+			}
 		}
 
 		try {
 			if (html.createNewFile()) {
-				StringBuilder content = new StringBuilder("");
+				StringBuilder content = new StringBuilder();
 
-				content.append("<!DOCTYPE html>\n<html><head><title>Relat&oacute;rio de atividades de " + monthTxt
-						+ " de " + year + " (Resumido)</title>");
+				content.append("<!DOCTYPE html>\n<html><head><title>Relat&oacute;rio de atividades de ")
+						.append(monthTxt).append(" de ")
+						.append(year)
+						.append(" (Resumido)</title>");
 
 				addCSS(content);
 
@@ -87,25 +75,29 @@ public class ReportServices {
 					content.append("<table border='1' width='800'>\n\t<tbody>\n");
 
 					content.append("\t\t<tr>\n");
-					content.append("\t\t\t<th colspan='2' bgcolor='#99D9EA'>" + key + "</th>\n");
+					content.append("\t\t\t<th colspan='2' bgcolor='#99D9EA'>")
+							.append(key)
+							.append("</th>\n");
 					content.append("\t\t</tr>\n");
 
 					if (wrapper != null) {
 						Map<String, Long> times = wrapper.getTaskTimes();
-						Long total = Long.valueOf(0L);
+						Long total = 0L;
 						for (String k : times.keySet()) {
 							Long delta = times.get(k);
-							total = Long.valueOf(total.longValue() + delta.longValue());
+							total = total + delta;
 							content.append("\t\t<tr>\n");
-							content.append("\t\t\t<td width='700'>" + k + "</td>\n");
-							content.append(
-									"\t\t\t<td width='100'>" + Utils.getTimeByDelta(delta.longValue()) + "</td>\n");
+							content.append("\t\t\t<td width='700'>")
+									.append(k)
+									.append("</td>\n");
+							content.append("\t\t\t<td width='100'>")
+									.append(Utils.getTimeByDelta(delta)).append("</td>\n");
 							content.append("\t\t</tr>\n");
 						}
 
 						content.append("\t\t<tr>\n");
 						content.append("\t\t\t<td width='700'><b>TOTAL</b></td>\n");
-						content.append("\t\t\t<td width='100'>" + Utils.getTimeByDelta(total.longValue()) + "</td>\n");
+						content.append("\t\t\t<td width='100'>" + Utils.getTimeByDelta(total) + "</td>\n");
 						content.append("\t\t</tr>\n");
 					}
 					content.append("\t</tbody>\n</table>");
@@ -119,10 +111,12 @@ public class ReportServices {
 				if (includePieChartType) {
 					PieChartType pie = new PieChartType(wrappedType, String.valueOf(monthTxt) + "/" + year);
 					File png = new File(
-							String.valueOf(getOutputFolder()) + FilesUtils.FILE_SEPARATOR + "piecharttype.png");
+							String.valueOf(getOutputFolder()) + FilesUtils.FILE_SEPARATOR + FilesUtils.PIE_CHART_TYPE_FILE_NAME);
 					ChartUtils.saveChartAsPNG(png, pie.getChart(), 1024, 768);
 					String path = "file:///" + png.getCanonicalPath().replace('\\', '/');
-					content.append("<img alt='Pie chart types' src='" + path + "' width='1024' height='768' />\n");
+					content.append("<img alt='Pie chart types' src='")
+							.append(path)
+							.append("' width='1024' height='768' />\n");
 					content.append("<br />\n");
 				}
 
@@ -130,7 +124,7 @@ public class ReportServices {
 					PieChartActivity pie = new PieChartActivity(wrappedActivities,
 							String.valueOf(monthTxt) + "/" + year);
 					File png = new File(String.valueOf(getOutputFolder()) + FilesUtils.FILE_SEPARATOR
-							+ "piechartactivity.png");
+							+ FilesUtils.PIE_CHART_ACTIVITY_FILE_NAME);
 					ChartUtils.saveChartAsPNG(png, pie.getChart(), 1024, 768);
 					String path = "file:///" + png.getCanonicalPath().replace('\\', '/');
 					content.append("<img alt='Pie chart activities' src='" + path + "' width='1024' height='768' />\n");
@@ -148,6 +142,7 @@ public class ReportServices {
 				}
 			}
 		} catch (IOException e) {
+			log.info("Could not generate report (saveSummarizedReport): " + e.getMessage());
 			e.printStackTrace();
 		}
 
@@ -180,8 +175,10 @@ public class ReportServices {
 				String fullPath = "file:///" + html.getCanonicalPath().replace('\\', '/');
 				Desktop.getDesktop().browse(new URI(fullPath));
 			} catch (IOException e) {
+				log.info("Could not open default OS browser: " + e.getMessage());
 				e.printStackTrace();
 			} catch (URISyntaxException e) {
+				log.info("Wrong URL: " + e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -200,9 +197,11 @@ public class ReportServices {
 			boolean includePieChartType, Map<String, TaskActivityWrapper> wrappedActivities,
 			boolean includePieChartActivity, boolean openInDefaultBrowser, OrderByDirection order) {
 
-		File html = new File(String.valueOf(getOutputFolder()) + FilesUtils.FILE_SEPARATOR + "report.html");
+		File html = new File(String.valueOf(getOutputFolder()) + FilesUtils.FILE_SEPARATOR + FilesUtils.REPORT_FILE_NAME);
 		if (html.exists()) {
-			html.delete();
+			if (!html.delete()) {
+				log.info("Could not delete file " + html.getAbsolutePath());
+			}
 		}
 
 		List<Task> tasks = tasksServices.filterTasksByMonthAndYear(month, year);
@@ -262,7 +261,7 @@ public class ReportServices {
 					PieChartType pie = new PieChartType(wrappedTypes, String.valueOf(monthTxt) + "/" + year);
 
 					File png = new File(
-							String.valueOf(getOutputFolder()) + FilesUtils.FILE_SEPARATOR + "piecharttype.png");
+							String.valueOf(getOutputFolder()) + FilesUtils.FILE_SEPARATOR + FilesUtils.PIE_CHART_TYPE_FILE_NAME);
 					ChartUtils.saveChartAsPNG(png, pie.getChart(), 1024, 768);
 					String path = "file:///" + png.getCanonicalPath().replace('\\', '/');
 					content.append("<img alt='Pie chart types' src='" + path + "' width='1024' height='768' />\n");
@@ -273,7 +272,7 @@ public class ReportServices {
 					PieChartActivity pie = new PieChartActivity(wrappedActivities,
 							String.valueOf(monthTxt) + "/" + year);
 					File png = new File(String.valueOf(getOutputFolder()) + FilesUtils.FILE_SEPARATOR
-							+ "piechartactivity.png");
+							+ FilesUtils.PIE_CHART_ACTIVITY_FILE_NAME);
 
 					ChartUtils.saveChartAsPNG(png, pie.getChart(), 1024, 768);
 					String path = "file:///" + png.getCanonicalPath().replace('\\', '/');
@@ -294,19 +293,39 @@ public class ReportServices {
 				}
 			}
 		} catch (IOException e) {
+			log.info("Could not generate report (saveCompleteReport): " + e.getMessage());
 			e.printStackTrace();
 		}
 
 		return html;
 	}
 
+	private String getOutputFolder() {
+		return FilesUtils.OUTPUT_FOLDER;
+	}
+
+	/**
+	 *
+	 * @param monthTxt
+	 * @param month
+	 * @param year
+	 * @param wrappedTypes
+	 * @param includePieChartType
+	 * @param wrappedActivities
+	 * @param includePieChartActivity
+	 * @param openInDefaultBrowser
+	 * @param order
+	 * @return
+	 */
 	public File saveCompleteGroupedReport(String monthTxt, int month, int year,
 			Map<String, TaskTypeWrapper> wrappedTypes, boolean includePieChartType,
 			Map<String, TaskActivityWrapper> wrappedActivities, boolean includePieChartActivity,
 			boolean openInDefaultBrowser, OrderByDirection order) {
-		File html = new File(String.valueOf(getOutputFolder()) + FilesUtils.FILE_SEPARATOR + "report.html");
+		File html = new File(String.valueOf(getOutputFolder()) + FilesUtils.FILE_SEPARATOR + FilesUtils.REPORT_FILE_NAME);
 		if (html.exists()) {
-			html.delete();
+			if (!html.delete()) {
+				log.info("Could not delete file " + html.getAbsolutePath());
+			}
 		}
 
 		List<Task> tasks = tasksServices.filterTasksByMonthAndYear(month, year);
@@ -356,22 +375,22 @@ public class ReportServices {
 					String key = map.keySet().iterator().next();
 					TaskDateWrapper dateWrap = map.get(key);
 					content.append("\t\t<tr>\n");
-					content.append("\t\t\t<td>" + key + "</td>\n");
-					content.append("\t\t\t<td>" + dateWrap.getBeginHour() + "</td>\n");
-					content.append("\t\t\t<td>" + dateWrap.getEndHour() + "</td>\n");
+					content.append("\t\t\t<td>").append(key).append("</td>\n");
+					content.append("\t\t\t<td>").append(dateWrap.getBeginHour()).append("</td>\n");
+					content.append("\t\t\t<td>").append(dateWrap.getEndHour()).append("</td>\n");
 					int[] intervals = dateWrap.getIntervalsAsArrayOfSize(8);
 					byte b;
 					int j, arrayOfInt1[];
 					for (j = (arrayOfInt1 = intervals).length, b = 0; b < j;) {
 						int k = arrayOfInt1[b];
-						content.append("\t\t\t<td >" + k + "</td>\n");
+						content.append("\t\t\t<td >").append(k).append("</td>\n");
 						b++;
 					}
-					content.append("\t\t\t<td>" + dateWrap.getInterruption() + "</td>\n");
-					content.append("\t\t\t<td>" + dateWrap.getWorkedHours() + "</td>\n");
-					content.append("\t\t\t<td>" + dateWrap.getActivity() + "</td>\n");
-					content.append("\t\t\t<td>" + dateWrap.getTaskClass() + "</td>\n");
-					content.append("\t\t\t<td>" + dateWrap.getDescription() + "</td>\n");
+					content.append("\t\t\t<td>").append(dateWrap.getInterruption()).append("</td>\n");
+					content.append("\t\t\t<td>").append(dateWrap.getWorkedHours()).append("</td>\n");
+					content.append("\t\t\t<td>").append(dateWrap.getActivity()).append("</td>\n");
+					content.append("\t\t\t<td>").append(dateWrap.getTaskClass()).append("</td>\n");
+					content.append("\t\t\t<td>").append(dateWrap.getDescription()).append("</td>\n");
 					content.append("\t\t</tr>\n");
 				}
 
@@ -381,10 +400,10 @@ public class ReportServices {
 				if (includePieChartType) {
 					PieChartType pie = new PieChartType(wrappedTypes, String.valueOf(monthTxt) + "/" + year);
 					File png = new File(
-							String.valueOf(getOutputFolder()) + FilesUtils.FILE_SEPARATOR + "piecharttype.png");
+							String.valueOf(getOutputFolder()) + FilesUtils.FILE_SEPARATOR + FilesUtils.PIE_CHART_TYPE_FILE_NAME);
 					ChartUtils.saveChartAsPNG(png, pie.getChart(), 1024, 768);
 					String path = "file:///" + png.getCanonicalPath().replace('\\', '/');
-					content.append("<img alt='Pie chart types' src='" + path + "' width='1024' height='768' />\n");
+					content.append("<img alt='Pie chart types' src='").append(path).append("' width='1024' height='768' />\n");
 					content.append("<br />\n");
 				}
 
@@ -392,7 +411,7 @@ public class ReportServices {
 					PieChartActivity pie = new PieChartActivity(wrappedActivities,
 							String.valueOf(monthTxt) + "/" + year);
 					File png = new File(String.valueOf(getOutputFolder()) + FilesUtils.FILE_SEPARATOR
-							+ "piechartactivity.png");
+							+ FilesUtils.PIE_CHART_ACTIVITY_FILE_NAME);
 					ChartUtils.saveChartAsPNG(png, pie.getChart(), 1024, 768);
 					String path = "file:///" + png.getCanonicalPath().replace('\\', '/');
 					content.append("<img alt='Pie chart activities' src='" + path + "' width='1024' height='768' />\n");
@@ -412,6 +431,7 @@ public class ReportServices {
 				}
 			}
 		} catch (IOException e) {
+			log.info("Could not generate report (saveCompleteGroupedReport): " + e.getMessage());
 			e.printStackTrace();
 		}
 
@@ -419,7 +439,6 @@ public class ReportServices {
 	}
 
 	/**
-	 *
 	 * @param monthTxt
 	 * @param month
 	 * @param year
@@ -427,14 +446,14 @@ public class ReportServices {
 	 * @param includePieChartType
 	 * @param wrappedActivities
 	 * @param includePieChartActivity
-	 * @param openInDefaultBrowser
 	 * @param directory
+	 * @param order
 	 * @return
 	 */
 	public File saveCompleteGroupedReportExcel(String monthTxt, int month, int year,
 			Map<String, TaskTypeWrapper> wrappedTypes, boolean includePieChartType,
 			Map<String, TaskActivityWrapper> wrappedActivities, boolean includePieChartActivity,
-			boolean openInDefaultBrowser, String directory, OrderByDirection order) {
+			String directory, OrderByDirection order) {
 		Configuration config = configServices.getConfiguration();
 
 		String userName = "";
@@ -444,7 +463,9 @@ public class ReportServices {
 		File excelFile = new File(String.valueOf(directory) + FilesUtils.FILE_SEPARATOR + "Apontamento_" + userName
 				+ monthTxt + "_" + year + ".xls");
 		if (excelFile.exists()) {
-			excelFile.delete();
+			if (!excelFile.delete()) {
+				log.info("Could not delete file " + excelFile.getAbsolutePath());
+			}
 		}
 
 		List<Task> tasks = tasksServices.filterTasksByMonthAndYear(month, year);
@@ -457,7 +478,6 @@ public class ReportServices {
 			if (excelFile.createNewFile()) {
 				int rowCount = 0;
 				HSSFWorkbook hSSFWorkbook = new HSSFWorkbook();
-
 
 				// ABA DETALHADO
 				//**********************
@@ -577,7 +597,7 @@ public class ReportServices {
 				cell.setCellValue(Strings.Excel.COL_DESCRIPTION);
 				cell.setCellStyle(subTitleStyle((Workbook) hSSFWorkbook));
 
-				StringBuilder content = new StringBuilder("");
+//				StringBuilder content = new StringBuilder();
 
 				int cellCount = 0;
 				beginRow = rowCount + 1;
@@ -614,8 +634,9 @@ public class ReportServices {
 					// intervalos (i1 até i8)
 					int[] intervals = dateWrap.getIntervalsAsArrayOfSize(8);
 					byte b;
-					int j, arrayOfInt1[];
-					for (j = (arrayOfInt1 = intervals).length, b = 0; b < j;) {
+					int j;
+                    int[] arrayOfInt1;
+                    for (j = (arrayOfInt1 = intervals).length, b = 0; b < j;) {
 						int k = arrayOfInt1[b];
 						cell = row.createCell(cellCount++);
 						cell.setCellValue(k);
@@ -629,7 +650,6 @@ public class ReportServices {
 					// soma total
 					cell.setCellStyle(
 							contentStyle((Workbook) hSSFWorkbook, hSSFWorkbook.createDataFormat().getFormat("[mm]")));
-//					cell.setCellType(CellType.FORMULA);
 					cell.setCellFormula("SUM(D" + rowCount + ":K" + rowCount + ")/1440");
 
 					// horas trabalhadas
@@ -637,7 +657,6 @@ public class ReportServices {
 					cell.setCellStyle(contentStyle((Workbook) hSSFWorkbook,
 							hSSFWorkbook.createDataFormat().getFormat("[hh]:mm")));
 
-//					cell.setCellType(CellType.FORMULA);
 					cell.setCellFormula("(C" + rowCount + " - B" + rowCount + ") - L" + rowCount);
 
 					// Atividade
@@ -671,7 +690,6 @@ public class ReportServices {
 				}
 
 				cell = row.createCell(12);
-//				cell.setCellType(CellType.FORMULA);
 				cell.setCellStyle(
 						totalStyle((Workbook) hSSFWorkbook, hSSFWorkbook.createDataFormat().getFormat("[hh]:mm")));
 				cell.setCellFormula("SUM($M$" + beginRow + ":$M$" + endRow + ")");
@@ -691,20 +709,20 @@ public class ReportServices {
 				if (includePieChartType) {
 					PieChartType pie = new PieChartType(wrappedTypes, String.valueOf(monthTxt) + "/" + year);
 					File png = new File(
-							String.valueOf(getOutputFolder()) + FilesUtils.FILE_SEPARATOR + "piecharttype.png");
+							String.valueOf(getOutputFolder()) + FilesUtils.FILE_SEPARATOR + FilesUtils.PIE_CHART_TYPE_FILE_NAME);
 					ChartUtils.saveChartAsPNG(png, pie.getChart(), 1024, 768);
-					String path = "file:///" + png.getCanonicalPath().replace('\\', '/');
-					content.append("<img alt='Pie chart types' src='" + path + "' width='1024' height='768' />\n");
+//					String path = "file:///" + png.getCanonicalPath().replace('\\', '/');
+//					content.append("<img alt='Pie chart types' src='" + path + "' width='1024' height='768' />\n");
 				}
 
 				if (includePieChartActivity) {
 					PieChartActivity pie = new PieChartActivity(wrappedActivities,
 							String.valueOf(monthTxt) + "/" + year);
 					File png = new File(String.valueOf(getOutputFolder()) + FilesUtils.FILE_SEPARATOR
-							+ "piechartactivity.png");
+							+ FilesUtils.PIE_CHART_ACTIVITY_FILE_NAME);
 					ChartUtils.saveChartAsPNG(png, pie.getChart(), 1024, 768);
-					String path = "file:///" + png.getCanonicalPath().replace('\\', '/');
-					content.append("<img alt='Pie chart activities' src='" + path + "' width='1024' height='768' />\n");
+//					String path = "file:///" + png.getCanonicalPath().replace('\\', '/');
+//					content.append("<img alt='Pie chart activities' src='" + path + "' width='1024' height='768' />\n");
 				}
 
 				rowCount = 0;
@@ -752,7 +770,6 @@ public class ReportServices {
 
 					cell.setCellStyle(contentStyle((Workbook) hSSFWorkbook,
 							hSSFWorkbook.createDataFormat().getFormat("[hh]:mm")));
-//					cell.setCellType(2);
 
 					cell.setCellFormula("SUMPRODUCT(--((Detalhado!$N$" + beginRow + ":$N$" + endRow + "=TRIM(A"
 							+ rowCount + "))*(Detalhado!$O$" + beginRow + ":$O$" + endRow + "=1)), Detalhado!$M$"
@@ -761,7 +778,6 @@ public class ReportServices {
 					cell = row.createCell(3);
 					cell.setCellStyle(contentStyle((Workbook) hSSFWorkbook,
 							hSSFWorkbook.createDataFormat().getFormat("[hh]:mm")));
-//					cell.setCellType(2);
 
 					cell.setCellFormula("SUMPRODUCT(--((Detalhado!$N$" + beginRow + ":$N$" + endRow + "=TRIM(A"
 							+ rowCount + "))*(Detalhado!$O$" + beginRow + ":$O$" + endRow + "=2)), Detalhado!$M$"
@@ -770,7 +786,6 @@ public class ReportServices {
 					cell = row.createCell(4);
 					cell.setCellStyle(contentStyle((Workbook) hSSFWorkbook,
 							hSSFWorkbook.createDataFormat().getFormat("[hh]:mm")));
-//					cell.setCellType(2);
 
 					cell.setCellFormula("SUMPRODUCT(--((Detalhado!$N$" + beginRow + ":$N$" + endRow + "=TRIM(A"
 							+ rowCount + "))*(Detalhado!$O$" + beginRow + ":$O$" + endRow + "=3)), Detalhado!$M$"
@@ -822,6 +837,7 @@ public class ReportServices {
 			}
 
 		} catch (IOException e) {
+			log.info("Could not generate report (saveCompleteGroupedReportExcel): " + e.getMessage());
 			e.printStackTrace();
 		}
 

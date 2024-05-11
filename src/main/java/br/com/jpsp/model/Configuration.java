@@ -1,10 +1,6 @@
 package br.com.jpsp.model;
 
-import java.io.File;
 import java.io.Serializable;
-
-import br.com.jpsp.utils.FilesUtils;
-import br.com.jpsp.utils.Utils;
 
 /**
  * 
@@ -22,7 +18,6 @@ public class Configuration implements Serializable {
 	private String alertTime;
 	private String name;
 	private int autoStart;
-	private String outputFolder = FilesUtils.DEFAULT_OUTPUT_FOLDER;
 	private Object[] combosValues = new Object[4];
 	
 	private final int version = 1;
@@ -75,14 +70,6 @@ public class Configuration implements Serializable {
 		return (this.autoStart == 1);
 	}
 	
-	public String getOutputFolder() {
-		return outputFolder;
-	}
-
-	public void setOutputFolder(String outputDir) {
-		this.outputFolder = outputDir;
-	}
-
 	public int version() {
 		return version;
 	}
@@ -98,21 +85,8 @@ public class Configuration implements Serializable {
 	@Override
 	public String toString() {
 		return "Configuration [autoPause=" + autoPause + ", lookAndFeel=" + lookAndFeel + ", alertTime=" + alertTime
-				+ ", name=" + name + ", autoStart=" + autoStart + ", outputFolder=" + outputFolder + ", version=" + version
+				+ ", name=" + name + ", autoStart=" + autoStart + ", version=" + version
 				+ "]";
 	}
 
-	public boolean validate() {
-		boolean validFolder = false;
-		
-		if (!Utils.isEmpty(this.outputFolder)) {
-			File folder = new File(this.outputFolder);
-			try {
-				validFolder = folder.exists();
-			} catch (Exception ex) {}
-		}
-		
-		return validFolder;
-	}
-	
 }
