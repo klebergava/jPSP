@@ -4,40 +4,39 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import br.com.jpsp.dao.ActivityDAO;
 import br.com.jpsp.model.Activity;
 import br.com.jpsp.utils.Utils;
 
-public class ActivityServices implements CRUDServices<Activity> {
-	
+/*8
+ *
+ */
+public class ActivityServices extends RepositoryAccessServices implements CRUDServices<Activity> {
 	public static final ActivityServices instance = new ActivityServices();
-	
-	private final ActivityDAO dao = ActivityDAO.instance;
-	
+
 	private ActivityServices() {
 		super();
 	}
-	
+
 	@Override
 	public Set<Activity> getAll() {
-		return dao.getAllActivities();
+		return activityDAO.getAll();
 	}
 
 	@Override
 	public void add(Activity activity) {
-		this.dao.addActivity(activity);
+		this.activityDAO.add(activity);
 	}
 
 	@Override
 	public void remove(Activity activity) throws Exception {
-		this.dao.removeActivity(activity);
+		this.activityDAO.remove(activity);
 	}
 
 	@Override
 	public void update(Activity activity) throws Exception {
-		this.dao.updateActivity(activity);
+		this.activityDAO.update(activity);
 	}
-	
+
 	public List<String> getAllActivitiesDescriptions() {
 		Set<Activity> allActivities = this.getAll();
 		List<String> allActivitiesDescriptions = new ArrayList<String>();

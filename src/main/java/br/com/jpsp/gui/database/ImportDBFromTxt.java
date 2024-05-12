@@ -28,7 +28,7 @@ import org.apache.logging.log4j.Logger;
 import br.com.jpsp.gui.GuiSingleton;
 import br.com.jpsp.gui.resources.Images;
 import br.com.jpsp.services.Strings;
-import br.com.jpsp.services.TaskSetServices;
+import br.com.jpsp.services.TaskServices;
 import br.com.jpsp.utils.FilesUtils;
 import br.com.jpsp.utils.Gui;
 import br.com.jpsp.utils.Utils;
@@ -38,6 +38,8 @@ import br.com.jpsp.utils.Utils;
  */
 public class ImportDBFromTxt extends JDialog {
 	private static final long serialVersionUID = -3218307819517596211L;
+	private final static Logger log = LogManager.getLogger(ImportDBFromTxt.class);
+
 	private JCheckBox hasHeaders;
 	private ButtonGroup buttonGroup = new ButtonGroup();
 
@@ -46,14 +48,13 @@ public class ImportDBFromTxt extends JDialog {
 
 	private JTextField separator;
 	private JTextField sourceFile;
-	private final TaskSetServices services = TaskSetServices.instance;
+	private final TaskServices services = TaskServices.instance;
 	private JTextField encoding;
 	private final JFileChooser fc = new JFileChooser();
 	private JButton importDB;
 	private File fileToImportFrom;
 
 	private JButton cancel;
-	private final static Logger log = LogManager.getLogger(ImportDBFromTxt.class);
 
 	public ImportDBFromTxt() {
 		super();

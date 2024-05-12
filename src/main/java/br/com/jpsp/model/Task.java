@@ -1,12 +1,13 @@
 package br.com.jpsp.model;
 
-import br.com.jpsp.utils.Utils;
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
-public class Task implements Serializable, Comparable<Task> {
+import br.com.jpsp.utils.Utils;
+
+public class Task extends CRUD implements Serializable {
 	private static final long serialVersionUID = -2320799310216267754L;
 	private long id;
 	private Date begin;
@@ -126,7 +127,8 @@ public class Task implements Serializable, Comparable<Task> {
 	}
 
 	@Override
-	public int compareTo(Task that) {
+	public int compareTo(CRUD crud) {
+		Task that = (Task)crud;
 		return this.begin.compareTo(that.begin);
 	}
 
@@ -204,5 +206,17 @@ public class Task implements Serializable, Comparable<Task> {
 
 	public String getBeginDateAsString() {
 		return Utils.date2String(this.begin, "dd/MM/yyyy");
+	}
+
+	@Override
+	public Task from(String txt) {
+		Task task = new Task();
+		task.setActivity(txt);
+		return task;
+	}
+
+	@Override
+	public boolean isBlocked() {
+		return false;
 	}
 }

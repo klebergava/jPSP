@@ -18,6 +18,9 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import br.com.jpsp.gui.GuiSingleton;
 import br.com.jpsp.gui.jPSP;
 import br.com.jpsp.gui.resources.Images;
@@ -31,6 +34,8 @@ import br.com.jpsp.utils.Gui;
  */
 public class ConfigurationWindow extends JDialog implements WindowListener {
 	private static final long serialVersionUID = 7811181541648032335L;
+	private final static Logger log = LogManager.getLogger(ConfigurationWindow.class);
+
 	private final ConfigServices configServices = ConfigServices.instance;
 	private JCheckBox autoPause;
 	private JCheckBox autoStart;
@@ -161,8 +166,12 @@ public class ConfigurationWindow extends JDialog implements WindowListener {
 		config.setLookAndFeel(this.lookAndFeel.getSelectedItem().toString());
 		config.setAutoStart(this.autoStart.isSelected() ? 1 : 0);
 		config.setName(this.name.getText());
-
-		this.configServices.updateConfiguration(config);
+		try {
+			this.configServices.updateConfiguration(config);
+		} catch (Exception ex) {
+			log.error(ex.getMessage());
+			ex.printStackTrace();
+		}
 		closeWindow();
 	}
 

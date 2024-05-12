@@ -33,7 +33,7 @@ import br.com.jpsp.model.Task;
 import br.com.jpsp.services.ActivityServices;
 import br.com.jpsp.services.DescriptionServices;
 import br.com.jpsp.services.Strings;
-import br.com.jpsp.services.TaskSetServices;
+import br.com.jpsp.services.TaskServices;
 import br.com.jpsp.utils.Gui;
 import br.com.jpsp.utils.Utils;
 
@@ -41,13 +41,13 @@ import br.com.jpsp.utils.Utils;
  *
  */
 public class BatchUpdateTask extends JDialog implements WindowListener {
+	private static final long serialVersionUID = -103651380043899625L;
 	private final static Logger log = LogManager.getLogger(BatchUpdateTask.class);
 
-	private static final long serialVersionUID = -103651380043899625L;
 	private final Collection<Task> tasks;
 	private final Refreshable refreshable;
 
-	private final TaskSetServices services = TaskSetServices.instance;
+	private final TaskServices services = TaskServices.instance;
 	private final ActivityServices activityServices = ActivityServices.instance;
 	private final DescriptionServices descriptionServices = DescriptionServices.instance;
 
@@ -248,7 +248,12 @@ public class BatchUpdateTask extends JDialog implements WindowListener {
 				} else if (this.toEdit.equals(FieldToEdit.SYSTEM)) {
 					updatedTask.setSystem(this.system.getSelectedItem().toString());
 				}
-				this.services.updateTask(updatedTask);
+				try {
+					this.services.update(updatedTask);
+				} catch (Exception e) {
+					log.error(e.getMessage());
+					e.printStackTrace();
+				}
 			}
 			if (this.refreshable != null) {
 				this.refreshable.refresh();

@@ -254,7 +254,7 @@ public class Strings {
 		public static final String RESTORE_DB = "Restaurar banco de dados";
 		public static final String EXPORT_DB = "Exportar dados para arquivo texto";
 		public static final String IMPORT_DB = "Importar dados de arquivo texto";
-		public static final String ERROR_BACKUP = "Erro ao fazer backup do arquivo '" + FilesUtils.DATABASE_FILE_V1 + "'";
+		public static final String ERROR_BACKUP = "Erro ao fazer backup do arquivo '" + FilesUtils.DATABASE_FILE_PATH + "'";
 		public static final String SUCCESS_BACKUP = "Backup da base de dados realizado com sucesso em '&1'.";
 		public static final String EXPORT_TITLE = "Exportar banco de dados para arquivo texto";
 		public static final String IMPORT_TITLE = "Importar banco de dados de arquivo texto";

@@ -28,7 +28,7 @@ public class ReportServices {
 
 	public static final ReportServices instance = new ReportServices();
 
-	private static final TaskSetServices tasksServices = TaskSetServices.instance;
+	private static final TaskServices tasksServices = TaskServices.instance;
 	private static final ConfigServices configServices = ConfigServices.instance;
 
 	/**
@@ -47,7 +47,7 @@ public class ReportServices {
 			boolean includePieChartActivity, boolean openInDefaultBrowser) {
 
 
-		File html = new File(String.valueOf(FilesUtils.USER_CONFIG_DATA_FILE) + FilesUtils.FILE_SEPARATOR + FilesUtils.REPORT_FILE_NAME);
+		File html = new File(String.valueOf(FilesUtils.OUTPUT_FOLDER) + FilesUtils.FILE_SEPARATOR + FilesUtils.HTML_REPORT_FILE_NAME);
 		if (html.exists()) {
 			if (!html.delete()) {
 				log.info("Could not delete file " + html.getAbsolutePath());
@@ -169,6 +169,10 @@ public class ReportServices {
 		content.append("</style>\n");
 	}
 
+	/**
+	 *
+	 * @param html
+	 */
 	private void openBrowser(File html) {
 		if (Desktop.isDesktopSupported()) {
 			try {
@@ -197,7 +201,7 @@ public class ReportServices {
 			boolean includePieChartType, Map<String, TaskActivityWrapper> wrappedActivities,
 			boolean includePieChartActivity, boolean openInDefaultBrowser, OrderByDirection order) {
 
-		File html = new File(String.valueOf(getOutputFolder()) + FilesUtils.FILE_SEPARATOR + FilesUtils.REPORT_FILE_NAME);
+		File html = new File(String.valueOf(getOutputFolder()) + FilesUtils.FILE_SEPARATOR + FilesUtils.HTML_REPORT_FILE_NAME);
 		if (html.exists()) {
 			if (!html.delete()) {
 				log.info("Could not delete file " + html.getAbsolutePath());
@@ -237,7 +241,7 @@ public class ReportServices {
 
 				content.append("\t\t</tr>\n");
 
-				if (order.equals(OrderByDirection.DESC)) {
+				if (order.isDESC()) {
 					Collections.reverse(tasks);
 				}
 
@@ -321,7 +325,7 @@ public class ReportServices {
 			Map<String, TaskTypeWrapper> wrappedTypes, boolean includePieChartType,
 			Map<String, TaskActivityWrapper> wrappedActivities, boolean includePieChartActivity,
 			boolean openInDefaultBrowser, OrderByDirection order) {
-		File html = new File(String.valueOf(getOutputFolder()) + FilesUtils.FILE_SEPARATOR + FilesUtils.REPORT_FILE_NAME);
+		File html = new File(String.valueOf(getOutputFolder()) + FilesUtils.FILE_SEPARATOR + FilesUtils.HTML_REPORT_FILE_NAME);
 		if (html.exists()) {
 			if (!html.delete()) {
 				log.info("Could not delete file " + html.getAbsolutePath());
@@ -367,7 +371,7 @@ public class ReportServices {
 
 				content.append("\t\t</tr>\n");
 
-				if (order.equals(OrderByDirection.DESC)) {
+				if (order.isDESC()) {
 					Collections.reverse(wrappedDates);
 				}
 
@@ -602,7 +606,7 @@ public class ReportServices {
 				int cellCount = 0;
 				beginRow = rowCount + 1;
 
-				if (order.equals(OrderByDirection.DESC)) {
+				if (order.isDESC()) {
 					Collections.reverse(wrappedDates);
 				}
 

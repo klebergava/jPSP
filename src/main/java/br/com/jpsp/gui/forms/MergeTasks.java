@@ -27,6 +27,9 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import br.com.jpsp.gui.DateSpinner;
 import br.com.jpsp.gui.GuiSingleton;
 import br.com.jpsp.gui.Refreshable;
@@ -38,12 +41,14 @@ import br.com.jpsp.model.TaskValidation;
 import br.com.jpsp.services.ActivityServices;
 import br.com.jpsp.services.DescriptionServices;
 import br.com.jpsp.services.Strings;
-import br.com.jpsp.services.TaskSetServices;
+import br.com.jpsp.services.TaskServices;
 import br.com.jpsp.utils.Gui;
 import br.com.jpsp.utils.Utils;
 
 public class MergeTasks extends JDialog implements Refreshable, WindowListener {
 	private static final long serialVersionUID = -103651380043899625L;
+	private final static Logger log = LogManager.getLogger(MergeTasks.class);
+
 	private JSpinner start;
 	private JSpinner end;
 	private JTextField delta;
@@ -53,7 +58,7 @@ public class MergeTasks extends JDialog implements Refreshable, WindowListener {
 	private JComboBox<String> system;
 	private final Refreshable refreshable;
 
-	private final TaskSetServices services = TaskSetServices.instance;
+	private final TaskServices services = TaskServices.instance;
 	private final ActivityServices activityServices = ActivityServices.instance;
 	private final DescriptionServices descriptionServices = DescriptionServices.instance;
 
@@ -239,14 +244,22 @@ public class MergeTasks extends JDialog implements Refreshable, WindowListener {
 		this.end.setValue(last.getEnd());
 	}
 
+	/**
+	 *
+	 */
 	private void save() {
 		fillTask();
 		List<String> errors = TaskValidation.validate(this.mergedTask);
 		if (errors.isEmpty()) {
-			this.services.removeTasks(this.tasks);
-			this.services.addTask(this.mergedTask);
-			this.activityServices.add(new Activity(this.mergedTask.getActivity()));
-			this.descriptionServices.add(new Description(this.mergedTask.getDescription()));
+			try {
+				this.services.removeTasks(this.tasks);
+				this.services.add(this.mergedTask);
+				this.activityServices.add(new Activity(this.mergedTask.getActivity()));
+				this.descriptionServices.add(new Description(this.mergedTask.getDescription()));
+			} catch (Exception ex) {
+				log.error(ex.getMessage());
+				ex.printStackTrace();
+			}
 			if (this.refreshable != null) {
 				this.refreshable.refresh();
 			}

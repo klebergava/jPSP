@@ -8,6 +8,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -16,7 +18,6 @@ import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -30,7 +31,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import br.com.jpsp.gui.GuiSingleton;
-import br.com.jpsp.gui.jPSP;
 import br.com.jpsp.gui.resources.Images;
 import br.com.jpsp.model.Task;
 import br.com.jpsp.model.TaskActivityWrapper;
@@ -40,7 +40,7 @@ import br.com.jpsp.services.PieChartActivity;
 import br.com.jpsp.services.PieChartType;
 import br.com.jpsp.services.ReportServices;
 import br.com.jpsp.services.Strings;
-import br.com.jpsp.services.TaskSetServices;
+import br.com.jpsp.services.TaskServices;
 import br.com.jpsp.utils.FilesUtils;
 import br.com.jpsp.utils.Gui;
 import br.com.jpsp.utils.Utils;
@@ -48,11 +48,12 @@ import br.com.jpsp.utils.Utils;
 /**
  *
  */
-public class ReportWindow extends JDialog {
+public class ReportWindow extends JFrame {
 	private static final long serialVersionUID = 4353742431227760939L;
-	private final TaskSetServices taskServices = TaskSetServices.instance;
+	private final static Logger log = LogManager.getLogger(ReportWindow.class);
+
+	private final TaskServices taskServices = TaskServices.instance;
 	private final ReportServices reportServices = ReportServices.instance;
-	private final static Logger log = LogManager.getLogger(jPSP.class);
 
 	private JComboBox<String> months;
 	private JComboBox<Integer> years;
@@ -71,9 +72,7 @@ public class ReportWindow extends JDialog {
 	private final JRadioButton completeGrouped = new JRadioButton(Strings.Report.DETAILED_GROUPED, true);
 
 	public ReportWindow() {
-		super();
-		this.setTitle(Strings.Report.TITLE);
-		this.setModal(true);
+		super(Strings.Report.TITLE);
 		Gui.setConfiguredLookAndFeel(this);
 	}
 
@@ -346,18 +345,40 @@ public class ReportWindow extends JDialog {
 
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	private Map<String, TaskTypeWrapper> getWrappedTaskTasksTypes() {
 		int month = this.months.getSelectedIndex();
 		int year = Integer.parseInt(Objects.requireNonNull(this.years.getSelectedItem()).toString());
 		List<Task> tasks = this.taskServices.getTasksOfPeriod(month, year);
+		Collections.sort(tasks, new Comparator<Task>() {
 
+			@Override
+			public int compare(Task o1, Task o2) {
+				return o1.getBegin().compareTo(o2.getBegin());
+			}
+		});
         return this.taskServices.wrapType(tasks);
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	private Map<String, TaskActivityWrapper> getWrappedTaskTasksActivities() {
 		int month = this.months.getSelectedIndex();
 		int year = Integer.parseInt(Objects.requireNonNull(this.years.getSelectedItem()).toString());
 		List<Task> tasks = this.taskServices.getTasksOfPeriod(month, year);
+
+		Collections.sort(tasks, new Comparator<Task>() {
+
+			@Override
+			public int compare(Task o1, Task o2) {
+				return o1.getBegin().compareTo(o2.getBegin());
+			}
+		});
 
         return this.taskServices.wrapActivity(tasks);
 	}

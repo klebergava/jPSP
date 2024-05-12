@@ -15,13 +15,13 @@ import javax.swing.JPanel;
 import br.com.jpsp.gui.resources.Images;
 import br.com.jpsp.model.Task;
 import br.com.jpsp.services.Strings;
-import br.com.jpsp.services.TaskSetServices;
+import br.com.jpsp.services.TaskServices;
 import br.com.jpsp.utils.Gui;
 
 public class TotalSpentOnTask extends JDialog {
 	private static final long serialVersionUID = 6068987447068216025L;
 	private final Task task;
-	private final TaskSetServices services = TaskSetServices.instance;
+	private final TaskServices services = TaskServices.instance;
 
 	public TotalSpentOnTask(Task task) {
 		super();

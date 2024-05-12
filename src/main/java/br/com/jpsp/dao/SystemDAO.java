@@ -1,21 +1,89 @@
 package br.com.jpsp.dao;
 
 import java.sql.SQLException;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import br.com.jpsp.model.System;
+import br.com.jpsp.utils.Utils;
 
-public class SystemDAO extends TaskSetDBDAOv1 {
+/**
+ *
+ */
+public class SystemDAO extends Repository {
 	private final static Logger log = LogManager.getLogger(SystemDAO.class);
 	public static final SystemDAO instance = new SystemDAO();
+	protected final String SYSTEM_CACHE = "SYSTEM_CACHE";
 
 	private SystemDAO() {
 		super();
+		cacheAllSystems();
 	}
-	
-	public int getMaxSystemId() {
+
+	/*
+	 *
+	 */
+	private void cacheAllSystems() {
+		Set<System> cached = getAll();
+		cache.put(SYSTEM_CACHE, cached);
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	public Set<System> getAllCachedSystems() {
+		@SuppressWarnings("unchecked")
+		Set<System> cached = (Set<System>) cache.get(SYSTEM_CACHE);
+		if (Utils.isEmpty(cached)) {
+			cached = getAll();
+			cache.put(SYSTEM_CACHE, cached);
+		}
+		return cached;
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	public Set<System> getAll() {
+		Set<System> systems = new TreeSet<System>();
+
+		try {
+			openConnection(false);
+			Result r = executeQuery("select id, nome from " + SYSTEM_TABLE + " order by id;");
+			if (!r.isEmpty()) {
+				while (r.moveToNext()) {
+					systems.add(new System(r.getLong("id"), r.getString("nome")));
+				}
+			}
+			r.close();
+		} catch (SQLException ex) {
+			log.error("getAllSystems() " + ex.getMessage());
+			ex.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			log.error("getAllSystems() " + e.getMessage());
+			e.printStackTrace();
+		} finally {
+			try {
+				closeConnection(false);
+			} catch (SQLException e) {
+				log.error("getAllSystems() " + e.getMessage());
+				e.printStackTrace();
+			}
+		}
+
+		return systems;
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	public int getMaxId() {
 		int maxSystemId = 0;
 
 		try {
@@ -27,71 +95,98 @@ public class SystemDAO extends TaskSetDBDAOv1 {
 			}
 			r.close();
 		} catch (SQLException ex) {
-			log.error("getMaxSystemId() " + ex.getMessage());
+			log.error("getMaxId() " + ex.getMessage());
 			ex.printStackTrace();
 		} catch (ClassNotFoundException e) {
-			log.error("getMaxSystemId() " + e.getMessage());
+			log.error("getMaxId() " + e.getMessage());
 			e.printStackTrace();
 		} finally {
 			try {
 				closeConnection(false);
 			} catch (SQLException e) {
-				log.error("getMaxSystemId() " + e.getMessage());
+				log.error("getMaxId() " + e.getMessage());
 				e.printStackTrace();
 			}
 		}
 
 		return maxSystemId;
 	}
-	
-	public void addSystem(System sys) {
+
+	/**
+	 *
+	 * @param sys
+	 */
+	public void add(System sys) {
 		if (sys != null) {
 			try {
-				long maxId = (getMaxSystemId() + 1);
-				execute("INSERT INTO '" + SYSTEM_TABLE
-						+ "' (id, nome) values (" + maxId + ", '" + sys.getName() + "');");
-				
-				domainTablesCache.put(SYSTEM_CACHE, getAllSystems());
+				long maxId = (getMaxId() + 1);
+				execute("INSERT INTO '" + SYSTEM_TABLE + "' (id, nome) values (" + maxId + ", '" + sys.getName()
+						+ "');");
+
+				cacheAllSystems();
 			} catch (Exception e) {
-				log.error("addSystem() " + e.getMessage());
-				e.printStackTrace();
-			}
-			
-		}
-	}
-	
-	public void updateSystem(System updatedSystem) {
-		try {
-			openConnection(true);
-			executeUpdate("UPDATE " + SYSTEM_TABLE + " SET nome = '" + updatedSystem.getName() + "' WHERE ID = " + updatedSystem.getId() + ";");
-			
-			domainTablesCache.put(SYSTEM_CACHE, getAllSystems());
-		} catch (SQLException ex) {
-			log.error("updateSystem() " + ex.getMessage());
-			ex.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			log.error("updateSystem() " + e.getMessage());
-			e.printStackTrace();
-		} finally {
-			try {
-				closeConnection(false);
-			} catch (SQLException e) {
-				log.error("updateSystem() " + e.getMessage());
+				log.error("add() " + e.getMessage());
 				e.printStackTrace();
 			}
 		}
 	}
 
-	public void removeSystem(System toRemove) {
+	/**
+	 *
+	 * @param updatedSystem
+	 */
+	public void update(System updatedSystem) {
+		try {
+			openConnection(true);
+			executeUpdate("UPDATE " + SYSTEM_TABLE + " SET nome = '" + updatedSystem.getName() + "' WHERE ID = "
+					+ updatedSystem.getId() + ";");
+
+			cacheAllSystems();
+		} catch (SQLException ex) {
+			log.error("update() " + ex.getMessage());
+			ex.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			log.error("update() " + e.getMessage());
+			e.printStackTrace();
+		} finally {
+			try {
+				closeConnection(false);
+			} catch (SQLException e) {
+				log.error("update() " + e.getMessage());
+				e.printStackTrace();
+			}
+		}
+	}
+
+	/**
+	 *
+	 * @param toRemove
+	 */
+	public void remove(System toRemove) {
 		try {
 			execute("DELETE FROM " + SYSTEM_TABLE + " WHERE ID = " + toRemove.getId() + ";");
-			
-			domainTablesCache.put(SYSTEM_CACHE, getAllSystems());
+			cacheAllSystems();
 		} catch (Exception e) {
-			log.error("removeSystem() " + e.getMessage());
+			log.error("remove() " + e.getMessage());
 			e.printStackTrace();
 		}
 	}
-	
+
+	/**
+	 *
+	 * @return
+	 */
+	public boolean deleteAll() {
+		boolean allDelted = false;
+		try {
+			execute("DELETE FROM " + SYSTEM_TABLE + ";");
+			allDelted = true;
+		} catch (Exception e) {
+			log.error("deleteAll() " + e.getMessage());
+			e.printStackTrace();
+		}
+
+		return allDelted;
+	}
 
 }

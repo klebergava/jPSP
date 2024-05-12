@@ -24,7 +24,7 @@ import org.apache.logging.log4j.Logger;
 import br.com.jpsp.gui.GuiSingleton;
 import br.com.jpsp.gui.resources.Images;
 import br.com.jpsp.services.Strings;
-import br.com.jpsp.services.TaskSetServices;
+import br.com.jpsp.services.TaskServices;
 import br.com.jpsp.utils.FilesUtils;
 import br.com.jpsp.utils.Gui;
 
@@ -33,14 +33,15 @@ import br.com.jpsp.utils.Gui;
  */
 public class RestoreDB extends JDialog {
 	private static final long serialVersionUID = -3218307819517596211L;
-	private final TaskSetServices services = TaskSetServices.instance;
+	private final static Logger log = LogManager.getLogger(RestoreDB.class);
 
+	private final TaskServices services = TaskServices.instance;
 	private JTextField sourceFile;
 	private final JFileChooser fc = new JFileChooser();
 	private JButton cancel;
 	private JButton restore;
 
-	private final static Logger log = LogManager.getLogger(RestoreDB.class);
+
 
 	public RestoreDB() {
 		super();
@@ -85,7 +86,7 @@ public class RestoreDB extends JDialog {
 
 		JPanel inputs = new JPanel(new SpringLayout());
 
-		this.actualDBFile = new File(FilesUtils.DATABASE_FILE_V1);
+		this.actualDBFile = new File(FilesUtils.DATABASE_FILE_PATH);
 
 		inputs.add(new JLabel(Strings.RestoreDB.CURRENT_FILE + ": "));
 		try {

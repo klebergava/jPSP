@@ -6,6 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -20,13 +21,11 @@ import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import br.com.jpsp.dao.TaskSetDBDAOv1;
 import br.com.jpsp.gui.GuiSingleton;
 import br.com.jpsp.gui.LoadingScreen;
 import br.com.jpsp.model.Task;
 import br.com.jpsp.model.TaskActivityWrapper;
 import br.com.jpsp.model.TaskDateWrapper;
-import br.com.jpsp.model.TaskSet;
 import br.com.jpsp.model.TaskTypeWrapper;
 import br.com.jpsp.model.TypeClassification;
 import br.com.jpsp.utils.FilesUtils;
@@ -34,55 +33,61 @@ import br.com.jpsp.utils.Utils;
 
 /**
  *
- * @author kleber
- *
  */
-public class TaskSetServices {
-	private final static Logger log = LogManager.getLogger(TaskSetServices.class);
+public class TaskServices extends RepositoryAccessServices implements CRUDServices<Task>  {
+	private final static Logger log = LogManager.getLogger(TaskServices.class);
+	public static final TaskServices instance = new TaskServices();
 
-	public enum Order {
-		ASC, DESC;
+	private TaskServices() {
+		super();
 	}
 
-	private final TaskSetDBDAOv1 dao = TaskSetDBDAOv1.instance;
-	public static final TaskSetServices instance = new TaskSetServices();
-
-	private TaskSetServices() {
-		log.trace("Starting TaskSetServices");
-		FilesUtils.checkDirs();
+	@Override
+	public Set<Task> getAll() {
+		return taskDAO.getAll();
 	}
 
-	public TaskSet getTaskList() {
-		return this.dao.getTaskList();
+	@Override
+	public void add(Task task) {
+		taskDAO.add(task);
 	}
 
-	public void addTask(Task task) {
-		this.dao.addTask(task);
+	@Override
+	public void remove(Task task) throws Exception {
+		taskDAO.removeTask(task);
 	}
 
-	public void updateTask(Task updatedTask) {
-		this.dao.updateTask(updatedTask);
+	@Override
+	public void update(Task task) throws Exception {
+		taskDAO.updateTask(task);
 	}
 
-	public void removeTask(Task toRemove) {
-		this.dao.removeTask(toRemove);
-	}
-
+	/**
+	 *
+	 * @param month
+	 * @param year
+	 * @return
+	 */
 	public List<Task> getTasksOfPeriod(int month, int year) {
-		List<Task> tasks = new ArrayList<Task>();
+		List<Task> tasksOfPeriod = new ArrayList<Task>();
 
-		TaskSet taskSet = getTaskList();
-		if (taskSet != null && !taskSet.getTasks().isEmpty()) {
-			for (Task t : taskSet.getTasks()) {
-				if (t.getMonth() == month && t.getYear() == year) {
-					tasks.add(t);
+		Set<Task> tasks = getAll();
+		if (!Utils.isEmpty(tasks)) {
+			tasks.forEach(task -> {
+				if (task.getMonth() == month && task.getYear() == year) {
+					tasksOfPeriod.add(task);
 				}
-			}
+			});
 		}
 
-		return tasks;
+		return tasksOfPeriod;
 	}
 
+	/**
+	 *
+	 * @param tasks
+	 * @return
+	 */
 	public Map<String, TaskTypeWrapper> wrapType(List<Task> tasks) {
 		Map<String, TaskTypeWrapper> wrapped = new HashMap<String, TaskTypeWrapper>();
 
@@ -107,6 +112,11 @@ public class TaskSetServices {
 		return wrapped;
 	}
 
+	/**
+	 *
+	 * @param tasks
+	 * @return
+	 */
 	public Map<String, TaskActivityWrapper> wrapActivity(List<Task> tasks) {
 		Map<String, TaskActivityWrapper> wrapped = new HashMap<String, TaskActivityWrapper>();
 
@@ -131,6 +141,11 @@ public class TaskSetServices {
 		return wrapped;
 	}
 
+	/**
+	 *
+	 * @param tasks
+	 * @return
+	 */
 	public SortedMap<String, TaskDateWrapper> wrapDate(Set<Task> tasks) {
 		SortedMap<String, TaskDateWrapper> wrapped = new TreeMap<String, TaskDateWrapper>();
 
@@ -192,29 +207,29 @@ public class TaskSetServices {
 		return filteredTasks;
 	}
 
-	public TaskSet filterTasksByDescription(String desc) {
-		TaskSet taskSet = this.dao.filterTasksByDesc(desc);
+	public Set<Task> filterTasksByDescription(String desc) {
+		Set<Task> taskSet = this.taskDAO.filterTasksByDesc(desc);
 		return taskSet;
 	}
 
 	public void removeTasks(List<Task> tasks) {
-		if (tasks != null && !tasks.isEmpty()) {
+		if (!Utils.isEmpty(tasks)) {
 			for (Task t : tasks) {
-				this.dao.removeTask(t);
+				this.taskDAO.removeTask(t);
 			}
 		}
 	}
 
 	public Set<String> getAllDescriptions() {
-		return this.dao.getAllDescriptions();
+		return this.descDAO.getAllDescriptions();
 	}
 
 	public List<Task> filterTasksByActivity(String text) {
-		return this.dao.filterTasksByActivity(text);
+		return this.taskDAO.filterTasksByActivity(text);
 	}
 
 	public List<Task> getAllTasks() {
-		return this.dao.getAllTasks();
+		return this.taskDAO.getAllTasks();
 	}
 
 	public List<Task> filterTasksByMonthAndYear(int month, int year) {
@@ -227,11 +242,20 @@ public class TaskSetServices {
 			}
 		}
 
+		Collections.sort(filteredTasks, new Comparator<Task>() {
+
+			@Override
+			public int compare(Task o1, Task o2) {
+				return o1.getBegin().compareTo(o2.getBegin());
+			}
+
+		});
+
 		return filteredTasks;
 	}
 
 	public Task getLastTask() {
-		return this.dao.getMostRecentTask();
+		return this.taskDAO.getMostRecent();
 	}
 
 	public boolean exportDB2Txt(File target, String separator, String encoding, boolean includeHeaders) {
@@ -284,11 +308,11 @@ public class TaskSetServices {
 
 	public boolean restoreDB(File fileToRestore) {
 		boolean ok = false;
-		String fn = String.valueOf(FilesUtils.DATABASE_FILE_V1) + "_backup_before_restore" + ".dbkp";
+		String fn = String.valueOf(FilesUtils.DATABASE_FILE_PATH) + "_backup_before_restore" + ".dbkp";
 		FilesUtils.backupDataBase(fn);
 
 		try {
-			FileUtils.copyFile(fileToRestore, new File(FilesUtils.DATABASE_FILE_V1));
+			FileUtils.copyFile(fileToRestore, new File(FilesUtils.DATABASE_FILE_PATH));
 			ok = true;
 		} catch (IOException e) {
 			log.error("restoreDB() " + e.getMessage());
@@ -298,13 +322,18 @@ public class TaskSetServices {
 		return ok;
 	}
 
+	/**
+	 *
+	 * @param task
+	 * @return
+	 */
 	public String getTotalSpentOn(Task task) {
-		String total = dao.countTasksByActivity(task.getActivity());
+		String total = taskDAO.countTasksByActivity(task.getActivity());
 		return total;
 	}
 
 	public List<String> getAllTypeClassDesc() {
-		Set<TypeClassification> allTypeClass = this.dao.getAllCachedTypeClassification();
+		Set<TypeClassification> allTypeClass = this.classDAO.getAllCachedTypeClassification();
 		List<String> allTypeClassDescriptions = new ArrayList<String>();
 		if (!Utils.isEmpty(allTypeClass)) {
 			for (TypeClassification type : allTypeClass) {
@@ -315,7 +344,7 @@ public class TaskSetServices {
 	}
 
 	public List<String> getAllSystemsNames() {
-		Set<br.com.jpsp.model.System> allSystems = this.dao.getAllCachedSystems();
+		Set<br.com.jpsp.model.System> allSystems = this.systemDAO.getAllCachedSystems();
 		List<String> allSystemsNames = new ArrayList<String>();
 		if (!Utils.isEmpty(allSystems)) {
 			for (br.com.jpsp.model.System sys : allSystems) {
@@ -326,7 +355,7 @@ public class TaskSetServices {
 	}
 
 	public Set<br.com.jpsp.model.System> getAllSystems() {
-		Set<br.com.jpsp.model.System> allSystems = this.dao.getAllCachedSystems();
+		Set<br.com.jpsp.model.System> allSystems = this.systemDAO.getAllCachedSystems();
 		return allSystems;
 	}
 
@@ -381,7 +410,7 @@ public class TaskSetServices {
 					Collections.sort(tasksToInsert);
 
 					tasksToInsert.forEach(task -> {
-						addTask(task);
+						add(task);
 
 						total[0] = total[0] + 1;
 
@@ -410,17 +439,6 @@ public class TaskSetServices {
 	 * @return
 	 */
 	private Task readLine(String line, String separator) {
-		/*
-		 * content.append(String.valueOf(t.getBeginDateAsString()) + separator);
-		 * content.append(String.valueOf(Utils.date2String(t.getBegin(),
-		 * Utils.HH_mm_ss)) + separator);
-		 * content.append(String.valueOf(Utils.date2String(t.getEnd(), Utils.HH_mm_ss))
-		 * + separator); content.append(String.valueOf(t.getDelta()) + separator);
-		 * content.append(String.valueOf(t.getActivity()) + separator);
-		 * content.append(String.valueOf(t.getDescription()) + separator);
-		 * content.append(String.valueOf(t.getTaskClass()) + separator);
-		 * content.append(String.valueOf(t.getSystem()));
-		 */
 		Task task = null;
 		try {
 			String[] fields = line.split(separator);
@@ -469,10 +487,6 @@ public class TaskSetServices {
 		int[] timeSplit = {Integer.parseInt(split[0]), Integer.parseInt(split[1]), Integer.parseInt(split[2])};
 
 		return timeSplit;
-	}
-
-	private void purgeDatabase() {
-		dao.deleteAllTasks();
 	}
 
 }

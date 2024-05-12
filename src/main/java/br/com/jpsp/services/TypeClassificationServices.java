@@ -18,7 +18,7 @@ public class TypeClassificationServices implements CRUDServices<TypeClassificati
 	
 	@Override
 	public void add(TypeClassification typeClass) {
-		dao.addTypeClassification(typeClass);
+		dao.add(typeClass);
 	}
 
 	@Override
@@ -26,7 +26,7 @@ public class TypeClassificationServices implements CRUDServices<TypeClassificati
 		if (typeClass.isBlocked()) {
 			throw new Exception(Strings.jPSP.ERROR_BLOCKED.replaceAll("&1", Strings.jPSP.TASK_CLASS));
 		} else 
-			this.dao.removeTypeClassification(typeClass);
+			this.dao.remove(typeClass);
 	}
 
 	@Override
@@ -34,13 +34,13 @@ public class TypeClassificationServices implements CRUDServices<TypeClassificati
 		if (typeClass.isBlocked()) {
 			throw new Exception(Strings.jPSP.ERROR_BLOCKED.replaceAll("&1", Strings.jPSP.TASK_CLASS));
 		} else 
-			this.dao.updateTypeClassification(typeClass);
+			this.dao.update(typeClass);
 		
 	}
 
 	@Override
 	public Set<TypeClassification> getAll() {
-		return dao.getAllTypeClassification();
+		return dao.getAll();
 	}
 
 }

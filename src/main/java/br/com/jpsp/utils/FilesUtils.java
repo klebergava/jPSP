@@ -37,7 +37,7 @@ public class FilesUtils {
 
 	public static final String USER_CONFIG_DATA_FILE = DATA_FOLDER + FILE_SEPARATOR + USER_CONFIG_FILE_NAME;
 
-	public static final String DATABASE_FILE_V1 = DATA_FOLDER + FILE_SEPARATOR + DB_FILE_NAME;
+	public static final String DATABASE_FILE_PATH = DATA_FOLDER + FILE_SEPARATOR + DB_FILE_NAME;
 
 	public static final String OUTPUT_FOLDER = "." + FILE_SEPARATOR + OUTPUT_FOLDER_NAME;
 	public static final String LOG_FILE = OUTPUT_FOLDER + FILE_SEPARATOR + LOG_FILE_NAME;
@@ -55,7 +55,7 @@ public class FilesUtils {
 	public static final String README_FILE_NAME = "readme.html";
 	public static final String ABOUT_FILE_NAME = "about.html";
 
-	public static final String REPORT_FILE_NAME = "report.html";
+	public static final String HTML_REPORT_FILE_NAME = "report.html";
 	public static final String PIE_CHART_TYPE_FILE_NAME = "piecharttype.png";
 	public static final String PIE_CHART_ACTIVITY_FILE_NAME = "piechartactivity.png";
 
@@ -126,7 +126,7 @@ public class FilesUtils {
 
 	public static File backupDataBase() {
 		return backupDataBase(
-				String.valueOf(DATABASE_FILE_V1) + "_backup" + Utils.date2String(new Date(), "yyyyMMdd_HHmmss") + ".dbkp");
+				String.valueOf(DATABASE_FILE_PATH) + "_backup" + Utils.date2String(new Date(), "yyyyMMdd_HHmmss") + ".dbkp");
 	}
 
 	/**
@@ -136,7 +136,7 @@ public class FilesUtils {
 	 */
 	public static File backupDataBase(String fileName) {
 		File destFile = null;
-		File db = new File(DATABASE_FILE_V1);
+		File db = new File(DATABASE_FILE_PATH);
 		if (db.exists()) {
 			destFile = new File(fileName);
 			try {
@@ -152,6 +152,7 @@ public class FilesUtils {
 	}
 
 	public static void verifyDBBackup() {
+		log.trace("Checking DB File backup file");
 		Calendar cal = new GregorianCalendar();
 		cal.setTime(new Date());
 		int dayOfWeek = cal.get(7);

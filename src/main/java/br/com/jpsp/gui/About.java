@@ -115,7 +115,7 @@ public class About extends JFrame {
 		File path = new File(".");
 		html = html.replaceAll("[$][{]appFolder[}]", path.getCanonicalPath().replaceAll("[\\\\]", "/"));
 
-		path = new File(FilesUtils.DATABASE_FILE_V1);
+		path = new File(FilesUtils.DATABASE_FILE_PATH);
 		html = html.replaceAll("[$][{]dbFile[}]", path.getCanonicalPath().replaceAll("[\\\\]", "/"));
 
 		path = new File(FilesUtils.USER_CONFIG_DATA_FILE);

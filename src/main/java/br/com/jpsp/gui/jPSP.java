@@ -69,8 +69,9 @@ import br.com.jpsp.model.TaskListTableModel;
 import br.com.jpsp.services.ActivityServices;
 import br.com.jpsp.services.ConfigServices;
 import br.com.jpsp.services.DescriptionServices;
+import br.com.jpsp.services.OrderByDirection;
 import br.com.jpsp.services.Strings;
-import br.com.jpsp.services.TaskSetServices;
+import br.com.jpsp.services.TaskServices;
 import br.com.jpsp.utils.Gui;
 import br.com.jpsp.utils.Utils;
 
@@ -101,7 +102,7 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 	private JComboBox<String> taskClass;
 	private JComboBox<String> system;
 	private Task task;
-	private final TaskSetServices services = TaskSetServices.instance;
+	private final TaskServices taskServices = TaskServices.instance;
 	private final ActivityServices activityServices = ActivityServices.instance;
 	private final ConfigServices configServices = ConfigServices.instance;
 	private final DescriptionServices descriptionServices = DescriptionServices.instance;
@@ -124,7 +125,7 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 
 	private Thread clockThread;
 	private boolean isClockRunning;
-	private TaskSetServices.Order orderType;
+	private OrderByDirection orderType;
 	private JTable table = new JTable();
 
 	private boolean autoPause = true;
@@ -141,7 +142,7 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 	public jPSP() {
 		super(Strings.jPSP.TITLE + " (" + Utils.date2String(new Date(), Utils.DD_MM_YYYY) + ")");
 		log.trace("Starting jPSP app");
-		this.orderType = TaskSetServices.Order.ASC;
+		this.orderType = OrderByDirection.ASC;
 		setJNA();
 	}
 
@@ -159,13 +160,6 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 
 		setLocationRelativeTo(null);
 
-		startUpdateDateThread();
-
-		loadUserConfigurationFile();
-		if (this.autoStart) {
-			reStartLastTask();
-		}
-
 		log.trace("jPSP app started");
 
 		setMaximized();
@@ -173,6 +167,18 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 
 		GuiSingleton.disposeSplash();
 		toFront();
+
+		postStart();
+	}
+
+	private void postStart() {
+		loadUserConfigurationFile();
+		if (this.autoStart) {
+			reStartLastTask();
+		}
+
+		startUpdateDateThread();
+		updateTableByDate(Utils.getCurrentDay(), Utils.getCurrentMonth(), Utils.getCurrentYear());
 	}
 
 	/**
@@ -193,7 +199,6 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 
 		SwingUtilities.invokeLater(() -> {
 			loadUserConfigurationFile();
-			GuiSingleton.disposeLoadingScreen();
 			jPSP.this.refreshWindow();
 		});
 
@@ -287,6 +292,16 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 			}
 		});
 		appMenu.add(reloadConfig);
+
+		JMenuItem generateReport = new JMenuItem(Strings.jPSP.REPORT);
+		generateReport.setIcon(Images.REPORT_MINI);
+		generateReport.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				GuiSingleton.showReport();
+			}
+		});
+
+		appMenu.add(generateReport);
 		appMenu.addSeparator();
 
 		JMenuItem exit = new JMenuItem(Strings.jPSP.EXIT);
@@ -486,7 +501,12 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 						String message = Strings.jPSP.CONFIRM_TASK_EXCLUSION.replaceAll("&1", toRemove.getActivity());
 						int answer = JOptionPane.showConfirmDialog(null, message, Strings.GUI.CONFIRM_ACTION, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
 						if (answer == JOptionPane.OK_OPTION) {
-							jPSP.this.services.removeTask(toRemove);
+							try {
+								jPSP.this.taskServices.remove(toRemove);
+							} catch (Exception ex) {
+								log.error(ex.getMessage());
+								ex.printStackTrace();
+							}
 						}
 					}
 				} else if (Gui.getSelectedQty(jPSP.this.table) > 1) {
@@ -503,7 +523,12 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 							int r = arrayOfInt[b];
 							rowModel = jPSP.this.table.convertRowIndexToModel(r);
 							Task toRemove = model.get(rowModel);
-							jPSP.this.services.removeTask(toRemove);
+							try {
+								jPSP.this.taskServices.remove(toRemove);
+							} catch (Exception ex) {
+								log.error(ex.getMessage());
+								ex.printStackTrace();
+							}
 							b++;
 						}
 
@@ -543,17 +568,6 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 		});
 
 		configMenu.add(dbOptions);
-
-		configMenu.addSeparator();
-		JMenuItem generateReport = new JMenuItem(Strings.jPSP.REPORT);
-		generateReport.setIcon(Images.REPORT_MINI);
-		generateReport.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				GuiSingleton.showReport();
-			}
-		});
-
-		configMenu.add(generateReport);
 
 		configMenu.addSeparator();
 
@@ -618,9 +632,9 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 		GuiSingleton.showLoadingScreen(Strings.DBOptions.DATABASE_RELOADING, true, 0, 0);
 
 		new Thread( () -> {
-			synchronized (jPSP.this.services) {
+			synchronized (jPSP.this) {
 				try {
-					jPSP.this.tasks = jPSP.this.services.getAllTasks();
+					jPSP.this.tasks = jPSP.this.taskServices.getAllTasks();
 					if (jPSP.this.tasks != null) {
 						jPSP.this.centerTable.removeAll();
 
@@ -729,7 +743,7 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 	}
 
 	private List<Task> filterTasksByDayAndMonth(int day, int month, int year) {
-		return this.services.filterTasksByDayMonthAndYear(day, month, year);
+		return this.taskServices.filterTasksByDayMonthAndYear(day, month, year);
 	}
 
 	private JPanel mountMain() {
@@ -767,7 +781,7 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 		this.chronometer = new JLabel("   00:00:00   ", 10);
 
 		List<String> tasks = this.activityServices.getAllActivitiesDescriptions();
-		Set<String> descs = this.services.getAllDescriptions();
+		Set<String> descs = this.taskServices.getAllDescriptions();
 
 		this.taskActivity = new JComboBox<String>(tasks.toArray(new String[tasks.size()]));
 		this.taskActivity.setFont(Gui.getFont(0, Integer.valueOf(14)));
@@ -1005,7 +1019,6 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 		south.add(bottom, "South");
 
 		this.centerTable = new JPanel(new BorderLayout());
-		updateTableByDate(Utils.getCurrentDay(), Utils.getCurrentMonth(), Utils.getCurrentYear());
 
 		main.add(north, "North");
 		main.add(this.centerTable, "Center");
@@ -1059,16 +1072,18 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 		return year;
 	}
 
+	/**
+	 *
+	 */
 	protected void updateTableByActivity() {
-
 
 		GuiSingleton.showLoadingScreen(Strings.DBOptions.DATABASE_RELOADING, true, 0, 0);
 
 		new Thread( () -> {
 
-			synchronized (jPSP.this.services) {
+			synchronized (jPSP.this) {
 				try {
-					jPSP.this.tasks = jPSP.this.services.getAllTasks();
+					jPSP.this.tasks = jPSP.this.taskServices.getAllTasks();
 					if (jPSP.this.tasks != null) {
 						if (jPSP.this.activity.getSelectedItem() != null && !Utils.isEmpty(jPSP.this.activity.getSelectedItem().toString())) {
 							jPSP.this.tasks = filterTasksByActivity(jPSP.this.activity.getSelectedItem().toString());
@@ -1088,7 +1103,7 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 	}
 
 	private List<Task> filterTasksByActivity(String text) {
-		return this.services.filterTasksByActivity(text);
+		return this.taskServices.filterTasksByActivity(text);
 	}
 
 	private void startPause() {
@@ -1107,7 +1122,7 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 	private void pauseTask() {
 		if (this.task != null) {
 			this.task.setEnd(new Date());
-			this.services.addTask(this.task);
+			this.taskServices.add(this.task);
 			this.taskEnd = this.task.getEnd();
 			this.task = null;
 			updateTableByDate(getSelectedDay().intValue(), this.months.getSelectedIndex(), getYear());
@@ -1329,6 +1344,7 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 		new Thread( () -> {
 			reloadAllGUIFromDB();
 			jPSP.this.refreshWindow();
+			GuiSingleton.disposeLoadingScreen();
 		}).start();
 	}
 
@@ -1344,7 +1360,7 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 				Object[] valuesBefore = this.getComboxValues();
 
 				List<String> tasks = this.activityServices.getAllActivitiesDescriptions();
-				Set<String> descs = this.services.getAllDescriptions();
+				Set<String> descs = this.taskServices.getAllDescriptions();
 
 				taskDescription.removeAllItems();
 				for (String desc : descs) {
@@ -1356,14 +1372,14 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 					taskActivity.addItem(t);
 				}
 
-				List<String> tcdesc = this.services.getAllTypeClassDesc();
+				List<String> tcdesc = this.taskServices.getAllTypeClassDesc();
 				taskClass.removeAllItems();
 				for (String t : tcdesc) {
 					taskClass.addItem(t);
 				}
 				taskClass.setSelectedIndex(0);
 
-				List<String> sys = this.services.getAllSystemsNames();
+				List<String> sys = this.taskServices.getAllSystemsNames();
 				system.removeAllItems();
 				for (String s : sys) {
 					system.addItem(s);
@@ -1380,15 +1396,11 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 				taskClass.setSelectedItem(valuesBefore[2]);
 				system.setSelectedItem(valuesBefore[3]);
 
-
 			} catch (Exception ex) {
 				log.error("reloadAllGUIFromDB() " + ex.getMessage());
 				ex.printStackTrace();
-			} finally {
-				GuiSingleton.disposeLoadingScreen();
 			}
 		}
-
 
 	}
 
@@ -1414,6 +1426,7 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 
 		if (answer == JOptionPane.OK_OPTION) {
 			persistCombosValues();
+			stopUpdateDateThread();
 
 			if (this.task != null) {
 				answer = JOptionPane.showConfirmDialog(null, Strings.jPSP.TASK_IN_PROGRESS_CONFIRM,
@@ -1630,7 +1643,7 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 	}
 
 	private void reStartLastTask() {
-		Task lastTask = this.services.getLastTask();
+		Task lastTask = this.taskServices.getLastTask();
 		doContinue(lastTask);
 	}
 
@@ -1656,6 +1669,17 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 
 		this.updateDateThreadRunning = true;
 		this.thread.start();
+	}
+
+	private void stopUpdateDateThread() {
+		if (this.thread != null && this.updateDateThreadRunning) {
+			try {
+				this.thread.interrupt();
+				this.thread = null;
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+		}
 	}
 
 	public boolean isClockWasRunning() {

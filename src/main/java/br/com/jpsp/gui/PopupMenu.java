@@ -9,11 +9,15 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JTable;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import br.com.jpsp.gui.resources.Images;
 import br.com.jpsp.model.Task;
 import br.com.jpsp.model.TaskListTableModel;
+import br.com.jpsp.services.ReportServices;
 import br.com.jpsp.services.Strings;
-import br.com.jpsp.services.TaskSetServices;
+import br.com.jpsp.services.TaskServices;
 import br.com.jpsp.utils.Gui;
 
 /**
@@ -21,8 +25,10 @@ import br.com.jpsp.utils.Gui;
  */
 public class PopupMenu extends JPopupMenu {
 	private static final long serialVersionUID = 6879620017103017314L;
+	private final static Logger log = LogManager.getLogger(ReportServices.class);
+
 	private final JTable tableSource;
-	private final TaskSetServices services = TaskSetServices.instance;
+	private final TaskServices services = TaskServices.instance;
 	private final Refreshable refreshable;
 
 	public PopupMenu(JTable table, Refreshable refreshable) {
@@ -198,7 +204,12 @@ public class PopupMenu extends JPopupMenu {
 								message, Strings.GUI.CONFIRM_ACTION,
 								JOptionPane.OK_CANCEL_OPTION);
 						if (answer == JOptionPane.OK_OPTION) {
-							PopupMenu.this.services.removeTask(toRemove);
+							try {
+								PopupMenu.this.services.remove(toRemove);
+							} catch (Exception ex) {
+								log.error(ex.getMessage());
+								ex.printStackTrace();
+							}
 						}
 					}
 				} else if (selected > 1) {
@@ -215,7 +226,12 @@ public class PopupMenu extends JPopupMenu {
 							int r = arrayOfInt[b];
 							rowModel = PopupMenu.this.tableSource.convertRowIndexToModel(r);
 							Task toRemove = model.get(rowModel);
-							PopupMenu.this.services.removeTask(toRemove);
+							try {
+								PopupMenu.this.services.remove(toRemove);
+							} catch (Exception ex) {
+								log.error(ex.getMessage());
+								ex.printStackTrace();
+							}
 							b++;
 						}
 

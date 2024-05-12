@@ -23,7 +23,7 @@ import org.apache.logging.log4j.Logger;
 import br.com.jpsp.gui.GuiSingleton;
 import br.com.jpsp.gui.resources.Images;
 import br.com.jpsp.services.Strings;
-import br.com.jpsp.services.TaskSetServices;
+import br.com.jpsp.services.TaskServices;
 import br.com.jpsp.utils.FilesUtils;
 import br.com.jpsp.utils.Gui;
 import br.com.jpsp.utils.Utils;
@@ -33,17 +33,18 @@ import br.com.jpsp.utils.Utils;
  */
 public class ExportDB2Txt extends JDialog {
 	private static final long serialVersionUID = -3218307819517596211L;
+	private final static Logger log = LogManager.getLogger(ExportDB2Txt.class);
+
 	private JCheckBox includeHeaders;
 	private JTextField separator;
 	private JTextField targetDir;
-	private final TaskSetServices services = TaskSetServices.instance;
+	private final TaskServices services = TaskServices.instance;
 	private JTextField fileName;
 	private JTextField encoding;
 	private final JFileChooser fc = new JFileChooser();
 	private JButton cancel;
 	private JButton exportDB;
 	private File directoryToExport;
-	private final static Logger log = LogManager.getLogger(ExportDB2Txt.class);
 
 	public ExportDB2Txt() {
 		super();

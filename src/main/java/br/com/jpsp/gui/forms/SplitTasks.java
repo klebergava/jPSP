@@ -24,6 +24,9 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import br.com.jpsp.gui.DateSpinner;
 import br.com.jpsp.gui.GuiSingleton;
 import br.com.jpsp.gui.Refreshable;
@@ -35,12 +38,17 @@ import br.com.jpsp.model.TaskValidation;
 import br.com.jpsp.services.ActivityServices;
 import br.com.jpsp.services.DescriptionServices;
 import br.com.jpsp.services.Strings;
-import br.com.jpsp.services.TaskSetServices;
+import br.com.jpsp.services.TaskServices;
 import br.com.jpsp.utils.Gui;
 import br.com.jpsp.utils.Utils;
 
+/**
+ *
+ */
 public class SplitTasks extends JDialog implements Refreshable, WindowListener {
 	private static final long serialVersionUID = -103651380043899625L;
+	private final static Logger log = LogManager.getLogger(SplitTasks.class);
+
 	private JSpinner beginTask1;
 	private JSpinner endTask1;
 	private JTextField deltaTask1;
@@ -57,7 +65,7 @@ public class SplitTasks extends JDialog implements Refreshable, WindowListener {
 	private JComboBox<String> systemTask2;
 	private final Refreshable refreshable;
 
-	private final TaskSetServices services = TaskSetServices.instance;
+	private final TaskServices services = TaskServices.instance;
 	private final ActivityServices activityServices = ActivityServices.instance;
 	private final DescriptionServices descriptionServices = DescriptionServices.instance;
 
@@ -276,9 +284,14 @@ public class SplitTasks extends JDialog implements Refreshable, WindowListener {
 		errors.addAll(TaskValidation.validate(this.task2, " (" + Strings.SplitTasks.TASK_2 + ")"));
 
 		if (errors.isEmpty()) {
-			this.services.removeTask(this.originalTask);
-			this.services.addTask(this.task1);
-			this.services.addTask(this.task2);
+			try {
+				this.services.remove(this.originalTask);
+			} catch (Exception e) {
+				log.error(e.getMessage());
+				e.printStackTrace();
+			}
+			this.services.add(this.task1);
+			this.services.add(this.task2);
 
 			this.activityServices.add(new Activity(this.task1.getActivity()));
 			this.activityServices.add(new Activity(this.task2.getActivity()));

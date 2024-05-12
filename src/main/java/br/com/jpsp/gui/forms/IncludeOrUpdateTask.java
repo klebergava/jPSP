@@ -24,6 +24,9 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import br.com.jpsp.gui.DateSpinner;
 import br.com.jpsp.gui.GuiSingleton;
 import br.com.jpsp.gui.Refreshable;
@@ -35,12 +38,14 @@ import br.com.jpsp.model.TaskValidation;
 import br.com.jpsp.services.ActivityServices;
 import br.com.jpsp.services.DescriptionServices;
 import br.com.jpsp.services.Strings;
-import br.com.jpsp.services.TaskSetServices;
+import br.com.jpsp.services.TaskServices;
 import br.com.jpsp.utils.Gui;
 import br.com.jpsp.utils.Utils;
 
 public class IncludeOrUpdateTask extends JDialog implements Refreshable, WindowListener {
 	private static final long serialVersionUID = -103651380043899625L;
+	private final static Logger log = LogManager.getLogger(IncludeOrUpdateTask.class);
+
 	private Task updatedTask;
 	private JSpinner begin;
 	private JSpinner end;
@@ -53,10 +58,9 @@ public class IncludeOrUpdateTask extends JDialog implements Refreshable, WindowL
 
 	private JComboBox<String> system;
 
-
 	private final Refreshable refreshable;
 
-	private final TaskSetServices services = TaskSetServices.instance;
+	private final TaskServices services = TaskServices.instance;
 	private final ActivityServices activityServices = ActivityServices.instance;
 	private final DescriptionServices descriptionServices = DescriptionServices.instance;
 
@@ -227,9 +231,14 @@ public class IncludeOrUpdateTask extends JDialog implements Refreshable, WindowL
 		List<String> errors = TaskValidation.validate(this.updatedTask);
 		if (errors.isEmpty()) {
 			if (this.isInclusion) {
-				this.services.addTask(this.updatedTask);
+				this.services.add(this.updatedTask);
 			} else {
-				this.services.updateTask(this.updatedTask);
+				try {
+					this.services.update(this.updatedTask);
+				} catch (Exception e) {
+					log.error(e.getMessage());
+					e.printStackTrace();
+				}
 			}
 
 			Activity activity = new Activity(this.updatedTask.getActivity());

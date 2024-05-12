@@ -9,34 +9,46 @@ import java.sql.Statement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ *
+ */
 public abstract class DAO {
-	
+
 	protected Connection connection;
 	protected Statement stmt;
 	protected boolean noDatabase = false;
 
 	private final static Logger log = LogManager.getLogger(DAO.class);
-	
+
 	protected void execute(String sql) {
-		try {
-			openConnection(true);
-			this.stmt.execute(sql);
-		} catch (SQLException e) {
-			log.error("execute() " + e.getMessage());
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			log.error("execute() " + e.getMessage());
-			e.printStackTrace();
-		} finally {
+
+		synchronized (DAO.this) {
 			try {
-				closeConnection(false);
+				openConnection(true);
+				this.stmt.execute(sql);
 			} catch (SQLException e) {
 				log.error("execute() " + e.getMessage());
 				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				log.error("execute() " + e.getMessage());
+				e.printStackTrace();
+			} finally {
+				try {
+					closeConnection(false);
+				} catch (SQLException e) {
+					log.error("execute() " + e.getMessage());
+					e.printStackTrace();
+				}
 			}
 		}
+
 	}
 
+	/**
+	 *
+	 * @param sql
+	 * @return
+	 */
 	public int executeUpdate(String sql) {
 		try {
 			return this.stmt.executeUpdate(sql);
@@ -47,7 +59,12 @@ public abstract class DAO {
 		}
 	}
 
-	protected synchronized Result executeQuery(String sql) {
+	/**
+	 *
+	 * @param sql
+	 * @return
+	 */
+	protected Result executeQuery(String sql) {
 		try {
 			return new MyResult(this.stmt.executeQuery(sql));
 		} catch (SQLException e) {
@@ -62,19 +79,33 @@ public abstract class DAO {
 		return this.noDatabase;
 	}
 
+	protected abstract void loadDatabase();
+
+	/**
+	 *
+	 * @param autoCommit
+	 * @throws ClassNotFoundException
+	 * @throws SQLException
+	 */
 	protected void openConnection(boolean autoCommit) throws ClassNotFoundException, SQLException {
 		loadDatabase();
 		connection.setAutoCommit(autoCommit);
 	}
 
-	protected abstract void loadDatabase();
-
+	/**
+	 *
+	 * @param commit
+	 * @throws SQLException
+	 */
 	protected void closeConnection(boolean commit) throws SQLException {
 		this.stmt.close();
 		if (commit) {
 			connection.commit();
 		}
 		connection.close();
+
+		this.stmt = null;
+		this.connection = null;
 	}
 
 	protected boolean isVersionDifferent() {
