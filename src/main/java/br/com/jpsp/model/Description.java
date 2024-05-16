@@ -1,5 +1,10 @@
 package br.com.jpsp.model;
 
+/**
+ * 
+ * @author kleber
+ *
+ */
 public class Description extends CRUD {
 	
 	private String description;
@@ -12,7 +17,7 @@ public class Description extends CRUD {
 	}
 
 	@Override
-	public CRUD from(String description) {
+	public Description from(String description) {
 		Description desc = new Description(description);
 		return desc;
 	}

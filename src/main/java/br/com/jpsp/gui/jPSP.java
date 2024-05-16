@@ -71,7 +71,9 @@ import br.com.jpsp.services.ConfigServices;
 import br.com.jpsp.services.DescriptionServices;
 import br.com.jpsp.services.OrderByDirection;
 import br.com.jpsp.services.Strings;
+import br.com.jpsp.services.SystemServices;
 import br.com.jpsp.services.TaskServices;
+import br.com.jpsp.services.TypeClassificationServices;
 import br.com.jpsp.utils.Gui;
 import br.com.jpsp.utils.Utils;
 
@@ -103,9 +105,11 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 	private JComboBox<String> system;
 	private Task task;
 	private final TaskServices taskServices = TaskServices.instance;
+	private final SystemServices systemServices = SystemServices.instance;
 	private final ActivityServices activityServices = ActivityServices.instance;
 	private final ConfigServices configServices = ConfigServices.instance;
 	private final DescriptionServices descriptionServices = DescriptionServices.instance;
+	private final TypeClassificationServices typeClassificationServices = TypeClassificationServices.instance;
 
 	private List<Task> tasks;
 
@@ -160,8 +164,7 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 
 		setLocationRelativeTo(null);
 
-		log.trace("jPSP app started");
-
+		this.pack();
 		setMaximized();
 		setVisible(true);
 
@@ -169,8 +172,13 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 		toFront();
 
 		postStart();
+		
+		log.trace("jPSP app started");
 	}
 
+	/**
+	 * 
+	 */
 	private void postStart() {
 		loadUserConfigurationFile();
 		if (this.autoStart) {
@@ -179,6 +187,8 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 
 		startUpdateDateThread();
 		updateTableByDate(Utils.getCurrentDay(), Utils.getCurrentMonth(), Utils.getCurrentYear());
+		
+//		this.setPreferredSize(new Dimension(1024, 768));
 	}
 
 	/**
@@ -282,6 +292,8 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 	private void createMenuBar() {
 		JMenuBar menuBar = new JMenuBar();
 
+		// Menu Aplicação
+		// **************
 		JMenu appMenu = new JMenu(Strings.jPSP.APP);
 
 		JMenuItem reloadConfig = new JMenuItem(Strings.jPSP.RELOAD_CONFIG);
@@ -314,6 +326,9 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 		appMenu.add(exit);
 		menuBar.add(appMenu);
 
+		
+		// Menu Editar
+		// **************
 		JMenu editMenu = new JMenu(Strings.jPSP.EDIT);
 
 		JMenu editItem = new JMenu(Strings.jPSP.CRUD);
@@ -543,6 +558,9 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 		editMenu.add(edit);
 
 		menuBar.add(editMenu);
+		
+		// Menu Opções
+		// **************
 
 		JMenu configMenu = new JMenu(Strings.jPSP.OPTIONS);
 		configMenu.getAccessibleContext().setAccessibleDescription(Strings.jPSP.OPTIONS);
@@ -603,9 +621,10 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 		}
 
 
-		//////////////////////////////////////////////// SOBRE...
-		JMenu about = new JMenu(Strings.ABOUT);
-
+		// Menu Sobre
+		// **************
+		final JMenu about = new JMenu(Strings.ABOUT);
+		
 		JMenuItem aboutjPSP = new JMenuItem(Strings.jPSP.ABOUT, Images.ABOUT);
 		aboutjPSP.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -632,7 +651,7 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 		GuiSingleton.showLoadingScreen(Strings.DBOptions.DATABASE_RELOADING, true, 0, 0);
 
 		new Thread( () -> {
-			synchronized (jPSP.this) {
+			synchronized (jPSP.this.centerTable) {
 				try {
 					jPSP.this.tasks = jPSP.this.taskServices.getAllTasks();
 					if (jPSP.this.tasks != null) {
@@ -781,7 +800,7 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 		this.chronometer = new JLabel("   00:00:00   ", 10);
 
 		List<String> tasks = this.activityServices.getAllActivitiesDescriptions();
-		Set<String> descs = this.taskServices.getAllDescriptions();
+		Set<String> descs = this.descriptionServices.getAllDescriptions();
 
 		this.taskActivity = new JComboBox<String>(tasks.toArray(new String[tasks.size()]));
 		this.taskActivity.setFont(Gui.getFont(0, Integer.valueOf(14)));
@@ -1081,7 +1100,7 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 
 		new Thread( () -> {
 
-			synchronized (jPSP.this) {
+			synchronized (jPSP.this.centerTable) {
 				try {
 					jPSP.this.tasks = jPSP.this.taskServices.getAllTasks();
 					if (jPSP.this.tasks != null) {
@@ -1360,7 +1379,7 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 				Object[] valuesBefore = this.getComboxValues();
 
 				List<String> tasks = this.activityServices.getAllActivitiesDescriptions();
-				Set<String> descs = this.taskServices.getAllDescriptions();
+				Set<String> descs = this.descriptionServices.getAllDescriptions();
 
 				taskDescription.removeAllItems();
 				for (String desc : descs) {
@@ -1372,14 +1391,14 @@ public class jPSP extends JFrame implements WindowListener, Refreshable, MouseLi
 					taskActivity.addItem(t);
 				}
 
-				List<String> tcdesc = this.taskServices.getAllTypeClassDesc();
+				List<String> tcdesc = this.typeClassificationServices.getAllTypeClassDesc();
 				taskClass.removeAllItems();
 				for (String t : tcdesc) {
 					taskClass.addItem(t);
 				}
 				taskClass.setSelectedIndex(0);
 
-				List<String> sys = this.taskServices.getAllSystemsNames();
+				List<String> sys = this.systemServices.getAllSystemsNames();
 				system.removeAllItems();
 				for (String s : sys) {
 					system.addItem(s);

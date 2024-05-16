@@ -1,7 +1,6 @@
 package br.com.jpsp.services;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -14,10 +13,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import javax.swing.SwingUtilities;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -27,7 +26,6 @@ import br.com.jpsp.model.Task;
 import br.com.jpsp.model.TaskActivityWrapper;
 import br.com.jpsp.model.TaskDateWrapper;
 import br.com.jpsp.model.TaskTypeWrapper;
-import br.com.jpsp.model.TypeClassification;
 import br.com.jpsp.utils.FilesUtils;
 import br.com.jpsp.utils.Utils;
 
@@ -37,6 +35,11 @@ import br.com.jpsp.utils.Utils;
 public class TaskServices extends RepositoryAccessServices implements CRUDServices<Task>  {
 	private final static Logger log = LogManager.getLogger(TaskServices.class);
 	public static final TaskServices instance = new TaskServices();
+	
+	private final ActivityServices activityServices = ActivityServices.instance;
+	private final DescriptionServices descriptionServices = DescriptionServices.instance;
+	private final TypeClassificationServices typeClassificationServices = TypeClassificationServices.instance;
+	private final SystemServices systemServices = SystemServices.instance;
 
 	private TaskServices() {
 		super();
@@ -49,17 +52,23 @@ public class TaskServices extends RepositoryAccessServices implements CRUDServic
 
 	@Override
 	public void add(Task task) {
-		taskDAO.add(task);
+		synchronized (TaskServices.this) {
+			taskDAO.add(task);
+		}
 	}
 
 	@Override
 	public void remove(Task task) throws Exception {
-		taskDAO.removeTask(task);
+		synchronized (TaskServices.this) {
+			taskDAO.removeTask(task);
+		}
 	}
 
 	@Override
 	public void update(Task task) throws Exception {
-		taskDAO.updateTask(task);
+		synchronized (TaskServices.this) {
+			taskDAO.updateTask(task);
+		}
 	}
 
 	/**
@@ -214,14 +223,12 @@ public class TaskServices extends RepositoryAccessServices implements CRUDServic
 
 	public void removeTasks(List<Task> tasks) {
 		if (!Utils.isEmpty(tasks)) {
-			for (Task t : tasks) {
-				this.taskDAO.removeTask(t);
+			synchronized (TaskServices.this) {
+				for (Task t : tasks) {
+					this.taskDAO.removeTask(t);
+				}
 			}
 		}
-	}
-
-	public Set<String> getAllDescriptions() {
-		return this.descDAO.getAllDescriptions();
 	}
 
 	public List<Task> filterTasksByActivity(String text) {
@@ -258,65 +265,61 @@ public class TaskServices extends RepositoryAccessServices implements CRUDServic
 		return this.taskDAO.getMostRecent();
 	}
 
-	public boolean exportDB2Txt(File target, String separator, String encoding, boolean includeHeaders) {
+	/**
+	 * 
+	 * @param target
+	 * @param separator
+	 * @param encoding
+	 * @param includeHeaders
+	 * @return
+	 */
+	public boolean exportTasksDB2Txt(File target, String separator, String encoding, boolean includeHeaders) {
 		boolean ok = false;
-		List<Task> tasks = getAllTasks();
-
-		if (Utils.isEmpty(separator)) {
-			separator = Utils.DEFAULT_SEPARATOR;
-		}
-
-		StringBuilder content = new StringBuilder("");
-
-		if (!Utils.isEmpty(tasks)) {
-
-			if (includeHeaders) {
-				content.append("data_inicio" + separator);
-				content.append("hora_inicio" + separator);
-				content.append("hora_fim" + separator);
-				content.append("delta" + separator);
-				content.append("atividade" + separator);
-				content.append("descricao" + separator);
-				content.append("classificacao" + separator);
-				content.append("sistema\n");
+		
+		synchronized (TaskServices.this) {
+		
+			List<Task> tasks = getAllTasks();
+	
+			if (Utils.isEmpty(separator)) {
+				separator = Utils.DEFAULT_SEPARATOR;
 			}
-
-			for (Task t : tasks) {
-
-				content.append(String.valueOf(t.getBeginDateAsString()) + separator);
-				content.append(String.valueOf(Utils.date2String(t.getBegin(), Utils.HH_mm_ss)) + separator);
-				content.append(String.valueOf(Utils.date2String(t.getEnd(), Utils.HH_mm_ss)) + separator);
-				content.append(String.valueOf(t.getDelta()) + separator);
-				content.append(String.valueOf(t.getActivity()) + separator);
-				content.append(String.valueOf(t.getDescription()) + separator);
-				content.append(String.valueOf(t.getTaskClass()) + separator);
-				content.append(String.valueOf(t.getSystem()));
-
-				content.append("\n");
+	
+			StringBuilder content = new StringBuilder("");
+	
+			if (!Utils.isEmpty(tasks)) {
+	
+				if (includeHeaders) {
+					content.append("data_inicio" + separator);
+					content.append("hora_inicio" + separator);
+					content.append("hora_fim" + separator);
+					content.append("delta" + separator);
+					content.append("atividade" + separator);
+					content.append("descricao" + separator);
+					content.append("classificacao" + separator);
+					content.append("sistema\n");
+				}
+	
+				for (Task t : tasks) {
+	
+					content.append(String.valueOf(t.getBeginDateAsString()) + separator);
+					content.append(String.valueOf(Utils.date2String(t.getBegin(), Utils.HH_mm_ss)) + separator);
+					content.append(String.valueOf(Utils.date2String(t.getEnd(), Utils.HH_mm_ss)) + separator);
+					content.append(String.valueOf(t.getDelta()) + separator);
+					content.append(String.valueOf(t.getActivity()) + separator);
+					content.append(String.valueOf(t.getDescription()) + separator);
+					content.append(String.valueOf(t.getTaskClass()) + separator);
+					content.append(String.valueOf(t.getSystem()));
+	
+					content.append("\n");
+				}
+	
+				try {
+					ok = FilesUtils.writeTxtFile(target, new String(content.toString().getBytes(), encoding));
+				} catch (UnsupportedEncodingException e) {
+					log.error("exportDB2Txt() " + e.getMessage());
+					e.printStackTrace();
+				}
 			}
-
-			try {
-				ok = FilesUtils.writeTxtFile(target, new String(content.toString().getBytes(), encoding));
-			} catch (UnsupportedEncodingException e) {
-				log.error("exportDB2Txt() " + e.getMessage());
-				e.printStackTrace();
-			}
-		}
-
-		return ok;
-	}
-
-	public boolean restoreDB(File fileToRestore) {
-		boolean ok = false;
-		String fn = String.valueOf(FilesUtils.DATABASE_FILE_PATH) + "_backup_before_restore" + ".dbkp";
-		FilesUtils.backupDataBase(fn);
-
-		try {
-			FileUtils.copyFile(fileToRestore, new File(FilesUtils.DATABASE_FILE_PATH));
-			ok = true;
-		} catch (IOException e) {
-			log.error("restoreDB() " + e.getMessage());
-			e.printStackTrace();
 		}
 
 		return ok;
@@ -332,33 +335,6 @@ public class TaskServices extends RepositoryAccessServices implements CRUDServic
 		return total;
 	}
 
-	public List<String> getAllTypeClassDesc() {
-		Set<TypeClassification> allTypeClass = this.classDAO.getAllCachedTypeClassification();
-		List<String> allTypeClassDescriptions = new ArrayList<String>();
-		if (!Utils.isEmpty(allTypeClass)) {
-			for (TypeClassification type : allTypeClass) {
-				allTypeClassDescriptions.add(type.getDescription());
-			}
-		}
-		return allTypeClassDescriptions;
-	}
-
-	public List<String> getAllSystemsNames() {
-		Set<br.com.jpsp.model.System> allSystems = this.systemDAO.getAllCachedSystems();
-		List<String> allSystemsNames = new ArrayList<String>();
-		if (!Utils.isEmpty(allSystems)) {
-			for (br.com.jpsp.model.System sys : allSystems) {
-				allSystemsNames.add(sys.getName());
-			}
-		}
-		return allSystemsNames;
-	}
-
-	public Set<br.com.jpsp.model.System> getAllSystems() {
-		Set<br.com.jpsp.model.System> allSystems = this.systemDAO.getAllCachedSystems();
-		return allSystems;
-	}
-
 	/**
 	 *
 	 * @param sourceFile
@@ -367,67 +343,100 @@ public class TaskServices extends RepositoryAccessServices implements CRUDServic
 	 * @param hasHeaders
 	 * @return
 	 */
-	public boolean importDBFromTxt(File sourceFile, final String fieldSeparator, String encoding, boolean hasHeaders,
+	public boolean importTasksFromTxt(File sourceFile, final String fieldSeparator, String encoding, boolean hasHeaders,
 			boolean deleteAllData) {
 
 		File dbBackupFile = FilesUtils.backupDataBase();
 
 		boolean importOK = false;
-		try {
+		
+		synchronized (TaskServices.this) {
+			try {
 
-			if (deleteAllData) {
-				purgeDatabase();
-			}
-
-			List<String> lines = FilesUtils.readTxtFile(sourceFile, encoding);
-
-			List<Task> tasksToInsert = new ArrayList<Task>();
-			if (!Utils.isEmpty(lines)) {
-				if (hasHeaders) {
-					lines.remove(0);
+				if (deleteAllData) {
+					purgeDatabase();
 				}
 
-				final int[] total = {0};
-				final LoadingScreen readingFile = GuiSingleton.showLoadingScreen(Strings.DBOptions.READING_FILE, false, 0, lines.size());
-				lines.forEach(line -> {
-					Task task = readLine(line, fieldSeparator);
-					if (task != null) tasksToInsert.add(task);
+				List<String> lines = FilesUtils.readTxtFile(sourceFile, encoding);
 
-					total[0] = total[0] + 1;
+				List<Task> tasksToInsert = new ArrayList<Task>();
+				if (!Utils.isEmpty(lines)) {
+					if (hasHeaders) {
+						lines.remove(0);
+					}
 
-					SwingUtilities.invokeLater(() -> {
-						readingFile.updateProgressBar(total[0]);
-					});
+					final int[] total = {0};
+					final LoadingScreen readingFile = GuiSingleton.showLoadingScreen(Strings.DBOptions.READING_FILE, false, 0, lines.size());
 
-				});
-
-				GuiSingleton.disposeLoadingScreen();
-
-				if (!Utils.isEmpty(tasksToInsert)) {
-					LoadingScreen importingData = GuiSingleton.showLoadingScreen(Strings.DBOptions.IMPORTING_DATA, false, 0, tasksToInsert.size());
-					total[0] = 0;
-					// ordena pela data
-					Collections.sort(tasksToInsert);
-
-					tasksToInsert.forEach(task -> {
-						add(task);
+					final Set<String> activities = new TreeSet<String>();
+					final Set<String> descriptions = new TreeSet<String>();
+					final Set<String> systems = new TreeSet<String>();
+					final Set<String> typeClass = new TreeSet<String>();
+					
+					lines.forEach(line -> {
+						Task taskReadFromFile = readLine(line, fieldSeparator);
+						if (taskReadFromFile != null) {
+							tasksToInsert.add(taskReadFromFile);
+							
+							activities.add(taskReadFromFile.getActivity());
+							descriptions.add(taskReadFromFile.getDescription());
+							systems.add(taskReadFromFile.getDescription());
+							typeClass.add(taskReadFromFile.getDescription());
+						}
 
 						total[0] = total[0] + 1;
 
 						SwingUtilities.invokeLater(() -> {
-							importingData.updateProgressBar(total[0]);
+							readingFile.updateProgressBar(total[0]);
 						});
+
 					});
 
-					importOK = true;
+					GuiSingleton.disposeLoadingScreen();
+
+					if (!Utils.isEmpty(tasksToInsert)) {
+						LoadingScreen importingData = GuiSingleton.showLoadingScreen(Strings.DBOptions.IMPORTING_DATA, false, 0, tasksToInsert.size());
+						total[0] = 0;
+						// ordena pela data
+						Collections.sort(tasksToInsert);
+
+						tasksToInsert.forEach(task -> {
+							add(task);
+
+							total[0] = total[0] + 1;
+
+							SwingUtilities.invokeLater(() -> {
+								importingData.updateProgressBar(total[0]);
+							});
+						});
+
+						importOK = true;
+
+						if (!Utils.isEmpty(activities)) {
+							activityServices.addActivities(activities);
+						}
+						
+						if (!Utils.isEmpty(descriptions)) {
+							descriptionServices.addDescriptions(descriptions);
+						}
+						
+						if (!Utils.isEmpty(systems)) {
+							systemServices.addSystems(systems);
+						}
+						
+						if (!Utils.isEmpty(typeClass)) {
+							typeClassificationServices.addTypeClasses(typeClass);
+						}
+						
+					}
 				}
-			}
-		} catch (Exception ex) {
-			restoreDB(dbBackupFile);
-			log.error("importDBFromTxt() " + ex.getMessage());
-			ex.printStackTrace();
-		} finally {
-			GuiSingleton.disposeLoadingScreen();
+			} catch (Exception ex) {
+				restoreDB(dbBackupFile);
+				log.error("importDBFromTxt() " + ex.getMessage());
+				ex.printStackTrace();
+			} finally {
+				GuiSingleton.disposeLoadingScreen();
+			}			
 		}
 
 		return importOK;

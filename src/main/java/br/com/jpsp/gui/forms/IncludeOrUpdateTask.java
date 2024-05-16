@@ -60,7 +60,7 @@ public class IncludeOrUpdateTask extends JDialog implements Refreshable, WindowL
 
 	private final Refreshable refreshable;
 
-	private final TaskServices services = TaskServices.instance;
+	private final TaskServices taskServices = TaskServices.instance;
 	private final ActivityServices activityServices = ActivityServices.instance;
 	private final DescriptionServices descriptionServices = DescriptionServices.instance;
 
@@ -137,7 +137,7 @@ public class IncludeOrUpdateTask extends JDialog implements Refreshable, WindowL
 		this.task = new JComboBox<String>(tasks.toArray(new String[tasks.size()]));
 		this.task.setEditable(true);
 
-		Set<String> descs = this.services.getAllDescriptions();
+		Set<String> descs = this.descriptionServices.getAllDescriptions();
 		this.description = new JComboBox<String>(descs.toArray(new String[descs.size()]));
 		this.description.setEditable(true);
 
@@ -231,10 +231,10 @@ public class IncludeOrUpdateTask extends JDialog implements Refreshable, WindowL
 		List<String> errors = TaskValidation.validate(this.updatedTask);
 		if (errors.isEmpty()) {
 			if (this.isInclusion) {
-				this.services.add(this.updatedTask);
+				this.taskServices.add(this.updatedTask);
 			} else {
 				try {
-					this.services.update(this.updatedTask);
+					this.taskServices.update(this.updatedTask);
 				} catch (Exception e) {
 					log.error(e.getMessage());
 					e.printStackTrace();

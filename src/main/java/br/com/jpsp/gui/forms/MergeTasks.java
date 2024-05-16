@@ -58,7 +58,7 @@ public class MergeTasks extends JDialog implements Refreshable, WindowListener {
 	private JComboBox<String> system;
 	private final Refreshable refreshable;
 
-	private final TaskServices services = TaskServices.instance;
+	private final TaskServices taskServices = TaskServices.instance;
 	private final ActivityServices activityServices = ActivityServices.instance;
 	private final DescriptionServices descriptionServices = DescriptionServices.instance;
 
@@ -164,7 +164,7 @@ public class MergeTasks extends JDialog implements Refreshable, WindowListener {
 		this.task = new JComboBox<String>(tasks.toArray(new String[tasks.size()]));
 		this.task.setEditable(true);
 
-		Set<String> descs = this.services.getAllDescriptions();
+		Set<String> descs = this.descriptionServices.getAllDescriptions();
 		this.description = new JComboBox<String>(descs.toArray(new String[descs.size()]));
 		this.description.setEditable(true);
 
@@ -252,8 +252,8 @@ public class MergeTasks extends JDialog implements Refreshable, WindowListener {
 		List<String> errors = TaskValidation.validate(this.mergedTask);
 		if (errors.isEmpty()) {
 			try {
-				this.services.removeTasks(this.tasks);
-				this.services.add(this.mergedTask);
+				this.taskServices.removeTasks(this.tasks);
+				this.taskServices.add(this.mergedTask);
 				this.activityServices.add(new Activity(this.mergedTask.getActivity()));
 				this.descriptionServices.add(new Description(this.mergedTask.getDescription()));
 			} catch (Exception ex) {

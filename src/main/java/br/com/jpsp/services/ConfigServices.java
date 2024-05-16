@@ -15,6 +15,11 @@ import org.apache.logging.log4j.Logger;
 import br.com.jpsp.model.Configuration;
 import br.com.jpsp.utils.FilesUtils;
 
+/**
+ * 
+ * @author kleber
+ *
+ */
 public class ConfigServices {
 	private final static Logger log = LogManager.getLogger(ConfigServices.class);
 
@@ -40,17 +45,19 @@ public class ConfigServices {
 	}
 
 	private void createEmptyFile() {
-		Configuration defaultConfig = new Configuration();
-		defaultConfig.setAutoPause(1);
-		defaultConfig.setAlertTime("17:00");
-		defaultConfig.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
-		defaultConfig.setName(FilesUtils.USER_NAME);
-		defaultConfig.setAutoStart(0);
-
-		this.updateConfiguration(defaultConfig);
+		synchronized (ConfigServices.this) {
+			Configuration defaultConfig = new Configuration();
+			defaultConfig.setAutoPause(1);
+			defaultConfig.setAlertTime("17:00");
+			defaultConfig.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+			defaultConfig.setName(FilesUtils.USER_NAME);
+			defaultConfig.setAutoStart(0);
+	
+			this.updateConfiguration(defaultConfig);
+		}
 	}
 
-	public synchronized Configuration getConfiguration() {
+	public Configuration getConfiguration() {
 		checkFile();
 
 		Configuration instance = BUFFER.get(KEY);
@@ -82,29 +89,31 @@ public class ConfigServices {
 	 * @param config
 	 * @return
 	 */
-	public synchronized boolean updateConfiguration(Configuration config) {
+	public boolean updateConfiguration(Configuration config) {
 		boolean updated = false;
 
-        try {
-        	File datFile = new File(FilesUtils.USER_CONFIG_DATA_FILE);
-			if (!datFile.exists()) {
-				if (!datFile.createNewFile()) {
-					throw new IOException("Could not create file " + datFile.getAbsolutePath());
+		synchronized (ConfigServices.this) {
+	        try {
+	        	File datFile = new File(FilesUtils.USER_CONFIG_DATA_FILE);
+				if (!datFile.exists()) {
+					if (!datFile.createNewFile()) {
+						throw new IOException("Could not create file " + datFile.getAbsolutePath());
+					}
 				}
-			}
-            FileOutputStream fileOut = new FileOutputStream(datFile);
-            ObjectOutputStream out = new ObjectOutputStream(fileOut);
-            out.writeObject(config);
-            out.close();
-            fileOut.close();
+	            FileOutputStream fileOut = new FileOutputStream(datFile);
+	            ObjectOutputStream out = new ObjectOutputStream(fileOut);
+	            out.writeObject(config);
+	            out.close();
+	            fileOut.close();
 
-            BUFFER.put(KEY, config);
+	            BUFFER.put(KEY, config);
 
-            updated = true;
-        } catch (IOException ex) {
-        	log.error("updateConfiguration() " + ex.getMessage());
-            ex.printStackTrace();
-        }
+	            updated = true;
+	        } catch (IOException ex) {
+	        	log.error("updateConfiguration() " + ex.getMessage());
+	            ex.printStackTrace();
+	        }			
+		}
 
 		return updated;
 	}

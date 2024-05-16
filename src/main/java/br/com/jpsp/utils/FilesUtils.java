@@ -136,15 +136,18 @@ public class FilesUtils {
 	 */
 	public static File backupDataBase(String fileName) {
 		File destFile = null;
-		File db = new File(DATABASE_FILE_PATH);
-		if (db.exists()) {
-			destFile = new File(fileName);
-			try {
-				FileUtils.copyFile(db, destFile);
-			} catch (IOException e) {
-				destFile = null;
-				log.error("backupDataBase() " + e.getMessage());
-				e.printStackTrace();
+		
+		synchronized (FilesUtils.class) {
+			File db = new File(DATABASE_FILE_PATH);
+			if (db.exists()) {
+				destFile = new File(fileName);
+				try {
+					FileUtils.copyFile(db, destFile);
+				} catch (IOException e) {
+					destFile = null;
+					log.error("backupDataBase() " + e.getMessage());
+					e.printStackTrace();
+				}
 			}
 		}
 

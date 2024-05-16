@@ -176,7 +176,7 @@ public class ExportDB2Txt extends JDialog {
 			File txtFile = new File(
 					String.valueOf(this.directoryToExport.getCanonicalPath()) + FilesUtils.FILE_SEPARATOR + fn);
 
-			if (this.services.exportDB2Txt(txtFile, s, enc, this.includeHeaders.isSelected())) {
+			if (this.services.exportTasksDB2Txt(txtFile, s, enc, this.includeHeaders.isSelected())) {
 				try {
 					String path = txtFile.getCanonicalPath();
 					path = path.replaceAll("[\\\\]", "/");

@@ -47,7 +47,7 @@ public class BatchUpdateTask extends JDialog implements WindowListener {
 	private final Collection<Task> tasks;
 	private final Refreshable refreshable;
 
-	private final TaskServices services = TaskServices.instance;
+	private final TaskServices taskServices = TaskServices.instance;
 	private final ActivityServices activityServices = ActivityServices.instance;
 	private final DescriptionServices descriptionServices = DescriptionServices.instance;
 
@@ -151,7 +151,7 @@ public class BatchUpdateTask extends JDialog implements WindowListener {
 		this.task = new JComboBox<String>(persistedTasks.toArray(new String[persistedTasks.size()]));
 		this.task.setEditable(true);
 
-		Set<String> descs = this.services.getAllDescriptions();
+		Set<String> descs = this.descriptionServices.getAllDescriptions();
 		this.description = new JComboBox<String>(descs.toArray(new String[descs.size()]));
 		this.description.setEditable(true);
 
@@ -249,7 +249,7 @@ public class BatchUpdateTask extends JDialog implements WindowListener {
 					updatedTask.setSystem(this.system.getSelectedItem().toString());
 				}
 				try {
-					this.services.update(updatedTask);
+					this.taskServices.update(updatedTask);
 				} catch (Exception e) {
 					log.error(e.getMessage());
 					e.printStackTrace();

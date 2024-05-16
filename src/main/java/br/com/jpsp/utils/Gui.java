@@ -39,7 +39,8 @@ import br.com.jpsp.model.Task;
 import br.com.jpsp.model.TaskListTableModel;
 import br.com.jpsp.services.ConfigServices;
 import br.com.jpsp.services.Strings;
-import br.com.jpsp.services.TaskServices;
+import br.com.jpsp.services.SystemServices;
+import br.com.jpsp.services.TypeClassificationServices;
 
 /**
  *
@@ -49,7 +50,8 @@ public class Gui {
 	private final static Logger log = LogManager.getLogger(Gui.class);
 
 	private static final ConfigServices configServices = ConfigServices.instance;
-	private static final TaskServices services = TaskServices.instance;
+	private static final TypeClassificationServices typeClassificationServices = TypeClassificationServices.instance;
+	private static final SystemServices systemServices = SystemServices.instance;
 
 	public static final Font COURIER_12 = new Font("Courier", 0, 12);
 
@@ -329,13 +331,13 @@ public class Gui {
 	}
 
 	public static JComboBox<String> createTypeClassCombo() {
-		List<String> types =	services.getAllTypeClassDesc();
+		List<String> types = typeClassificationServices.getAllTypeClassDesc();
 		JComboBox<String> taskClass = new JComboBox<String>(types.toArray(new String[types.size()]));
 		return taskClass;
 	}
 
 	public static JComboBox<String> createSystemsCombo() {
-		List<String> systems = services.getAllSystemsNames();
+		List<String> systems = systemServices.getAllSystemsNames();
 		JComboBox<String> systemsCombo = new JComboBox<String>(systems.toArray(new String[systems.size()]));
 		return systemsCombo;
 	}

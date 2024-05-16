@@ -24,17 +24,23 @@ public class ActivityServices extends RepositoryAccessServices implements CRUDSe
 
 	@Override
 	public void add(Activity activity) {
-		this.activityDAO.add(activity);
+		synchronized (ActivityServices.this) {
+			this.activityDAO.add(activity);
+		}
 	}
 
 	@Override
 	public void remove(Activity activity) throws Exception {
-		this.activityDAO.remove(activity);
+		synchronized (ActivityServices.this) {
+			this.activityDAO.remove(activity);
+		}
 	}
 
 	@Override
 	public void update(Activity activity) throws Exception {
-		this.activityDAO.update(activity);
+		synchronized (ActivityServices.this) {
+			this.activityDAO.update(activity);
+		}
 	}
 
 	public List<String> getAllActivitiesDescriptions() {
@@ -48,4 +54,14 @@ public class ActivityServices extends RepositoryAccessServices implements CRUDSe
 		return allActivitiesDescriptions;
 	}
 
+	public void addActivities(Set<String> activities) {
+		if (!Utils.isEmpty(activities)) {
+			activities.forEach(activity -> {
+				Activity newActivity = new Activity().from(activity);
+				if (!activityDAO.exists(newActivity)) {
+					activityDAO.add(newActivity);
+				}
+			});
+		}
+	}
 }

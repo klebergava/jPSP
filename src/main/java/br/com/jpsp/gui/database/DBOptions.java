@@ -21,6 +21,7 @@ import org.apache.logging.log4j.Logger;
 import br.com.jpsp.gui.GuiSingleton;
 import br.com.jpsp.gui.Refreshable;
 import br.com.jpsp.gui.resources.Images;
+import br.com.jpsp.services.RepositoryAccessServicesAdapter;
 import br.com.jpsp.services.Strings;
 import br.com.jpsp.utils.FilesUtils;
 import br.com.jpsp.utils.Gui;
@@ -151,9 +152,13 @@ public class DBOptions extends JDialog implements WindowListener {
 
 	public void windowDeactivated(WindowEvent e) {
 	}
-
+	
+	/**
+	 * 
+	 */
 	private void doBackup() {
-		if (FilesUtils.backupDataBase() != null) {
+		File backupFile = RepositoryAccessServicesAdapter.instance.backupDatabase();
+		if (backupFile != null) {
 			File dir = new File(FilesUtils.DATA_FOLDER);
 			try {
 				String path = dir.getCanonicalPath();
@@ -169,4 +174,5 @@ public class DBOptions extends JDialog implements WindowListener {
 			log.info("doBackup() " + Strings.DBOptions.ERROR_BACKUP);
 		}
 	}
+
 }

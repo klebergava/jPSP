@@ -65,7 +65,7 @@ public class SplitTasks extends JDialog implements Refreshable, WindowListener {
 	private JComboBox<String> systemTask2;
 	private final Refreshable refreshable;
 
-	private final TaskServices services = TaskServices.instance;
+	private final TaskServices taskServices = TaskServices.instance;
 	private final ActivityServices activityServices = ActivityServices.instance;
 	private final DescriptionServices descriptionServices = DescriptionServices.instance;
 
@@ -123,7 +123,7 @@ public class SplitTasks extends JDialog implements Refreshable, WindowListener {
 		});
 
 		List<String> tasks = this.activityServices.getAllActivitiesDescriptions();
-		Set<String> descs = this.services.getAllDescriptions();
+		Set<String> descs = this.descriptionServices.getAllDescriptions();
 
 		this.deltaTask2 = new JTextField("");
 		this.deltaTask2.setEditable(false);
@@ -285,13 +285,13 @@ public class SplitTasks extends JDialog implements Refreshable, WindowListener {
 
 		if (errors.isEmpty()) {
 			try {
-				this.services.remove(this.originalTask);
+				this.taskServices.remove(this.originalTask);
 			} catch (Exception e) {
 				log.error(e.getMessage());
 				e.printStackTrace();
 			}
-			this.services.add(this.task1);
-			this.services.add(this.task2);
+			this.taskServices.add(this.task1);
+			this.taskServices.add(this.task2);
 
 			this.activityServices.add(new Activity(this.task1.getActivity()));
 			this.activityServices.add(new Activity(this.task2.getActivity()));

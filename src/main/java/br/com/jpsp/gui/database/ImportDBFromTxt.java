@@ -243,7 +243,7 @@ public class ImportDBFromTxt extends JDialog {
 
 				try {
 
-					if (this.services.importDBFromTxt(this.fileToImportFrom, fieldSeparator, enc,
+					if (this.services.importTasksFromTxt(this.fileToImportFrom, fieldSeparator, enc,
 							this.hasHeaders.isSelected(), deleteAllDataSelected[0])) {
 						try {
 							String path = this.fileToImportFrom.getCanonicalPath();

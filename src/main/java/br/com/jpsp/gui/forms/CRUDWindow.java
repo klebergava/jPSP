@@ -118,12 +118,11 @@ public class CRUDWindow<T extends CRUDServices<CRUD>> extends JDialog {
 		buttons.add(button);
 		button = new JButton(Strings.Form.INCLUDE, Images.ADD);
 		button.addActionListener(new ActionListener() {
-			@SuppressWarnings("rawtypes")
+			
 			public void actionPerformed(ActionEvent e) {
-				@SuppressWarnings("unchecked")
-				CRUDWindow<T>.MiniEdit edit = new CRUDWindow.MiniEdit(null);
-				edit.createAndShow();
+				openMiniEdit();
 			}
+
 		});
 		buttons.add(button);
 		JPanel closePanel = new JPanel(new FlowLayout());
@@ -143,6 +142,14 @@ public class CRUDWindow<T extends CRUDServices<CRUD>> extends JDialog {
 		return main;
 	}
 
+	@SuppressWarnings("rawtypes")
+	private void openMiniEdit() {
+		this.toBack();
+		@SuppressWarnings("unchecked")
+		CRUDWindow<T>.MiniEdit edit = new CRUDWindow.MiniEdit(null);
+		edit.createAndShow();
+	}
+	
 	private void closeWindow() {
 		dispose();
 		if (this.refreshable != null)
@@ -257,14 +264,16 @@ public class CRUDWindow<T extends CRUDServices<CRUD>> extends JDialog {
 	}
 
 
-	class MiniEdit extends JFrame {
+	class MiniEdit extends JDialog {
 		private static final long serialVersionUID = -8993577068607053069L;
 		private JTextField txt;
 		private CRUD toEdit;
 		private boolean include;
 
 		public MiniEdit(CRUD toEdit) {
-			super(CRUDWindow.this.getTitle());
+			super();
+			this.setTitle(CRUDWindow.this.getTitle());
+			this.setModal(true);
 			this.toEdit = toEdit;
 			this.include = toEdit == null;
 			Gui.setConfiguredLookAndFeel(this);
@@ -282,8 +291,12 @@ public class CRUDWindow<T extends CRUDServices<CRUD>> extends JDialog {
 			pack();
 			setLocationRelativeTo(CRUDWindow.this);
 			setResizable(false);
-			setVisible(true);
+			
 			setAlwaysOnTop(true);
+			this.toFront();
+			
+			setVisible(true);
+			
 		}
 
 		private JPanel mountMain() {
@@ -317,6 +330,7 @@ public class CRUDWindow<T extends CRUDServices<CRUD>> extends JDialog {
 				Gui.showErrorMessage(this, Strings.Form.ERROR_MANDATORY_FIELD);
 			} else {
 				CRUDWindow.this.refreshlList(this.include, CRUDWindow.this.instance.from(this.txt.getText()), this.toEdit);
+				CRUDWindow.this.toFront();
 				dispose();
 			}
 		}
