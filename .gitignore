@@ -1,9 +1,9 @@
 output/
 data/
-.gitignore
 .classpath
 jar/
 .settings/
+target/
 .idea/
 .project
 jPSP.iml
