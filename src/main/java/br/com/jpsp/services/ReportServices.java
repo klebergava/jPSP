@@ -780,7 +780,7 @@ public class ReportServices {
 					cell.setCellValue(Strings.Excel.COL_DESENV);
 					cell.setCellStyle(totalStyle((Workbook) hSSFWorkbook, (short) 1));
 					cell = row.createCell(3);
-					cell.setCellValue(Strings.Excel.COL_DESENV);
+					cell.setCellValue(Strings.Excel.COL_CORRECTION);
 					cell.setCellStyle(totalStyle((Workbook) hSSFWorkbook, (short) 1));
 					cell = row.createCell(4);
 					cell.setCellValue(Strings.Excel.COL_OTHERS);
