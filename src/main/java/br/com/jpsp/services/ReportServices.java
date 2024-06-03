@@ -61,7 +61,7 @@ public class ReportServices {
 			boolean includePieChartActivity, boolean openInDefaultBrowser) {
 
 		final File html = new File(String.valueOf(FilesUtils.OUTPUT_FOLDER) + FilesUtils.FILE_SEPARATOR + FilesUtils.HTML_REPORT_FILE_NAME);
-		
+
 
 		synchronized (ReportServices.this) {
 			if (html.exists()) {
@@ -162,9 +162,9 @@ public class ReportServices {
 				e.printStackTrace();
 			}
 		}
-		
-		
-		
+
+
+
 
 		return html;
 	}
@@ -222,7 +222,7 @@ public class ReportServices {
 			boolean includePieChartActivity, boolean openInDefaultBrowser, OrderByDirection order) {
 
 		final File html = new File(String.valueOf(getOutputFolder()) + FilesUtils.FILE_SEPARATOR + FilesUtils.HTML_REPORT_FILE_NAME);
-		
+
 		synchronized (ReportServices.this) {
 			if (html.exists()) {
 				if (!html.delete()) {
@@ -323,7 +323,7 @@ public class ReportServices {
 				e.printStackTrace();
 			}
 		}
-		
+
 		return html;
 	}
 
@@ -349,7 +349,7 @@ public class ReportServices {
 			Map<String, TaskActivityWrapper> wrappedActivities, boolean includePieChartActivity,
 			boolean openInDefaultBrowser, OrderByDirection order) {
 		final File html = new File(String.valueOf(getOutputFolder()) + FilesUtils.FILE_SEPARATOR + FilesUtils.HTML_REPORT_FILE_NAME);
-		
+
 		synchronized (ReportServices.this) {
 			if (html.exists()) {
 				if (!html.delete()) {
@@ -464,7 +464,7 @@ public class ReportServices {
 				e.printStackTrace();
 			}
 		}
-		
+
 		return html;
 	}
 
@@ -492,7 +492,7 @@ public class ReportServices {
 		}
 		File excelFile = new File(String.valueOf(directory) + FilesUtils.FILE_SEPARATOR + "Apontamento_" + userName
 				+ monthTxt + "_" + year + ".xls");
-		
+
 		synchronized (ReportServices.this) {
 			if (excelFile.exists()) {
 				if (!excelFile.delete()) {
@@ -780,7 +780,7 @@ public class ReportServices {
 					cell.setCellValue(Strings.Excel.COL_DESENV);
 					cell.setCellStyle(totalStyle((Workbook) hSSFWorkbook, (short) 1));
 					cell = row.createCell(3);
-					cell.setCellValue(Strings.Excel.COL_DESENV);
+					cell.setCellValue(Strings.Excel.COL_CORRECTION);
 					cell.setCellStyle(totalStyle((Workbook) hSSFWorkbook, (short) 1));
 					cell = row.createCell(4);
 					cell.setCellValue(Strings.Excel.COL_OTHERS);
