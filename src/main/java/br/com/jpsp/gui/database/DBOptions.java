@@ -99,6 +99,16 @@ public class DBOptions extends JDialog implements WindowListener {
 
 		fields.add(export);
 
+		JButton exportJson = new JButton(Strings.DBOptions.EXPORT_JSON);
+		exportJson.setIcon(Images.JSON);
+		exportJson.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				GuiSingleton.showExportDB2Json();
+			}
+		});
+
+		fields.add(exportJson);
+
 		JButton importDB = new JButton(Strings.DBOptions.IMPORT_DB);
 		importDB.setIcon(Images.DATABASE_IMPORT);
 		importDB.addActionListener(new ActionListener() {
@@ -121,7 +131,7 @@ public class DBOptions extends JDialog implements WindowListener {
 
 		fields.add(buttons);
 
-		Gui.makeCompactGrid(fields, 5, 1, 10, 10, 10, 10);
+		Gui.makeCompactGrid(fields, 6, 1, 10, 10, 10, 10);
 		main.add(fields, "Center");
 
 		return main;
@@ -152,9 +162,9 @@ public class DBOptions extends JDialog implements WindowListener {
 
 	public void windowDeactivated(WindowEvent e) {
 	}
-	
+
 	/**
-	 * 
+	 *
 	 */
 	private void doBackup() {
 		File backupFile = RepositoryAccessServicesAdapter.instance.backupDatabase();

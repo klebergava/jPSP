@@ -5,6 +5,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import com.google.gson.JsonObject;
+
 import br.com.jpsp.utils.Utils;
 
 public class Task extends CRUD implements Serializable {
@@ -218,5 +220,21 @@ public class Task extends CRUD implements Serializable {
 	@Override
 	public boolean isBlocked() {
 		return false;
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	public JsonObject getJson() {
+		JsonObject json = new JsonObject();
+		json.addProperty("begin", Utils.date2String(this.begin, Utils.DD_MM_YYYY_HH_mm_ss));
+		json.addProperty("end", Utils.date2String(this.end, Utils.DD_MM_YYYY_HH_mm_ss));
+		json.addProperty("delta", this.delta);
+		json.addProperty("activity", this.activity);
+		json.addProperty("description", this.description);
+		json.addProperty("classification", this.taskClass);
+		json.addProperty("system", Utils.isEmpty(this.system) ?  "" : this.system);
+		return json;
 	}
 }

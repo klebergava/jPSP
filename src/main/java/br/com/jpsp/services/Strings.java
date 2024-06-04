@@ -5,8 +5,8 @@ import br.com.jpsp.utils.Utils;
 
 public class Strings {
 
-	public static final String VERSION = "1.0.1";
-	public static final String VERSION_DATE = "14/05/2024";
+	public static final String VERSION = "1.0.2";
+	public static final String VERSION_DATE = "04/06/2024";
 
 	public static final String START = "Iniciar";
 	public static final String PAUSE = "Pausar ";
@@ -257,6 +257,7 @@ public class Strings {
 		public static final String ERROR_BACKUP = "Erro ao fazer backup do arquivo '" + FilesUtils.DATABASE_FILE_PATH + "'";
 		public static final String SUCCESS_BACKUP = "Backup da base de dados realizado com sucesso em '&1'.";
 		public static final String EXPORT_TITLE = "Exportar banco de dados para arquivo texto";
+		public static final String EXPORT_JSON_TITLE = "Exportar banco de dados para JSon";
 		public static final String IMPORT_TITLE = "Importar banco de dados de arquivo texto";
 		public static final String FILE_NAME = "Nome do arquivo";
 		public static final String CHOOSE_DIR = "Escolher diretório...";
@@ -269,6 +270,7 @@ public class Strings {
 		public static final String EXPORT_SUCCESS = "Arquivo salvo com sucesso em '&1'.";
 		public static final String EXPORT_ERROR = "Não foi possível criar o arquivo '&1'.";
 		public static final String DEFAULT_EXPORT_FILE_NAME = "jpsp_db_export.csv";
+		public static final String DEFAULT_JSON_FILE_NAME = "jpsp_db_export.json";
 		public static final String INCLUDE_HEADERS = "Incluir cabeçalho";
 
 		public static final String IMPORT = "Importar";
@@ -288,6 +290,7 @@ public class Strings {
 		public static final String READING_FILE = "Lendo arquivo, por favor aguarde...";
 		public static final String LINES_READ = "&1 linhas lidas do arquivo";
 		public static final String CURRENT_DATABASE = "Base de dados atual";
+		public static final String EXPORT_JSON = "Exportar dados para JSON";
 	}
 
 	public static class BatchUpdateTask {

@@ -65,6 +65,8 @@ import javax.swing.ImageIcon;
 	   public static final Icon PIE_CHART = new ImageIcon(Images.class.getResource("piechart.png"));
 	   public static final Icon MERGE = new ImageIcon(Images.class.getResource("merge.png"));
 	   public static final Icon SPLIT = new ImageIcon(Images.class.getResource("split.png"));
+	   public static final Icon JSON = new ImageIcon(Images.class.getResource("json.png"));
+	   public static final Image JSON_IMG = Toolkit.getDefaultToolkit().getImage(Images.class.getResource("json.png"));
 
 	   public static final Image PIE_CHART_IMG = Toolkit.getDefaultToolkit().getImage(Images.class.getResource("piechart.png"));
 

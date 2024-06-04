@@ -35,7 +35,7 @@ import br.com.jpsp.utils.Utils;
 public class TaskServices extends RepositoryAccessServices implements CRUDServices<Task>  {
 	private final static Logger log = LogManager.getLogger(TaskServices.class);
 	public static final TaskServices instance = new TaskServices();
-	
+
 	private final ActivityServices activityServices = ActivityServices.instance;
 	private final DescriptionServices descriptionServices = DescriptionServices.instance;
 	private final TypeClassificationServices typeClassificationServices = TypeClassificationServices.instance;
@@ -266,7 +266,7 @@ public class TaskServices extends RepositoryAccessServices implements CRUDServic
 	}
 
 	/**
-	 * 
+	 *
 	 * @param target
 	 * @param separator
 	 * @param encoding
@@ -275,19 +275,19 @@ public class TaskServices extends RepositoryAccessServices implements CRUDServic
 	 */
 	public boolean exportTasksDB2Txt(File target, String separator, String encoding, boolean includeHeaders) {
 		boolean ok = false;
-		
+
 		synchronized (TaskServices.this) {
-		
+
 			List<Task> tasks = getAllTasks();
-	
+
 			if (Utils.isEmpty(separator)) {
 				separator = Utils.DEFAULT_SEPARATOR;
 			}
-	
+
 			StringBuilder content = new StringBuilder("");
-	
+
 			if (!Utils.isEmpty(tasks)) {
-	
+
 				if (includeHeaders) {
 					content.append("data_inicio" + separator);
 					content.append("hora_inicio" + separator);
@@ -298,9 +298,9 @@ public class TaskServices extends RepositoryAccessServices implements CRUDServic
 					content.append("classificacao" + separator);
 					content.append("sistema\n");
 				}
-	
+
 				for (Task t : tasks) {
-	
+
 					content.append(String.valueOf(t.getBeginDateAsString()) + separator);
 					content.append(String.valueOf(Utils.date2String(t.getBegin(), Utils.HH_mm_ss)) + separator);
 					content.append(String.valueOf(Utils.date2String(t.getEnd(), Utils.HH_mm_ss)) + separator);
@@ -309,14 +309,51 @@ public class TaskServices extends RepositoryAccessServices implements CRUDServic
 					content.append(String.valueOf(t.getDescription()) + separator);
 					content.append(String.valueOf(t.getTaskClass()) + separator);
 					content.append(String.valueOf(t.getSystem()));
-	
+
 					content.append("\n");
 				}
-	
+
 				try {
 					ok = FilesUtils.writeTxtFile(target, new String(content.toString().getBytes(), encoding));
 				} catch (UnsupportedEncodingException e) {
-					log.error("exportDB2Txt() " + e.getMessage());
+					log.error("exportTasksDB2Txt() " + e.getMessage());
+					e.printStackTrace();
+				}
+			}
+		}
+
+		return ok;
+	}
+
+	/**
+	 *
+	 * @param target
+	 * @param separator
+	 * @param encoding
+	 * @param includeHeaders
+	 * @return
+	 */
+	public boolean exportTasksDB2Json(File target, String encoding) {
+		boolean ok = false;
+
+		synchronized (TaskServices.this) {
+
+			List<Task> tasks = getAllTasks();
+
+			StringBuilder content = new StringBuilder("");
+
+			if (!Utils.isEmpty(tasks)) {
+
+				content.append("[\n");
+				for (Task t : tasks) {
+					content.append(t.getJson() + ",\n");
+				}
+				content.append("]");
+
+				try {
+					ok = FilesUtils.writeTxtFile(target, new String(content.toString().getBytes(), encoding));
+				} catch (UnsupportedEncodingException e) {
+					log.error("exportTasksDB2Json() " + e.getMessage());
 					e.printStackTrace();
 				}
 			}
@@ -349,7 +386,7 @@ public class TaskServices extends RepositoryAccessServices implements CRUDServic
 		File dbBackupFile = FilesUtils.backupDataBase();
 
 		boolean importOK = false;
-		
+
 		synchronized (TaskServices.this) {
 			try {
 
@@ -372,12 +409,12 @@ public class TaskServices extends RepositoryAccessServices implements CRUDServic
 					final Set<String> descriptions = new TreeSet<String>();
 					final Set<String> systems = new TreeSet<String>();
 					final Set<String> typeClass = new TreeSet<String>();
-					
+
 					lines.forEach(line -> {
 						Task taskReadFromFile = readLine(line, fieldSeparator);
 						if (taskReadFromFile != null) {
 							tasksToInsert.add(taskReadFromFile);
-							
+
 							activities.add(taskReadFromFile.getActivity());
 							descriptions.add(taskReadFromFile.getDescription());
 							systems.add(taskReadFromFile.getDescription());
@@ -415,19 +452,19 @@ public class TaskServices extends RepositoryAccessServices implements CRUDServic
 						if (!Utils.isEmpty(activities)) {
 							activityServices.addActivities(activities);
 						}
-						
+
 						if (!Utils.isEmpty(descriptions)) {
 							descriptionServices.addDescriptions(descriptions);
 						}
-						
+
 						if (!Utils.isEmpty(systems)) {
 							systemServices.addSystems(systems);
 						}
-						
+
 						if (!Utils.isEmpty(typeClass)) {
 							typeClassificationServices.addTypeClasses(typeClass);
 						}
-						
+
 					}
 				}
 			} catch (Exception ex) {
@@ -436,7 +473,7 @@ public class TaskServices extends RepositoryAccessServices implements CRUDServic
 				ex.printStackTrace();
 			} finally {
 				GuiSingleton.disposeLoadingScreen();
-			}			
+			}
 		}
 
 		return importOK;

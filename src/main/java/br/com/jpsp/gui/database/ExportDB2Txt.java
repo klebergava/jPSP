@@ -48,7 +48,7 @@ public class ExportDB2Txt extends JDialog {
 
 	public ExportDB2Txt() {
 		super();
-		this.setTitle(Strings.DBOptions.IMPORT_TITLE);
+		this.setTitle(Strings.DBOptions.EXPORT_TITLE);
 		setModal(true);
 		Gui.setConfiguredLookAndFeel(this);
 	}
@@ -56,7 +56,7 @@ public class ExportDB2Txt extends JDialog {
 	public void createAndShow() {
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-		setIconImage(Images.DATABASE_IMPORT_IMG);
+		setIconImage(Images.DATABASE_EXPORT_IMG);
 
 		getContentPane().setLayout(new BorderLayout());
 		getContentPane().add(mountMain(), "Center");
