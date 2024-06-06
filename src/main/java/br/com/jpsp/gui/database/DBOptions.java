@@ -89,15 +89,18 @@ public class DBOptions extends JDialog implements WindowListener {
 		});
 		fields.add(restore);
 
-		JButton export = new JButton(Strings.DBOptions.EXPORT_DB);
+		////////// EXPORT
+		JPanel exportDBOptions = new JPanel(new BorderLayout());
+		exportDBOptions.setBorder(Gui.getTitledBorder(Strings.DBOptions.EXPORT_DB, Gui.COURIER_12));
+		JPanel exports = new JPanel(new SpringLayout());
+
+		JButton export = new JButton(Strings.DBOptions.EXPORT_CSV);
 		export.setIcon(Images.DATABASE_EXPORT);
 		export.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				GuiSingleton.showExportDB2Txt();
 			}
 		});
-
-		fields.add(export);
 
 		JButton exportJson = new JButton(Strings.DBOptions.EXPORT_JSON);
 		exportJson.setIcon(Images.JSON);
@@ -107,9 +110,18 @@ public class DBOptions extends JDialog implements WindowListener {
 			}
 		});
 
-		fields.add(exportJson);
+		exports.add(export);
+		exports.add(exportJson);
+		Gui.makeCompactGrid(exports, 2, 1, 10, 10, 10, 10);
+		exportDBOptions.add(exports, "Center");
+		fields.add(exportDBOptions);
 
-		JButton importDB = new JButton(Strings.DBOptions.IMPORT_DB);
+		////////// IMPORT
+		JPanel importDBOptions = new JPanel(new BorderLayout());
+		importDBOptions.setBorder(Gui.getTitledBorder(Strings.DBOptions.IMPORT_DB, Gui.COURIER_12));
+		JPanel imports = new JPanel(new SpringLayout());
+
+		JButton importDB = new JButton(Strings.DBOptions.IMPORT_CSV);
 		importDB.setIcon(Images.DATABASE_IMPORT);
 		importDB.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -117,7 +129,21 @@ public class DBOptions extends JDialog implements WindowListener {
 			}
 		});
 
-		fields.add(importDB);
+		JButton importJson = new JButton(Strings.DBOptions.IMPORT_JSON);
+		importJson.setIcon(Images.JSON);
+		importJson.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				GuiSingleton.showImportDBFromJson();
+			}
+		});
+
+		imports.add(importDB);
+		imports.add(importJson);
+		Gui.makeCompactGrid(imports, 2, 1, 10, 10, 10, 10);
+
+		importDBOptions.add(imports, "Center");
+		fields.add(importDBOptions);
+		//////////////////////
 
 		JPanel buttons = new JPanel(new BorderLayout());
 		this.cancel = new JButton(Strings.GUI.CANCEL);
@@ -131,7 +157,7 @@ public class DBOptions extends JDialog implements WindowListener {
 
 		fields.add(buttons);
 
-		Gui.makeCompactGrid(fields, 6, 1, 10, 10, 10, 10);
+		Gui.makeCompactGrid(fields, 5, 1, 10, 10, 10, 10);
 		main.add(fields, "Center");
 
 		return main;

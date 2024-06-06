@@ -8,6 +8,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -45,8 +46,6 @@ public class FilesUtils {
 	public static final String DB_TXT_FILE_NAME = "jpsp_db.txt";
 	public static final String DB_TXT_FILE = DATA_FOLDER_NAME + FILE_SEPARATOR + DB_TXT_FILE_NAME;
 
-//	public static final String DEFAULT_ENCODING = "ISO8859_1";
-	public static final String DEFAULT_ENCODING = "UTF-8";
 	public static final String USER_HOME_DIR = System.getProperty("user.home");
 
 	public static final String BACKUP_EXT = ".dbkp";
@@ -136,7 +135,7 @@ public class FilesUtils {
 	 */
 	public static File backupDataBase(String fileName) {
 		File destFile = null;
-		
+
 		synchronized (FilesUtils.class) {
 			File db = new File(DATABASE_FILE_PATH);
 			if (db.exists()) {
@@ -263,11 +262,11 @@ public class FilesUtils {
         return lines;
 	}
 
-	public static List<String> readTxtFile(File toRead, String encoding) {
+	public static List<String> readTxtFile(File toRead, Charset encoding) {
 
 		List<String> lines = new ArrayList<String>();
 
-		if (Utils.isEmpty(encoding)) {
+		if (encoding == null) {
 			return readTxtFile(toRead);
 		} else {
 

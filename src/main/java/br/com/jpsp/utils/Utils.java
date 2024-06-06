@@ -2,6 +2,8 @@ package br.com.jpsp.utils;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormatSymbols;
 import java.text.DecimalFormat;
 import java.text.ParsePosition;
@@ -44,6 +46,8 @@ public class Utils {
 
 	public static int SCREEN_WIDTH = 0;
 	public static int SCREEN_HEIGHT = 0;
+
+	public static final Charset[] ENCODINGS = {StandardCharsets.UTF_8, StandardCharsets.UTF_16, StandardCharsets.UTF_16LE, StandardCharsets.UTF_16BE, StandardCharsets.US_ASCII, StandardCharsets.ISO_8859_1};
 
 	static {
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();

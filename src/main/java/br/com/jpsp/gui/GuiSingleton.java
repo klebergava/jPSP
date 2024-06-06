@@ -9,6 +9,7 @@ import javax.swing.SwingUtilities;
 import br.com.jpsp.gui.database.DBOptions;
 import br.com.jpsp.gui.database.ExportDB2Json;
 import br.com.jpsp.gui.database.ExportDB2Txt;
+import br.com.jpsp.gui.database.ImportDBFromJson;
 import br.com.jpsp.gui.database.ImportDBFromTxt;
 import br.com.jpsp.gui.database.RestoreDB;
 import br.com.jpsp.gui.forms.BatchUpdateTask;
@@ -41,6 +42,7 @@ public final class GuiSingleton {
 	static ExportDB2Txt exportDB2Txt;
 	static ExportDB2Json exportDB2Json;
 	static ImportDBFromTxt importDBFromTxt;
+	static ImportDBFromJson importDBFromJson;
 	static RestoreDB restoreDB;
 	static DBOptions DBOptions;
 	static Splash splash;
@@ -254,6 +256,15 @@ public final class GuiSingleton {
 			importDBFromTxt.createAndShow();
 		} else {
 			importDBFromTxt.toFront();
+		}
+	}
+
+	public static void showImportDBFromJson() {
+		if (importDBFromJson == null || !importDBFromJson.isVisible()) {
+			importDBFromJson = new ImportDBFromJson();
+			importDBFromJson.createAndShow();
+		} else {
+			importDBFromJson.toFront();
 		}
 	}
 

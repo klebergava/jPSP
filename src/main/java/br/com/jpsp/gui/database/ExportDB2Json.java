@@ -6,8 +6,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -37,7 +39,7 @@ public class ExportDB2Json extends JDialog {
 	private JTextField targetDir;
 	private final TaskServices services = TaskServices.instance;
 	private JTextField fileName;
-	private JTextField encoding;
+	private JComboBox<Charset> encoding;
 	private final JFileChooser fc = new JFileChooser();
 	private JButton cancel;
 	private JButton exportDB;
@@ -79,7 +81,8 @@ public class ExportDB2Json extends JDialog {
 
 		JPanel inputs = new JPanel(new SpringLayout());
 
-		this.encoding = new JTextField(FilesUtils.DEFAULT_ENCODING, 5);
+		this.encoding = new JComboBox<Charset>(Utils.ENCODINGS);
+		this.encoding.setSelectedIndex(0);
 		inputs.add(new JLabel(Strings.DBOptions.ENCODING + ": "));
 		inputs.add(this.encoding);
 
@@ -150,17 +153,12 @@ public class ExportDB2Json extends JDialog {
 			this.fileName.setText(fn);
 		}
 
-		String enc = this.encoding.getText();
-		if (Utils.isEmpty(enc)) {
-			enc = "ISO8859_1";
-			this.encoding.setText(enc);
-		}
-
 		try {
 			File txtFile = new File(
 					String.valueOf(this.directoryToExport.getCanonicalPath()) + FilesUtils.FILE_SEPARATOR + fn);
 
-			if (this.services.exportTasksDB2Json(txtFile, enc)) {
+			Charset encoding = (Charset) this.encoding.getSelectedItem();
+			if (this.services.exportTasksDB2Json(txtFile, encoding)) {
 				try {
 					String path = txtFile.getCanonicalPath();
 					path = path.replaceAll("[\\\\]", "/");

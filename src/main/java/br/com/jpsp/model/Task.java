@@ -9,9 +9,11 @@ import com.google.gson.JsonObject;
 
 import br.com.jpsp.utils.Utils;
 
+/**
+ *
+ */
 public class Task extends CRUD implements Serializable {
 	private static final long serialVersionUID = -2320799310216267754L;
-	private long id;
 	private Date begin;
 	private Date end;
 	private String activity;
@@ -20,14 +22,6 @@ public class Task extends CRUD implements Serializable {
 	private long delta;
 	private String dateAsString;
 	private String system;
-
-	public long getId() {
-		return this.id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
-	}
 
 	public Date getBegin() {
 		return this.begin;
@@ -130,8 +124,12 @@ public class Task extends CRUD implements Serializable {
 
 	@Override
 	public int compareTo(CRUD crud) {
+		java.lang.System.out.println(crud);
+		java.lang.System.out.println(this.begin + "\n");
+		if (crud != null) {
 		Task that = (Task)crud;
-		return this.begin.compareTo(that.begin);
+			return this.begin.compareTo(that.begin);
+		} else return 0;
 	}
 
 	public int getDay() {
@@ -231,9 +229,9 @@ public class Task extends CRUD implements Serializable {
 		json.addProperty("begin", Utils.date2String(this.begin, Utils.DD_MM_YYYY_HH_mm_ss));
 		json.addProperty("end", Utils.date2String(this.end, Utils.DD_MM_YYYY_HH_mm_ss));
 		json.addProperty("delta", this.delta);
-		json.addProperty("activity", this.activity);
-		json.addProperty("description", this.description);
-		json.addProperty("classification", this.taskClass);
+		json.addProperty("activity", Utils.isEmpty(this.activity) ?  "" : this.activity);
+		json.addProperty("description", Utils.isEmpty(this.description) ?  "" : this.description);
+		json.addProperty("taskClass", Utils.isEmpty(this.taskClass) ?  "" : this.taskClass);
 		json.addProperty("system", Utils.isEmpty(this.system) ?  "" : this.system);
 		return json;
 	}

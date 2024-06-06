@@ -252,13 +252,14 @@ public class Strings {
 		public static final String OPTIONS = "Opções do Banco de Dados";
 		public static final String BACKUP_DB = "Fazer backup do banco de dados";
 		public static final String RESTORE_DB = "Restaurar banco de dados";
-		public static final String EXPORT_DB = "Exportar dados para arquivo texto";
-		public static final String IMPORT_DB = "Importar dados de arquivo texto";
+		public static final String EXPORT_DB = "Exportar dados";
+		public static final String IMPORT_DB = "Importar dados";
 		public static final String ERROR_BACKUP = "Erro ao fazer backup do arquivo '" + FilesUtils.DATABASE_FILE_PATH + "'";
 		public static final String SUCCESS_BACKUP = "Backup da base de dados realizado com sucesso em '&1'.";
-		public static final String EXPORT_TITLE = "Exportar banco de dados para arquivo texto";
+		public static final String EXPORT_TITLE = "Exportar banco de dados para arquivo .CSV";
 		public static final String EXPORT_JSON_TITLE = "Exportar banco de dados para JSon";
-		public static final String IMPORT_TITLE = "Importar banco de dados de arquivo texto";
+		public static final String IMPORT_TITLE = "Importar banco de dados de arquivo .CSV";
+		public static final String IMPORT_JSON_TITLE = "Importar banco de dados de JSon";
 		public static final String FILE_NAME = "Nome do arquivo";
 		public static final String CHOOSE_DIR = "Escolher diretório...";
 		public static final String CHOOSE_FILE = "Escolher arquivo...";
@@ -290,7 +291,10 @@ public class Strings {
 		public static final String READING_FILE = "Lendo arquivo, por favor aguarde...";
 		public static final String LINES_READ = "&1 linhas lidas do arquivo";
 		public static final String CURRENT_DATABASE = "Base de dados atual";
-		public static final String EXPORT_JSON = "Exportar dados para JSON";
+		public static final String EXPORT_JSON = "Exportar para formato JSon (.json)";
+		public static final String IMPORT_JSON = "Importar de arquivo JSon (.json)";
+		public static final String IMPORT_CSV = "Importar de arquivo CSV (.csv)";
+		public static final String EXPORT_CSV = "Exportar para formato CSV (.csv)";
 	}
 
 	public static class BatchUpdateTask {

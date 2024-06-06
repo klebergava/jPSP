@@ -1,7 +1,11 @@
 package br.com.jpsp.services;
 
 import java.io.File;
-import java.io.UnsupportedEncodingException;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.lang.reflect.Type;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -19,6 +23,11 @@ import javax.swing.SwingUtilities;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
 
 import br.com.jpsp.gui.GuiSingleton;
 import br.com.jpsp.gui.LoadingScreen;
@@ -239,6 +248,12 @@ public class TaskServices extends RepositoryAccessServices implements CRUDServic
 		return this.taskDAO.getAllTasks();
 	}
 
+	/**
+	 *
+	 * @param month
+	 * @param year
+	 * @return
+	 */
 	public List<Task> filterTasksByMonthAndYear(int month, int year) {
 		List<Task> allTasks = getAllTasks();
 		List<Task> filteredTasks = new ArrayList<Task>();
@@ -273,7 +288,7 @@ public class TaskServices extends RepositoryAccessServices implements CRUDServic
 	 * @param includeHeaders
 	 * @return
 	 */
-	public boolean exportTasksDB2Txt(File target, String separator, String encoding, boolean includeHeaders) {
+	public boolean exportTasksDB2Txt(File target, String separator, Charset encoding, boolean includeHeaders) {
 		boolean ok = false;
 
 		synchronized (TaskServices.this) {
@@ -315,7 +330,7 @@ public class TaskServices extends RepositoryAccessServices implements CRUDServic
 
 				try {
 					ok = FilesUtils.writeTxtFile(target, new String(content.toString().getBytes(), encoding));
-				} catch (UnsupportedEncodingException e) {
+				} catch (Exception e) {
 					log.error("exportTasksDB2Txt() " + e.getMessage());
 					e.printStackTrace();
 				}
@@ -333,7 +348,7 @@ public class TaskServices extends RepositoryAccessServices implements CRUDServic
 	 * @param includeHeaders
 	 * @return
 	 */
-	public boolean exportTasksDB2Json(File target, String encoding) {
+	public boolean exportTasksDB2Json(File target, Charset encoding) {
 		boolean ok = false;
 
 		synchronized (TaskServices.this) {
@@ -344,15 +359,17 @@ public class TaskServices extends RepositoryAccessServices implements CRUDServic
 
 			if (!Utils.isEmpty(tasks)) {
 
+//				content.append("{\"tasks\": [\n");
 				content.append("[\n");
 				for (Task t : tasks) {
 					content.append(t.getJson() + ",\n");
 				}
+//				content.append("]}");
 				content.append("]");
 
 				try {
 					ok = FilesUtils.writeTxtFile(target, new String(content.toString().getBytes(), encoding));
-				} catch (UnsupportedEncodingException e) {
+				} catch (Exception e) {
 					log.error("exportTasksDB2Json() " + e.getMessage());
 					e.printStackTrace();
 				}
@@ -380,7 +397,7 @@ public class TaskServices extends RepositoryAccessServices implements CRUDServic
 	 * @param hasHeaders
 	 * @return
 	 */
-	public boolean importTasksFromTxt(File sourceFile, final String fieldSeparator, String encoding, boolean hasHeaders,
+	public boolean importTasksFromTxt(File sourceFile, final String fieldSeparator, Charset encoding, boolean hasHeaders,
 			boolean deleteAllData) {
 
 		File dbBackupFile = FilesUtils.backupDataBase();
@@ -477,6 +494,152 @@ public class TaskServices extends RepositoryAccessServices implements CRUDServic
 		}
 
 		return importOK;
+	}
+
+	/**
+	 *
+	 * @param sourceFile
+	 * @param s
+	 * @param enc
+	 * @param hasHeaders
+	 * @return
+	 */
+	public boolean importTasksFromJson(File sourceFile, Charset encoding, boolean deleteAllData) {
+
+		File dbBackupFile = FilesUtils.backupDataBase();
+
+		boolean importOK = false;
+
+		synchronized (TaskServices.this) {
+			try {
+
+				if (deleteAllData) {
+					purgeDatabase();
+				}
+
+				List<Task> tasksToInsert = getTasksFromJson(sourceFile);
+				if (!Utils.isEmpty(tasksToInsert)) {
+					final int[] total = {0};
+					final LoadingScreen readingFile = GuiSingleton.showLoadingScreen(Strings.DBOptions.READING_FILE, false, 0, tasksToInsert.size());
+
+					final Set<String> activities = new TreeSet<String>();
+					final Set<String> descriptions = new TreeSet<String>();
+					final Set<String> systems = new TreeSet<String>();
+					final Set<String> typeClass = new TreeSet<String>();
+
+					tasksToInsert.forEach(taskReadFromFile -> {
+						if (taskReadFromFile != null) {
+							activities.add(taskReadFromFile.getActivity());
+							descriptions.add(taskReadFromFile.getDescription());
+							systems.add(taskReadFromFile.getDescription());
+							typeClass.add(taskReadFromFile.getDescription());
+						}
+
+						total[0] = total[0] + 1;
+
+						SwingUtilities.invokeLater(() -> {
+							readingFile.updateProgressBar(total[0]);
+						});
+
+					});
+
+					GuiSingleton.disposeLoadingScreen();
+
+					if (!Utils.isEmpty(tasksToInsert)) {
+						LoadingScreen importingData = GuiSingleton.showLoadingScreen(Strings.DBOptions.IMPORTING_DATA, false, 0, tasksToInsert.size());
+						total[0] = 0;
+						// ordena pela data
+						Collections.sort(tasksToInsert, new Comparator<Task>() {
+
+							@Override
+							public int compare(Task thisTask, Task thatTask) {
+								if (thisTask != null && thatTask != null) {
+									if (thisTask.getBegin() == null || thatTask.getBegin() == null) {
+										return 0;
+									} else
+										return thisTask.getBegin().compareTo(thatTask.getBegin());
+								}
+								return 0;
+							}
+						});
+
+						tasksToInsert.forEach(task -> {
+							add(task);
+
+							total[0] = total[0] + 1;
+
+							SwingUtilities.invokeLater(() -> {
+								importingData.updateProgressBar(total[0]);
+							});
+						});
+
+						importOK = true;
+
+						if (!Utils.isEmpty(activities)) {
+							activityServices.addActivities(activities);
+						}
+
+						if (!Utils.isEmpty(descriptions)) {
+							descriptionServices.addDescriptions(descriptions);
+						}
+
+						if (!Utils.isEmpty(systems)) {
+							systemServices.addSystems(systems);
+						}
+
+						if (!Utils.isEmpty(typeClass)) {
+							typeClassificationServices.addTypeClasses(typeClass);
+						}
+
+					}
+				}
+			} catch (Exception ex) {
+				restoreDB(dbBackupFile);
+				log.error("importTasksFromJson() " + ex.getMessage());
+				ex.printStackTrace();
+			} finally {
+				GuiSingleton.disposeLoadingScreen();
+			}
+		}
+
+		return importOK;
+	}
+
+	/**
+	 *
+	 * @param jsonFile
+	 * @return
+	 */
+	private List<Task> getTasksFromJson(File jsonFile) {
+		List<Task> tasksRead = new ArrayList<Task>();
+		if (jsonFile != null && jsonFile.exists()) {
+			try (FileReader reader = new FileReader(jsonFile)) {
+				Gson gson = new Gson();
+
+	            // Define o tipo do array de Task
+	            Type tasksListType = new TypeToken<List<Task>>() {}.getType();
+
+	            // Converte JSON para lista de objetos Java (Task)
+	            List<Task> tasksList = gson.fromJson(reader, tasksListType);
+
+	            if (!Utils.isEmpty(tasksList)) {
+	            	tasksList.forEach(task -> {
+	            		tasksRead.add(task);
+	            	});
+	            }
+
+	        } catch (FileNotFoundException e) {
+	            System.err.println("Arquivo não encontrado: " + e.getMessage());
+	        } catch (JsonSyntaxException | JsonIOException e) {
+	            System.err.println("Erro ao processar JSON: " + e.getMessage());
+	        } catch (IOException e) {
+	            System.err.println("Erro de I/O: " + e.getMessage());
+	        } catch (Exception e) {
+	            System.err.println("Erro: " + e.getMessage());
+	        }
+		}
+
+		return tasksRead;
 	}
 
 	/**

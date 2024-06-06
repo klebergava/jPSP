@@ -11,7 +11,6 @@ import java.util.List;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
@@ -38,17 +37,15 @@ import br.com.jpsp.utils.Utils;
 /**
  *
  */
-public class ImportDBFromTxt extends JDialog {
+public class ImportDBFromJson extends JDialog {
 	private static final long serialVersionUID = -3218307819517596211L;
-	private final static Logger log = LogManager.getLogger(ImportDBFromTxt.class);
+	private final static Logger log = LogManager.getLogger(ImportDBFromJson.class);
 
-	private JCheckBox hasHeaders;
 	private ButtonGroup buttonGroup = new ButtonGroup();
 
 	private JRadioButton deleteAllData;
 	private JRadioButton doNotDeleteAllData;
 
-	private JTextField separator;
 	private JTextField sourceFile;
 	private final TaskServices services = TaskServices.instance;
 	private JComboBox<Charset> encoding;
@@ -58,9 +55,9 @@ public class ImportDBFromTxt extends JDialog {
 
 	private JButton cancel;
 
-	public ImportDBFromTxt() {
+	public ImportDBFromJson() {
 		super();
-		this.setTitle(Strings.DBOptions.IMPORT_TITLE);
+		this.setTitle(Strings.DBOptions.IMPORT_JSON_TITLE);
 		setModal(true);
 		Gui.setConfiguredLookAndFeel(this);
 	}
@@ -68,7 +65,7 @@ public class ImportDBFromTxt extends JDialog {
 	public void createAndShow() {
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-		setIconImage(Images.DATABASE_EXPORT_IMG);
+		setIconImage(Images.JSON_IMG);
 
 		getContentPane().setLayout(new BorderLayout());
 		getContentPane().add(mountMain(), "Center");
@@ -84,21 +81,16 @@ public class ImportDBFromTxt extends JDialog {
 		JPanel main = new JPanel(new BorderLayout());
 		main.setBackground(GuiSingleton.DARK_BG_COLOR);
 		main.setBorder(
-				Gui.getLinedBorder(Strings.DBOptions.IMPORT_TITLE, Gui.getFont(1, Integer.valueOf(16)), Color.WHITE));
+				Gui.getLinedBorder(Strings.DBOptions.IMPORT_JSON_TITLE, Gui.getFont(1, Integer.valueOf(16)), Color.WHITE));
 
 		this.fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		this.fc.setMultiSelectionEnabled(false);
 		this.fc.setCurrentDirectory(new File(FilesUtils.DATA_FOLDER));
-		this.fc.setFileFilter(new FileNameExtensionFilter("Arquivos CSV (*.csv)", "csv"));
+		this.fc.setFileFilter(new FileNameExtensionFilter("Arquivos JSon (*.json)", "json"));
 
 		JPanel fields = new JPanel(new SpringLayout());
 
 		JPanel inputs = new JPanel(new SpringLayout());
-
-		this.hasHeaders = new JCheckBox();
-		this.hasHeaders.setSelected(true);
-		inputs.add(new JLabel(Strings.DBOptions.HAS_HEADERS));
-		inputs.add(this.hasHeaders);
 
 		this.doNotDeleteAllData = new JRadioButton(Strings.DBOptions.DO_NOT_DELETE_ALL_DATA);
 		this.doNotDeleteAllData.setSelected(true);
@@ -115,11 +107,6 @@ public class ImportDBFromTxt extends JDialog {
 		buttonGroup.add(deleteAllData);
 		buttonGroup.add(doNotDeleteAllData);
 
-		this.separator = new JTextField(Utils.DEFAULT_SEPARATOR, 5);
-		this.separator.setSize(5, this.separator.getHeight());
-		inputs.add(new JLabel(Strings.DBOptions.SEPARATOR + ": "));
-		inputs.add(this.separator);
-
 		this.encoding = new JComboBox<Charset>(Utils.ENCODINGS);
 		this.encoding.setSelectedIndex(0);
 		inputs.add(new JLabel(Strings.DBOptions.ENCODING + ": "));
@@ -130,7 +117,7 @@ public class ImportDBFromTxt extends JDialog {
 		JButton chooseFile = new JButton(Strings.DBOptions.CHOOSE_FILE);
 		chooseFile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				ImportDBFromTxt.this.chooseFile();
+				ImportDBFromJson.this.chooseFile();
 			}
 		});
 
@@ -143,7 +130,7 @@ public class ImportDBFromTxt extends JDialog {
 		this.sourceFile.setEditable(false);
 		inputs.add(this.sourceFile);
 
-		Gui.makeCompactGrid(inputs, 6, 2, 5, 5, 5, 5);
+		Gui.makeCompactGrid(inputs, 4, 2, 5, 5, 5, 5);
 
 		fields.add(inputs);
 
@@ -151,14 +138,14 @@ public class ImportDBFromTxt extends JDialog {
 		this.cancel = new JButton(Strings.GUI.CANCEL);
 		this.cancel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				ImportDBFromTxt.this.closeWindow();
+				ImportDBFromJson.this.closeWindow();
 			}
 		});
 
 		this.importDB = new JButton(Strings.DBOptions.IMPORT);
 		this.importDB.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				ImportDBFromTxt.this.importFromTxt();
+				ImportDBFromJson.this.importFromTxt();
 			}
 		});
 
@@ -188,10 +175,6 @@ public class ImportDBFromTxt extends JDialog {
 	 */
 	private String validateFields() {
 		StringBuilder sb = new StringBuilder("");
-
-		if (Utils.isEmpty(this.separator.getText())) {
-			sb.append("* " + Strings.DBOptions.ERROR_SEPARATOR_REQUIRED);
-		}
 
 		if (this.fileToImportFrom == null) {
 			sb.append("\n* " + Strings.DBOptions.ERROR_IMPORT_FILE_REQUIRED);
@@ -229,17 +212,10 @@ public class ImportDBFromTxt extends JDialog {
 		if (choice == JOptionPane.OK_OPTION) {
 
 			Thread thread = new Thread(() -> {
-				String fieldSeparator = this.separator.getText();
-				if (Utils.isEmpty(fieldSeparator)) {
-					fieldSeparator = Utils.DEFAULT_SEPARATOR;
-					this.separator.setText(fieldSeparator);
-				}
 
 				try {
-
 					Charset encoding = (Charset) this.encoding.getSelectedItem();
-					if (this.services.importTasksFromTxt(this.fileToImportFrom, fieldSeparator, encoding,
-							this.hasHeaders.isSelected(), deleteAllDataSelected[0])) {
+					if (this.services.importTasksFromJson(this.fileToImportFrom, encoding, deleteAllDataSelected[0])) {
 						try {
 							String path = this.fileToImportFrom.getCanonicalPath();
 							path = path.replaceAll("[\\\\]", "/");
