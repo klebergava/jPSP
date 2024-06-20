@@ -263,7 +263,7 @@ public class ReportWindow extends JFrame {
 					try {
 						this.filePath.setText(html.getCanonicalPath());
 						if (this.openInDefaultBrowser.isSelected()) {
-							String message = Strings.Report.SUCCESS.replaceAll("&1", html.getCanonicalPath());
+							String message = Strings.Report.SUCCESS.replaceAll("&1", FilesUtils.getCleanFilePath(html));
 							Gui.showMessage(this, message);
 						}
 					} catch (IOException e) {

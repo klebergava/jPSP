@@ -315,4 +315,24 @@ public class FilesUtils {
 		return readTxtFile(new File(LOG_FILE));
 	}
 
+	/**
+	 *
+	 * @param file
+	 * @return
+	 */
+	public static String getCleanFilePath(File file) {
+		String path = file.getAbsolutePath();
+		try {
+			path = file.getCanonicalPath();
+			path = path.replaceAll("[\\\\]", "/");
+		} catch (NullPointerException e) {
+			log.info("getCleanFilePath() " + e.getMessage());
+			e.printStackTrace();
+		} catch (IOException e) {
+			log.info("getCleanFilePath() (" + file.toString() + ")" + e.getMessage());
+			e.printStackTrace();
+		}
+
+		return path;
+	}
 }

@@ -124,8 +124,6 @@ public class Task extends CRUD implements Serializable {
 
 	@Override
 	public int compareTo(CRUD crud) {
-		java.lang.System.out.println(crud);
-		java.lang.System.out.println(this.begin + "\n");
 		if (crud != null) {
 		Task that = (Task)crud;
 			return this.begin.compareTo(that.begin);

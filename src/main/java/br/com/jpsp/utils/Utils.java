@@ -284,7 +284,13 @@ public class Utils {
 		return weekDays;
 	}
 
-	public static String stringRPad(String txt, int size) {
+	/**
+	 *
+	 * @param txt
+	 * @param size
+	 * @return
+	 */
+	public static String rpad(String txt, int size) {
 		StringBuffer fixed = new StringBuffer(txt);
 		if (txt != null && fixed.length() < size) {
 			int diff = size - fixed.length();

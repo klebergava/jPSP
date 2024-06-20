@@ -84,7 +84,7 @@ public class DateSpinner extends SpinnerDateModel {
 
 	private void updateDayOfWeek(int dayOfWeekCalendar) {
 		if (this.dayOfWeek != null) {
-			String txt = Utils.stringRPad(Utils.getDayOfWeek(dayOfWeekCalendar), 15);
+			String txt = Utils.rpad(Utils.getDayOfWeek(dayOfWeekCalendar), 15);
 			this.dayOfWeek.setText(txt);
 		}
 	}

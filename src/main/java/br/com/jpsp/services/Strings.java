@@ -5,8 +5,8 @@ import br.com.jpsp.utils.Utils;
 
 public class Strings {
 
-	public static final String VERSION = "1.0.2";
-	public static final String VERSION_DATE = "04/06/2024";
+	public static final String VERSION = "1.0.3";
+	public static final String VERSION_DATE = "20/06/2024";
 
 	public static final String START = "Iniciar";
 	public static final String PAUSE = "Pausar ";
