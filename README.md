@@ -23,5 +23,5 @@ Para atingir este objetivo, este software fornece uma interface gráfica com as 
 * gera um delta entre as atividades, para calcular o tempo gasto em cada tarefa e as interrupções que ocorreram entre as atividades;
 * as atividades são automaticamente salvas em uma base dados que permite a consulta por data ou descrição da tarefa;
 * cronometra e calcula automaticamente o tempo gasto em cada atividade;
-* permite gerar algumas estatísticas das atividades, e que podem ser exportdas para arquivo nos formatos HTML e Excel;
+* permite gerar algumas estatísticas das atividades, e que podem ser exportadas para arquivo nos formatos HTML e Excel;
 * permite pesquisa de atividades por data ou por descrição da mesma
